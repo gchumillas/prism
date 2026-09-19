@@ -31,7 +31,7 @@ type Web mg.Namespace
 // Build builds the app.
 func (Web) Build() error {
 	env := map[string]string{"GOOS": "js", "GOARCH": "wasm"}
-	return sh.RunWithV(env, "go", "build", "-o", "docs/public/prism.wasm", "./cmd")
+	return sh.RunWithV(env, "go", "build", "-o", "docs/public/prism.wasm", "./cmd/prism")
 }
 
 // Start starts dev server.
@@ -50,7 +50,7 @@ type Eink mg.Namespace
 // Build builds the app.
 func (Eink) Build() error {
 	env := map[string]string{"GOOS": "linux", "GOARCH": "arm", "GOARM": "7", "CGO_ENABLED": "0"}
-	return sh.RunWithV(env, "go", "build", "-o", "prism", "./cmd")
+	return sh.RunWithV(env, "go", "build", "-o", "prism", "./cmd/prism")
 }
 
 // Ship copies the app on the tablet.
