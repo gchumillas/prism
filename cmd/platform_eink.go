@@ -37,28 +37,28 @@ func platformInit() error {
 	return nil
 }
 
-// ---- eInkScreen ----
-type einkScreen struct {
+// ---- Screen ----
+type Screen struct {
 	screen *screen.Screen
 }
 
-func openScreen() (s *einkScreen, err error) {
-	s = &einkScreen{}
+func openScreen() (s *Screen, err error) {
+	s = &Screen{}
 	if s.screen, err = screen.Open(); err != nil {
 		return
 	}
 	return
 }
 
-func (s *einkScreen) close() {
+func (s *Screen) close() {
 	s.screen.Close()
 }
 
-func (s *einkScreen) canvas() draw.Image {
+func (s *Screen) canvas() draw.Image {
 	return s.screen.Canvas()
 }
 
-func (s *einkScreen) Refresh(regs []app.Region) error {
+func (s *Screen) Refresh(regs []app.Region) error {
 	var rs []screen.Region
 	for _, reg := range regs {
 		rs = append(rs, screen.Region{
@@ -69,34 +69,38 @@ func (s *einkScreen) Refresh(regs []app.Region) error {
 	return s.screen.RefreshRegions(rs)
 }
 
-// ---- touchDispatcher ----
-type handler struct {
+// ---- TouchDispatcher ----
+type Handler struct {
 	id     int
 	btn    app.Tappable
 	action func()
 }
 
-type touchDispatcher struct {
+type TouchDispatcher struct {
 	touch    *touch.Touch
-	handlers []handler
+	handlers []Handler
 	count    int
 }
 
-func openTouchDispatcher() (td *touchDispatcher, err error) {
-	td = &touchDispatcher{}
+func openTouchDispatcher() (td *TouchDispatcher, err error) {
+	td = &TouchDispatcher{}
 	if td.touch, err = touch.Open(); err != nil {
 		return
 	}
 	return
 }
 
-func (td *touchDispatcher) AddTapHandler(btn app.Tappable, action func()) (id int) {
+func (td *TouchDispatcher) AddTapHandler(btn app.Tappable, action func()) (id int) {
 	td.count++
-	td.handlers = append(td.handlers, handler{id: td.count, btn: btn, action: action})
+	td.handlers = append(td.handlers, Handler{
+		id:     td.count,
+		btn:    btn,
+		action: action,
+	})
 	return td.count
 }
 
-func (td *touchDispatcher) RemoveTapHandler(id int) {
+func (td *TouchDispatcher) RemoveTapHandler(id int) {
 	for i, h := range td.handlers {
 		if h.id == id {
 			td.handlers = append(td.handlers[:i], td.handlers[i+1:]...)
@@ -105,7 +109,7 @@ func (td *touchDispatcher) RemoveTapHandler(id int) {
 	}
 }
 
-func (td *touchDispatcher) listenEvents() {
+func (td *TouchDispatcher) listenEvents() {
 	ts := &touch.TouchState{}
 	var curPoint, prevPoint touch.TouchPoint
 	for {

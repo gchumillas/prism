@@ -22,8 +22,8 @@ var (
 
 func platformInit() error {
 	canvas := image.NewRGBA(image.Rect(0, 0, canvasWidth, canvasHeight))
-	td := &touchDispatcher{}
-	ws := &webScreen{canvas: canvas}
+	td := &TouchDispatcher{}
+	ws := &Screen{canvas: canvas}
 	app := &app.App{
 		Touch:    td,
 		Screen:   ws,
@@ -53,13 +53,13 @@ func platformInit() error {
 	select {}
 }
 
-// ---- webScreen ----
-type webScreen struct {
+// ---- Screen ----
+type Screen struct {
 	canvas    *image.RGBA
 	refreshCb js.Value
 }
 
-func (s *webScreen) Refresh(regs []app.Region) error {
+func (s *Screen) Refresh(regs []app.Region) error {
 	buf := js.Global().Get("Uint8Array").New(len(s.canvas.Pix))
 	js.CopyBytesToJS(buf, s.canvas.Pix)
 	for _, r := range regs {
@@ -70,19 +70,19 @@ func (s *webScreen) Refresh(regs []app.Region) error {
 	return nil
 }
 
-// ---- touchDispatcher ---- //
-type handler struct {
+// ---- TouchDispatcher ---- //
+type Handler struct {
 	id     int
 	btn    app.Tappable
 	action func()
 }
 
-type touchDispatcher struct {
-	handlers []handler
+type TouchDispatcher struct {
+	handlers []Handler
 	count    int
 }
 
-func (t *touchDispatcher) tap(x, y int) {
+func (t *TouchDispatcher) tap(x, y int) {
 	for _, h := range t.handlers {
 		if h.btn.Contains(x, y) {
 			h.action()
@@ -90,9 +90,9 @@ func (t *touchDispatcher) tap(x, y int) {
 	}
 }
 
-func (t *touchDispatcher) AddTapHandler(btn app.Tappable, action func()) int {
+func (t *TouchDispatcher) AddTapHandler(btn app.Tappable, action func()) int {
 	t.count++
-	t.handlers = append(t.handlers, handler{
+	t.handlers = append(t.handlers, Handler{
 		id:     t.count,
 		btn:    btn,
 		action: action,
@@ -100,7 +100,7 @@ func (t *touchDispatcher) AddTapHandler(btn app.Tappable, action func()) int {
 	return t.count
 }
 
-func (t *touchDispatcher) RemoveTapHandler(id int) {
+func (t *TouchDispatcher) RemoveTapHandler(id int) {
 	for i, h := range t.handlers {
 		if h.id == id {
 			t.handlers = append(t.handlers[:i], t.handlers[i+1:]...)
