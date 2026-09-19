@@ -9,9 +9,8 @@ import (
 )
 
 func main() {
-	var env *platform.Env
-	var err error
-	if env, err = platform.LoadRuntimeEnv(); err != nil {
+	env, err := platform.LoadRuntimeEnv()
+	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
 	}

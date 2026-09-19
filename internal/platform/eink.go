@@ -12,7 +12,7 @@ import (
 
 type Env struct {
 	Touch    app.TapDispatcher
-	Screen   app.Refresher
+	Screen   app.Renderer
 	Canvas   draw.Image
 	FontSize float64
 	DPI      float64

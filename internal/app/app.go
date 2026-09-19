@@ -12,7 +12,7 @@ type Region struct {
 }
 
 // TODO: rename to Displayer
-type Refresher interface {
+type Renderer interface {
 	Refresh([]Region) error
 }
 
@@ -28,7 +28,7 @@ type TapDispatcher interface {
 
 type App struct {
 	Touch    TapDispatcher
-	Screen   Refresher
+	Screen   Renderer
 	Canvas   draw.Image
 	FontSize float64
 	DPI      float64
