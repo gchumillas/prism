@@ -13,7 +13,7 @@
       window.wasmReady = new Promise((resolve) => {
         const go = new Go();
         WebAssembly.instantiateStreaming(
-          fetch("/prism.wasm"),
+          fetch("/%VITE_WASM_FILE%"),
           go.importObject,
         )
           .then((result) => {

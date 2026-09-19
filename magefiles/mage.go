@@ -72,6 +72,20 @@ func (Eink) Deploy() {
 	mg.SerialDeps(Eink.Build, Eink.Ship, Eink.Run)
 }
 
+// ---- Storybook ----
+type Storybook mg.Namespace
+
+// Build builds the app.
+func (Storybook) Build() error {
+	env := map[string]string{"GOOS": "js", "GOARCH": "wasm"}
+	return sh.RunWithV(env, "go", "build", "-o", "docs/public/storybook.wasm", "./cmd/storybook")
+}
+
+// Start starts dev server.
+func (Storybook) Start() error {
+	return sh.RunV("npm", "run", "storybook", "--prefix", "docs")
+}
+
 // ---- Server ----
 type Server mg.Namespace
 
