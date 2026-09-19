@@ -1,0 +1,12 @@
+	// fs := lb.label.fontSize
+	// var px, py int
+	// switch {
+	// case fs >= 57:
+	// 	px, py = 28, 75
+	// case fs >= 42:
+	// 	px, py = 24, 57
+	// case fs >= 33:
+	// 	px, py = 19, 38
+	// default:
+	// 	px, py = 9, 24
+	// }

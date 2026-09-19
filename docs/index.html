@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>prism</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="/wasm_exec.js"></script>
+    <script>
+      window.wasmReady = new Promise((resolve) => {
+        const go = new Go();
+        WebAssembly.instantiateStreaming(
+          fetch("/prism.wasm"),
+          go.importObject,
+        )
+          .then((result) => {
+            go.run(result.instance);
+            resolve();
+          })
+          .catch((err) => {
+            console.log("The compiler could not be loaded.");
+            throw err;
+          });
+      });
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
