@@ -1,6 +1,6 @@
 //go:build !js
 
-package main
+package platform
 
 import (
 	"image/draw"
@@ -10,31 +10,32 @@ import (
 	"github.com/gchumillas/prism/touch"
 )
 
-func platformInit() error {
-	s, err := openScreen()
-	if err != nil {
-		return err
-	}
-	defer s.close()
+type Env struct {
+	Touch    app.TapDispatcher
+	Screen   app.Refresher
+	Canvas   draw.Image
+	FontSize float64
+	DPI      float64
+}
 
-	td, err := openTouchDispatcher()
+func LoadRuntimeEnv() (_ *Env, err error) {
+	s, err := OpenScreen()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	app := &app.App{
+	td, err := OpenTouchDispatcher()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Env{
 		Touch:    td,
 		Screen:   s,
-		Canvas:   s.canvas(),
+		Canvas:   s.Canvas(),
 		FontSize: 10,
 		DPI:      226,
-	}
-	if err := app.Run(); err != nil {
-		panic(err)
-	}
-
-	td.listenEvents()
-	return nil
+	}, nil
 }
 
 // ---- Screen ----
@@ -42,7 +43,7 @@ type Screen struct {
 	screen *screen.Screen
 }
 
-func openScreen() (s *Screen, err error) {
+func OpenScreen() (s *Screen, err error) {
 	s = &Screen{}
 	if s.screen, err = screen.Open(); err != nil {
 		return
@@ -50,11 +51,7 @@ func openScreen() (s *Screen, err error) {
 	return
 }
 
-func (s *Screen) close() {
-	s.screen.Close()
-}
-
-func (s *Screen) canvas() draw.Image {
+func (s *Screen) Canvas() draw.Image {
 	return s.screen.Canvas()
 }
 
@@ -82,7 +79,7 @@ type TouchDispatcher struct {
 	count    int
 }
 
-func openTouchDispatcher() (td *TouchDispatcher, err error) {
+func OpenTouchDispatcher() (td *TouchDispatcher, err error) {
 	td = &TouchDispatcher{}
 	if td.touch, err = touch.Open(); err != nil {
 		return
@@ -109,7 +106,7 @@ func (td *TouchDispatcher) RemoveTapHandler(id int) {
 	}
 }
 
-func (td *TouchDispatcher) listenEvents() {
+func (td *TouchDispatcher) Listen() {
 	ts := &touch.TouchState{}
 	var curPoint, prevPoint touch.TouchPoint
 	for {

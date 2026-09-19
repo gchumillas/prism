@@ -1,9 +1,10 @@
 //go:build js
 
-package main
+package platform
 
 import (
 	"image"
+	"image/draw"
 	"syscall/js"
 
 	"github.com/gchumillas/prism/internal/app"
@@ -20,28 +21,37 @@ var (
 	tapCanvas  js.Func
 )
 
-func platformInit() error {
+type Env struct {
+	Touch    app.TapDispatcher
+	Screen   app.Refresher
+	Canvas   draw.Image
+	FontSize float64
+	DPI      float64
+}
+
+func LoadRuntimeEnv() (*Env, error) {
+	env := make(chan *Env)
+
 	canvas := image.NewRGBA(image.Rect(0, 0, canvasWidth, canvasHeight))
 	td := &TouchDispatcher{}
-	ws := &Screen{canvas: canvas}
-	app := &app.App{
-		Touch:    td,
-		Screen:   ws,
-		Canvas:   canvas,
-		FontSize: 10,
-		DPI:      96,
-	}
+	ws := &Screen{Canvas: canvas}
 
 	syncCanvas = js.FuncOf(func(this js.Value, args []js.Value) any {
 		js.CopyBytesToGo(canvas.Pix, args[0])
-		ws.refreshCb = args[1]
-		app.Run()
+		ws.RefreshCb = args[1]
+		env <- &Env{
+			Touch:    td,
+			Screen:   ws,
+			Canvas:   canvas,
+			FontSize: 10,
+			DPI:      96,
+		}
 		return nil
 	})
 
 	tapCanvas = js.FuncOf(func(this js.Value, args []js.Value) any {
 		x, y := args[0], args[1]
-		td.tap(x.Int(), y.Int())
+		td.Tap(x.Int(), y.Int())
 		return nil
 	})
 
@@ -50,22 +60,22 @@ func platformInit() error {
 		"tapCanvas":  tapCanvas,
 	}))
 
-	select {}
+	return <-env, nil
 }
 
 // ---- Screen ----
 type Screen struct {
-	canvas    *image.RGBA
-	refreshCb js.Value
+	Canvas    *image.RGBA
+	RefreshCb js.Value
 }
 
 func (s *Screen) Refresh(regs []app.Region) error {
-	buf := js.Global().Get("Uint8Array").New(len(s.canvas.Pix))
-	js.CopyBytesToJS(buf, s.canvas.Pix)
+	buf := js.Global().Get("Uint8Array").New(len(s.Canvas.Pix))
+	js.CopyBytesToJS(buf, s.Canvas.Pix)
 	for _, r := range regs {
 		x0, y0 := js.ValueOf(r.X0), js.ValueOf(r.Y0)
 		x1, y1 := js.ValueOf(r.X1), js.ValueOf(r.Y1)
-		s.refreshCb.Invoke(buf, x0, y0, x1, y1)
+		s.RefreshCb.Invoke(buf, x0, y0, x1, y1)
 	}
 	return nil
 }
@@ -82,7 +92,7 @@ type TouchDispatcher struct {
 	count    int
 }
 
-func (t *TouchDispatcher) tap(x, y int) {
+func (t *TouchDispatcher) Tap(x, y int) {
 	for _, h := range t.handlers {
 		if h.btn.Contains(x, y) {
 			h.action()
@@ -107,4 +117,8 @@ func (t *TouchDispatcher) RemoveTapHandler(id int) {
 			break
 		}
 	}
+}
+
+func (td *TouchDispatcher) Listen() {
+	select {}
 }

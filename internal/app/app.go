@@ -11,6 +11,7 @@ type Region struct {
 	X0, Y0, X1, Y1 int
 }
 
+// TODO: rename to Displayer
 type Refresher interface {
 	Refresh([]Region) error
 }
@@ -22,6 +23,7 @@ type Tappable interface {
 type TapDispatcher interface {
 	AddTapHandler(btn Tappable, action func()) (id int)
 	RemoveTapHandler(id int)
+	Listen()
 }
 
 type App struct {
