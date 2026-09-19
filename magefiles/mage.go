@@ -73,16 +73,16 @@ func (Eink) Deploy() {
 }
 
 // ---- Storybook ----
-type Storybook mg.Namespace
+type Sb mg.Namespace
 
-// Build builds the app.
-func (Storybook) Build() error {
+// Build builds storybook.
+func (Sb) Build() error {
 	env := map[string]string{"GOOS": "js", "GOARCH": "wasm"}
 	return sh.RunWithV(env, "go", "build", "-o", "docs/public/storybook.wasm", "./cmd/storybook")
 }
 
-// Start starts dev server.
-func (Storybook) Start() error {
+// Start starts storybook.
+func (Sb) Start() error {
 	return sh.RunV("npm", "run", "storybook", "--prefix", "docs")
 }
 
