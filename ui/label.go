@@ -22,10 +22,10 @@ var robotoSlabRegular = func() *opentype.Font {
 }()
 
 type Label struct {
+	BasePosition
 	scene    *Scene
 	text     string
 	fontSize float64
-	x, y     int
 
 	// cached results
 	cached bool
@@ -52,12 +52,8 @@ func (t *Label) SetFontSize(val float64) {
 	t.cached = false
 }
 
-func (t *Label) Position() (int, int) {
-	return t.x, t.y
-}
-
 func (t *Label) SetPosition(x, y int) {
-	t.x, t.y = x, y
+	t.BasePosition.SetPosition(x, y)
 	t.cached = false
 }
 
@@ -75,7 +71,7 @@ func (t *Label) Render() {
 		Dst:  t.scene.canvas,
 		Src:  image.NewUniform(color.Gray{Y: 0}),
 		Face: t.face,
-		Dot:  fixed.P(t.x, t.y+t.ascent),
+		Dot:  fixed.P(t.X, t.Y+t.ascent),
 	}
 	drawer.DrawString(t.text)
 }

@@ -6,9 +6,9 @@ import (
 )
 
 type LabelButton struct {
+	BasePosition
 	scene *Scene
 	label *Label
-	x, y  int
 }
 
 func (s *Scene) LabelButton(text string) *LabelButton {
@@ -28,25 +28,17 @@ func (lb *LabelButton) Size() (int, int) {
 	return w + 2*px, h + 2*py
 }
 
-func (lb *LabelButton) Position() (int, int) {
-	return lb.x, lb.y
-}
-
-func (lb *LabelButton) SetPosition(x, y int) {
-	lb.x, lb.y = x, y
-}
-
 func (lb *LabelButton) Render() {
 	w, h := lb.Size()
 	px, py := lb.padding()
-	lb.label.SetPosition(lb.x+px, lb.y+py)
-	DrawRect(lb.scene.canvas, lb.x, lb.y, lb.x+w, lb.y+h, color.Black)
+	lb.label.SetPosition(lb.X+px, lb.Y+py)
+	DrawRect(lb.scene.canvas, lb.X, lb.Y, lb.X+w, lb.Y+h, color.Black)
 	lb.label.Render()
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
 	w, h := lb.Size()
-	return (lb.x <= x && x <= lb.x+w) && (lb.y <= y && y <= lb.y+h)
+	return (lb.X <= x && x <= lb.X+w) && (lb.Y <= y && y <= lb.Y+h)
 }
 
 func (lb *LabelButton) padding() (px, py int) {
