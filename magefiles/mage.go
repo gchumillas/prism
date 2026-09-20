@@ -25,6 +25,14 @@ func (Lint) Fix() error {
 	return sh.RunV("golangci-lint", "run", "--fix")
 }
 
+// ---- Docs ----
+type Docs mg.Namespace
+
+// Start stars doc server.
+func (Docs) Start() error {
+	return sh.RunV("pkgsite")
+}
+
 // ---- Web ----
 type Web mg.Namespace
 
