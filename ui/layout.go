@@ -38,7 +38,7 @@ func (l *VStack) Size() (int, int) {
 		if w > w0 {
 			w0 = w
 		}
-		h0 += l.gap + h
+		h0 += h
 	}
 	return w0, h0
 }
