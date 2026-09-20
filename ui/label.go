@@ -66,7 +66,7 @@ func (t *Label) Size() (int, int) {
 	return t.width, t.height
 }
 
-func (t *Label) Draw() {
+func (t *Label) Render() {
 	t.calcSize()
 	if t.width <= 0 || t.height <= 0 {
 		return

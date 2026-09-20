@@ -36,12 +36,12 @@ func (lb *LabelButton) SetPosition(x, y int) {
 	lb.x, lb.y = x, y
 }
 
-func (lb *LabelButton) Draw() {
+func (lb *LabelButton) Render() {
 	w, h := lb.Size()
 	px, py := lb.padding()
 	lb.label.SetPosition(lb.x+px, lb.y+py)
 	DrawRect(lb.scene.canvas, lb.x, lb.y, lb.x+w, lb.y+h, color.Black)
-	lb.label.Draw()
+	lb.label.Render()
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {

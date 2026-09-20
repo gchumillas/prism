@@ -29,7 +29,7 @@ func (prism *Prism) Run() error {
 	prism.Touch.AddTapHandler(btn, func() {
 		fmt.Println("tapped!")
 	})
-	btn.Draw()
+	btn.Render()
 
 	// refresh the screen
 	b := prism.Canvas.Bounds()
