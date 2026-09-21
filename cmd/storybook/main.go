@@ -33,8 +33,9 @@ func (sb *Storybook) Run() error {
 
 	m := s.Modal()
 	closeBtn := s.LabelButton("Close")
+	mx, my := m.Position()
 	w, h := closeBtn.Size()
-	closeBtn.SetPosition(m.X+(m.Width-w)/2, m.Y+(m.Height-h)/2)
+	closeBtn.SetPosition(mx+(m.Width-w)/2, my+(m.Height-h)/2)
 	sb.Touch.AddTapHandler(closeBtn, func() {
 		sb.Remove(m)
 		_ = sb.refresh()

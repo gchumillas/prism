@@ -22,11 +22,11 @@ func (b *BaseGroup) Remove(child Renderer) {
 }
 
 type BasePosition struct {
-	X, Y int
+	x, y int
 }
 
-func (bp *BasePosition) Position() (x, y int) { return bp.X, bp.Y }
-func (bp *BasePosition) SetPosition(x, y int) { bp.X, bp.Y = x, y }
+func (bp *BasePosition) Position() (x, y int) { return bp.x, bp.y }
+func (bp *BasePosition) SetPosition(x, y int) { bp.x, bp.y = x, y }
 
 type BaseSize struct {
 	Width, Height int

@@ -66,7 +66,7 @@ func (l *Label) Render() {
 		Dst:  l.scene.canvas,
 		Src:  image.NewUniform(color.Gray{Y: 0}),
 		Face: l.face,
-		Dot:  fixed.P(l.X, l.Y+l.ascent),
+		Dot:  fixed.P(l.x, l.y+l.ascent),
 	}
 	drawer.DrawString(l.text)
 }

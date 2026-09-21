@@ -44,14 +44,14 @@ func (lb *LabelButton) SetSize(width, height int) {
 func (lb *LabelButton) Render() {
 	w1, h1 := lb.Size()
 	w0, h0 := lb.label.Size()
-	lb.label.SetPosition(lb.X+(w1-w0)/2, lb.Y+(h1-h0)/2)
-	drawRect(lb.scene.canvas, lb.X, lb.Y, lb.X+w1, lb.Y+h1, color.Black)
+	lb.label.SetPosition(lb.x+(w1-w0)/2, lb.y+(h1-h0)/2)
+	drawRect(lb.scene.canvas, lb.x, lb.y, lb.x+w1, lb.y+h1, color.Black)
 	lb.label.Render()
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
 	w, h := lb.Size()
-	return (lb.X <= x && x <= lb.X+w) && (lb.Y <= y && y <= lb.Y+h)
+	return (lb.x <= x && x <= lb.x+w) && (lb.y <= y && y <= lb.y+h)
 }
 
 func (lb *LabelButton) padding() (px, py int) {
