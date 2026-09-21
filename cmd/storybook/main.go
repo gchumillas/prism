@@ -23,15 +23,15 @@ type Storybook struct {
 }
 
 func (sb *Storybook) Run() error {
-	sc := ui.NewScene(sb.Canvas)
-	sc.SetDefaultFontSize(sb.FontSize)
-	sc.SetDPI(sb.DPI)
+	s := ui.NewScene(sb.Canvas)
+	s.SetDefaultFontSize(sb.FontSize)
+	s.SetDPI(sb.DPI)
 
-	vl := sc.VStack()
+	vl := s.VStack()
 	vl.SetGap(10)
-	vl.Add(sc.LabelButton("Option 1"))
-	vl.Add(sc.LabelButton("Option 2"))
-	vl.Add(sc.LabelButton("Option 3"))
+	vl.Add(s.LabelButton("Option 1"))
+	vl.Add(s.LabelButton("Option 2"))
+	vl.Add(s.LabelButton("Option 3"))
 	sb.Add(vl)
 
 	// refresh the screen

@@ -32,7 +32,7 @@ func (lb *LabelButton) Render() {
 	w, h := lb.Size()
 	px, py := lb.padding()
 	lb.label.SetPosition(lb.X+px, lb.Y+py)
-	DrawRect(lb.scene.canvas, lb.X, lb.Y, lb.X+w, lb.Y+h, color.Black)
+	drawRect(lb.scene.canvas, lb.X, lb.Y, lb.X+w, lb.Y+h, color.Black)
 	lb.label.Render()
 }
 

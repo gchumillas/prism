@@ -21,8 +21,8 @@ func NewScene(canvas draw.Image) *Scene {
 	}
 }
 
-func (sc *Scene) SetDefaultFontSize(val float64) { sc.fontSize = val }
-func (sc *Scene) DefaultFontSize() float64       { return sc.fontSize }
+func (s *Scene) SetDefaultFontSize(val float64) { s.fontSize = val }
+func (s *Scene) DefaultFontSize() float64       { return s.fontSize }
 
-func (sc *Scene) SetDPI(val float64) { sc.dpi = val }
-func (sc *Scene) DPI() float64       { return sc.dpi }
+func (s *Scene) SetDPI(val float64) { s.dpi = val }
+func (s *Scene) DPI() float64       { return s.dpi }
