@@ -35,21 +35,16 @@ type Label struct {
 	ascent int
 }
 
-func (s *Scene) Label(text string) *Label {
-	return &Label{
+func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
+	l := &Label{
 		scene:    s,
 		fontSize: s.fontSize,
 		text:     text,
 	}
-}
-
-func (t *Label) FontSize() float64 {
-	return t.fontSize
-}
-
-func (l *Label) SetFontSize(val float64) {
-	l.fontSize = val
-	l.cached = false
+	for _, opt := range opts {
+		opt.applyLabel(l)
+	}
+	return l
 }
 
 func (l *Label) SetPosition(x, y int) {
