@@ -12,16 +12,12 @@ type VStack struct {
 	children []LayoutChild
 }
 
-func (s *Scene) VStack() *VStack {
-	return &VStack{}
-}
-
-func (l *VStack) Gap() int {
-	return l.gap
-}
-
-func (l *VStack) SetGap(val int) {
-	l.gap = val
+func (s *Scene) VStack(opts ...VStackOpt) *VStack {
+	vs := &VStack{}
+	for _, opt := range opts {
+		opt.applyVStack(vs)
+	}
+	return vs
 }
 
 func (vs *VStack) Add(child LayoutChild) {
