@@ -4,16 +4,18 @@ type LayoutChild interface {
 	Renderer
 	SetPosition(x, y int)
 	Size() (width, height int)
+	SetSize(width, height int)
 }
 
 type VStack struct {
 	x, y     int
+	width    int
 	gap      int
 	children []LayoutChild
 }
 
-func (s *Scene) VStack(opts ...VStackOpt) *VStack {
-	vs := &VStack{}
+func (s *Scene) VStack(width int, opts ...VStackOpt) *VStack {
+	vs := &VStack{width: width}
 	for _, opt := range opts {
 		opt.applyVStack(vs)
 	}
@@ -52,6 +54,7 @@ func (vs *VStack) Render() {
 	for _, child := range vs.children {
 		_, h := child.Size()
 		child.SetPosition(vs.x, y)
+		child.SetSize(vs.width, h)
 		child.Render()
 		y += vs.gap + h
 	}
