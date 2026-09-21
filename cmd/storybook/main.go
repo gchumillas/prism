@@ -31,11 +31,19 @@ func (sb *Storybook) Run() error {
 	vl.Add(s.LabelButton("Option 3"))
 	sb.Add(vl)
 
+	m := s.Modal()
+	closeBtn := s.LabelButton("Close")
+	w, h := closeBtn.Size()
+	closeBtn.SetPosition(m.X+(m.Width-w)/2, m.Y+(m.Height-h)/2)
+	sb.Touch.AddTapHandler(closeBtn, func() {
+		sb.Remove(m)
+		_ = sb.refresh()
+	})
+	m.Add(closeBtn)
+	sb.Add(m)
+
 	// refresh the screen
-	sb.Render()
-	b := sb.Canvas.Bounds()
-	r := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
-	return sb.Screen.Refresh([]app.Region{r})
+	return sb.refresh()
 }
 
 func (sb *Storybook) Render() {
@@ -44,6 +52,13 @@ func (sb *Storybook) Render() {
 	for _, e := range sb.Children {
 		e.Render()
 	}
+}
+
+func (sb *Storybook) refresh() error {
+	sb.Render()
+	b := sb.Canvas.Bounds()
+	r := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
+	return sb.Screen.Refresh([]app.Region{r})
 }
 
 func main() {
