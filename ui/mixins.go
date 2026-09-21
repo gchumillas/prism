@@ -29,8 +29,8 @@ func (bp *BasePosition) Position() (x, y int) { return bp.x, bp.y }
 func (bp *BasePosition) SetPosition(x, y int) { bp.x, bp.y = x, y }
 
 type BaseSize struct {
-	Width, Height int
+	width, height int
 }
 
-func (bs *BaseSize) Size() (width, height int) { return bs.Width, bs.Height }
-func (bs *BaseSize) SetSize(width, height int) { bs.Width, bs.Height = width, height }
+func (bs *BaseSize) Size() (width, height int) { return bs.width, bs.height }
+func (bs *BaseSize) SetSize(width, height int) { bs.width, bs.height = width, height }
