@@ -9,13 +9,19 @@ type LabelButton struct {
 	BasePosition
 	scene *Scene
 	label *Label
+
+	width, height int
 }
 
-func (s *Scene) LabelButton(text string) *LabelButton {
-	return &LabelButton{
+func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
+	lb := &LabelButton{
 		scene: s,
 		label: s.Label(text),
 	}
+	for _, opt := range opts {
+		opt.applyLabelButton(lb)
+	}
+	return lb
 }
 
 func (lb *LabelButton) Label() *Label {
@@ -24,15 +30,22 @@ func (lb *LabelButton) Label() *Label {
 
 func (lb *LabelButton) Size() (int, int) {
 	w, h := lb.label.Size()
+	if lb.width > w {
+		w = lb.width
+	}
 	px, py := lb.padding()
 	return w + 2*px, h + 2*py
 }
 
+func (lb *LabelButton) SetSize(width, height int) {
+	lb.width, lb.height = width, height
+}
+
 func (lb *LabelButton) Render() {
-	w, h := lb.Size()
-	px, py := lb.padding()
-	lb.label.SetPosition(lb.X+px, lb.Y+py)
-	drawRect(lb.scene.canvas, lb.X, lb.Y, lb.X+w, lb.Y+h, color.Black)
+	w1, h1 := lb.Size()
+	w0, h0 := lb.label.Size()
+	lb.label.SetPosition(lb.X+(w1-w0)/2, lb.Y+(h1-h0)/2)
+	drawRect(lb.scene.canvas, lb.X, lb.Y, lb.X+w1, lb.Y+h1, color.Black)
 	lb.label.Render()
 }
 
