@@ -27,7 +27,7 @@ func (m *Modal) Render() {
 	draw.Draw(m.scene.canvas, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
 	drawRect(m.scene.canvas, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.Black)
 
-	for _, c := range m.Children {
+	for _, c := range m.children {
 		c.Render()
 	}
 }

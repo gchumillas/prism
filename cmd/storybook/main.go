@@ -49,7 +49,7 @@ func (sb *Storybook) Run() error {
 func (sb *Storybook) Render() {
 	r := sb.Canvas.Bounds()
 	draw.Draw(sb.Canvas, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
-	for _, e := range sb.Children {
+	for _, e := range sb.Children() {
 		e.Render()
 	}
 }

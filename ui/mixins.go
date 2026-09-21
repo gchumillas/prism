@@ -1,18 +1,21 @@
 package ui
 
 type BaseGroup struct {
-	// TODO: why Children is public?
-	Children []Renderer
+	children []Renderer
+}
+
+func (bg *BaseGroup) Children() []Renderer {
+	return bg.children
 }
 
 func (bg *BaseGroup) Add(child Renderer) {
-	bg.Children = append(bg.Children, child)
+	bg.children = append(bg.children, child)
 }
 
 func (b *BaseGroup) Remove(child Renderer) {
-	for i, c := range b.Children {
+	for i, c := range b.children {
 		if c == child {
-			b.Children = append(b.Children[:i], b.Children[i+1:]...)
+			b.children = append(b.children[:i], b.children[i+1:]...)
 			break
 		}
 	}
