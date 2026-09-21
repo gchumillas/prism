@@ -8,8 +8,8 @@ import (
 )
 
 var Aliases = map[string]any{
-	"Lint":  Lint.Run,
-	"Build": Eink.Build,
+	"Lint": Lint.Run,
+	"Docs": Docs.Start,
 }
 
 // ---- Lint ----
