@@ -34,5 +34,7 @@ type BaseSize struct {
 	width, height int
 }
 
-func (bs *BaseSize) Size() (width, height int) { return bs.width, bs.height }
-func (bs *BaseSize) SetSize(width, height int) { bs.width, bs.height = width, height }
+func (bs *BaseSize) Width() int        { return bs.width }
+func (bs *BaseSize) Height() int       { return bs.height }
+func (bs *BaseSize) SetWidth(val int)  { bs.width = val }
+func (bs *BaseSize) SetHeight(val int) { bs.height = val }

@@ -15,7 +15,7 @@ type Modal struct {
 
 func (s *Scene) Modal() *Modal {
 	m := &Modal{scene: s}
-	m.SetSize(300, 300)
+	m.x, m.y = 300, 300
 	r := s.canvas.Bounds()
 	p := r.Max.Sub(r.Min)
 	m.x, m.y = (p.X-m.width)/2, (p.Y-m.height)/2
