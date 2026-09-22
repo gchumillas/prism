@@ -1,7 +1,6 @@
 package ui
 
 import (
-	_ "embed"
 	"image"
 	"image/color"
 
@@ -9,17 +8,6 @@ import (
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
 )
-
-//go:embed assets/RobotoSlab-Regular.ttf
-var robotoSlabRegularTTF []byte
-
-var robotoSlabRegular = func() *opentype.Font {
-	f, err := opentype.Parse(robotoSlabRegularTTF)
-	if err != nil {
-		panic(err)
-	}
-	return f
-}()
 
 type Label struct {
 	BasePosition
@@ -76,7 +64,7 @@ func (l *Label) calcSize() {
 		return
 	}
 	var err error
-	l.face, err = opentype.NewFace(robotoSlabRegular, &opentype.FaceOptions{
+	l.face, err = opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
 		DPI:     l.scene.dpi,
 		Hinting: font.HintingFull,
