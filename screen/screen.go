@@ -61,15 +61,15 @@ func Open() (*Screen, error) {
 
 	fd, err := handshake(conn)
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, err
 	}
 
 	pixels, err := syscall.Mmap(fd, 0, totalSize, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
 	// The mapping keeps its own reference; the fd is no longer needed.
-	syscall.Close(fd)
+	_ = syscall.Close(fd)
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, fmt.Errorf("mmap framebuffer: %w", err)
 	}
 
@@ -79,9 +79,9 @@ func Open() (*Screen, error) {
 	return &Screen{conn: conn, pixels: pixels, canvas: canvas}, nil
 }
 
-func (s *Screen) Close() {
+func (s *Screen) Close() error {
 	_ = syscall.Munmap(s.pixels)
-	s.conn.Close()
+	return s.conn.Close()
 }
 
 func (s *Screen) Refresh(x0, y0, x1, y1 int, waveform int32) error {
