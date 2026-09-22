@@ -36,7 +36,7 @@ func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 }
 
 func (l *Label) SetPosition(x, y int) {
-	l.BasePosition.SetPosition(x, y)
+	l.x, l.y = x, y
 	l.cached = false
 }
 

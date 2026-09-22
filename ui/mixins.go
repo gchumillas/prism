@@ -25,8 +25,10 @@ type BasePosition struct {
 	x, y int
 }
 
-func (bp *BasePosition) Position() (x, y int) { return bp.x, bp.y }
-func (bp *BasePosition) SetPosition(x, y int) { bp.x, bp.y = x, y }
+func (bp *BasePosition) X() int       { return bp.x }
+func (bp *BasePosition) Y() int       { return bp.y }
+func (bp *BasePosition) SetX(val int) { bp.x = val }
+func (bp *BasePosition) SetY(val int) { bp.y = val }
 
 type BaseSize struct {
 	width, height int
