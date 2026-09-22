@@ -1,13 +1,13 @@
 package ui
 
 import (
-	"fmt"
 	"image"
 )
 
 type VStackChild interface {
 	Renderer
-	SetPosition(x, y int)
+	SetX(int)
+	SetY(int)
 	SetWidth(int)
 }
 
@@ -41,10 +41,10 @@ func (vs *VStack) SetPosition(x, y int) {
 func (vs *VStack) Render() (r image.Rectangle) {
 	y := vs.y
 	for _, child := range vs.children {
-		child.SetPosition(vs.x, y)
+		child.SetX(vs.x)
+		child.SetY(y)
 		child.SetWidth(vs.width)
 		r := child.Render()
-		fmt.Println(r)
 		y += vs.gap + (r.Max.Y - r.Min.Y)
 	}
 	return

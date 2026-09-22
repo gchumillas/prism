@@ -7,10 +7,10 @@ import (
 )
 
 type LabelButton struct {
-	BasePosition
 	scene *Scene
 	label *Label
 	width int
+	x, y  int
 }
 
 func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
@@ -23,6 +23,9 @@ func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
 	}
 	return lb
 }
+
+func (lb *LabelButton) SetX(val int) { lb.x = val }
+func (lb *LabelButton) SetY(val int) { lb.y = val }
 
 func (lb *LabelButton) Label() *Label {
 	return lb.label
