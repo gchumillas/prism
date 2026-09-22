@@ -31,19 +31,6 @@ func (sb *Storybook) Run() error {
 	vl.Add(s.LabelButton("Option 3"))
 	sb.Add(vl)
 
-	m := s.Modal()
-	closeBtn := s.LabelButton("Close")
-	mx, my := m.Position()
-	mw, mh := m.Size()
-	w, h := closeBtn.Size()
-	closeBtn.SetPosition(mx+(mw-w)/2, my+(mh-h)/2)
-	sb.Touch.AddTapHandler(closeBtn, func() {
-		sb.Remove(m)
-		_ = sb.refresh()
-	})
-	m.Add(closeBtn)
-	sb.Add(m)
-
 	// refresh the screen
 	return sb.refresh()
 }

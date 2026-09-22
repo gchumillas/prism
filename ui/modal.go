@@ -22,7 +22,7 @@ func (s *Scene) Modal() *Modal {
 	return m
 }
 
-func (m *Modal) Render() {
+func (m *Modal) Render() (rect image.Rectangle) {
 	x, y := m.Position()
 	r := image.Rect(x, y, x+m.width, y+m.height)
 	draw.Draw(m.scene.canvas, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
@@ -31,4 +31,5 @@ func (m *Modal) Render() {
 	for _, c := range m.children {
 		c.Render()
 	}
+	return
 }

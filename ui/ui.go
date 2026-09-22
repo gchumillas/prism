@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"image"
+
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/opentype"
 )
@@ -14,5 +16,5 @@ var uiFont = func() *opentype.Font {
 }()
 
 type Renderer interface {
-	Render()
+	Render() image.Rectangle
 }
