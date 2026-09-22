@@ -72,8 +72,8 @@ func Open() (*Touch, error) {
 }
 
 // Close releases the device file descriptor.
-func (t *Touch) Close() {
-	t.file.Close()
+func (t *Touch) Close() error {
+	return t.file.Close()
 }
 
 // Read blocks until the next SYN_REPORT frame is complete and returns the
