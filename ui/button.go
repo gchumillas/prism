@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"image"
 	"image/color"
 	"math"
 )
@@ -9,8 +10,7 @@ type LabelButton struct {
 	BasePosition
 	scene *Scene
 	label *Label
-
-	width, height int
+	width int
 }
 
 func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
@@ -28,7 +28,7 @@ func (lb *LabelButton) Label() *Label {
 	return lb.label
 }
 
-func (lb *LabelButton) Size() (int, int) {
+func (lb *LabelButton) size() (int, int) {
 	w, h := lb.label.Size()
 	if lb.width > w {
 		w = lb.width
@@ -37,20 +37,21 @@ func (lb *LabelButton) Size() (int, int) {
 	return w + 2*px, h + 2*py
 }
 
-func (lb *LabelButton) SetSize(width, height int) {
-	lb.width, lb.height = width, height
+func (lb *LabelButton) SetWidth(val int) {
+	lb.width = val
 }
 
-func (lb *LabelButton) Render() {
-	w1, h1 := lb.Size()
+func (lb *LabelButton) Render() (r image.Rectangle) {
+	w1, h1 := lb.size()
 	w0, h0 := lb.label.Size()
 	lb.label.SetPosition(lb.x+(w1-w0)/2, lb.y+(h1-h0)/2)
 	drawRect(lb.scene.canvas, lb.x, lb.y, lb.x+w1, lb.y+h1, color.Black)
 	lb.label.Render()
+	return image.Rect(lb.x, lb.y, lb.x+w1, lb.y+h1)
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
-	w, h := lb.Size()
+	w, h := lb.size()
 	return (lb.x <= x && x <= lb.x+w) && (lb.y <= y && y <= lb.y+h)
 }
 
