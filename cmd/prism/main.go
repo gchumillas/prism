@@ -22,8 +22,7 @@ type Prism struct {
 func (prism *Prism) Run() error {
 	s := ui.NewScene(prism.Canvas, ui.FontSize(prism.FontSize), ui.DPI(prism.DPI))
 
-	btn := s.LabelButton("Click me!")
-	btn.SetPosition(50, 100)
+	btn := s.LabelButton("Click me!", ui.X(50), ui.Y(100))
 	prism.Touch.AddTapHandler(btn, func() {
 		fmt.Println("tapped!")
 	})

@@ -9,17 +9,23 @@ type (
 )
 
 type (
+	xOpt        int
+	yOpt        int
 	widthOpt    int
 	gapOpt      int
 	fontSizeOpt float64
 	dpiOpt      float64
 )
 
+func X(val int) xOpt                   { return xOpt(val) }
+func Y(val int) yOpt                   { return yOpt(val) }
 func Width(val int) widthOpt           { return widthOpt(val) }
 func Gap(val int) gapOpt               { return gapOpt(val) }
 func FontSize(val float64) fontSizeOpt { return fontSizeOpt(val) }
 func DPI(val float64) dpiOpt           { return dpiOpt(val) }
 
+func (val xOpt) applyLabelButton(x *LabelButton)     { x.x = int(val) }
+func (val yOpt) applyLabelButton(x *LabelButton)     { x.y = int(val) }
 func (val widthOpt) applyLabelButton(x *LabelButton) { x.width = int(val) }
 func (val gapOpt) applyVStack(x *VStack)             { x.gap = int(val) }
 func (val fontSizeOpt) applyLabel(x *Label)          { x.fontSize = float64(val) }
