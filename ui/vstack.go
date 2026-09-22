@@ -5,7 +5,7 @@ import (
 	"image"
 )
 
-type LayoutChild interface {
+type VStackChild interface {
 	Renderer
 	SetPosition(x, y int)
 	SetWidth(int)
@@ -15,7 +15,7 @@ type VStack struct {
 	x, y     int
 	width    int
 	gap      int
-	children []LayoutChild
+	children []VStackChild
 }
 
 func (s *Scene) VStack(width int, opts ...VStackOpt) *VStack {
@@ -26,7 +26,7 @@ func (s *Scene) VStack(width int, opts ...VStackOpt) *VStack {
 	return vs
 }
 
-func (vs *VStack) Add(child LayoutChild) {
+func (vs *VStack) Add(child VStackChild) {
 	vs.children = append(vs.children, child)
 }
 
