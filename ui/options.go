@@ -17,18 +17,24 @@ type (
 	dpiOpt      float64
 )
 
-func X(val int) xOpt                   { return xOpt(val) }
-func Y(val int) yOpt                   { return yOpt(val) }
-func Width(val int) widthOpt           { return widthOpt(val) }
-func Gap(val int) gapOpt               { return gapOpt(val) }
-func FontSize(val float64) fontSizeOpt { return fontSizeOpt(val) }
-func DPI(val float64) dpiOpt           { return dpiOpt(val) }
+func X(val int) xOpt                             { return xOpt(val) }
+func (val xOpt) applyLabel(x *Label)             { x.x = int(val) }
+func (val xOpt) applyLabelButton(x *LabelButton) { x.x = int(val) }
 
-func (val xOpt) applyLabelButton(x *LabelButton)     { x.x = int(val) }
-func (val yOpt) applyLabelButton(x *LabelButton)     { x.y = int(val) }
+func Y(val int) yOpt                             { return yOpt(val) }
+func (val yOpt) applyLabel(x *Label)             { x.y = int(val) }
+func (val yOpt) applyLabelButton(x *LabelButton) { x.y = int(val) }
+
+func Width(val int) widthOpt                         { return widthOpt(val) }
 func (val widthOpt) applyLabelButton(x *LabelButton) { x.width = int(val) }
-func (val gapOpt) applyVStack(x *VStack)             { x.gap = int(val) }
-func (val fontSizeOpt) applyLabel(x *Label)          { x.fontSize = float64(val) }
-func (val fontSizeOpt) applyScene(x *Scene)          { x.fontSize = float64(val) }
-func (val fontSizeOpt) applyText(x *Text)            { x.fontSize = float64(val) }
-func (val dpiOpt) applyScene(x *Scene)               { x.dpi = float64(val) }
+
+func Gap(val int) gapOpt                 { return gapOpt(val) }
+func (val gapOpt) applyVStack(x *VStack) { x.gap = int(val) }
+
+func FontSize(val float64) fontSizeOpt      { return fontSizeOpt(val) }
+func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
+func (val fontSizeOpt) applyScene(x *Scene) { x.fontSize = float64(val) }
+func (val fontSizeOpt) applyText(x *Text)   { x.fontSize = float64(val) }
+
+func DPI(val float64) dpiOpt           { return dpiOpt(val) }
+func (val dpiOpt) applyScene(x *Scene) { x.dpi = float64(val) }

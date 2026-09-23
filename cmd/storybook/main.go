@@ -31,6 +31,12 @@ func (sb *Storybook) Run() error {
 	vl.Add(s.LabelButton("Option 3"))
 	sb.Add(vl)
 
+	btn := s.LabelButton("Click me!", ui.Width(200), ui.X(200), ui.Y(200))
+	sb.Touch.AddTapHandler(btn, func() {
+		fmt.Println("clicked!")
+	})
+	sb.Add(btn)
+
 	// refresh the screen
 	return sb.refresh()
 }
