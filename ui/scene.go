@@ -1,6 +1,8 @@
 package ui
 
-import "image/draw"
+import (
+	"github.com/fogleman/gg"
+)
 
 const (
 	defaultFontSize = 10
@@ -8,12 +10,13 @@ const (
 )
 
 type Scene struct {
-	canvas   draw.Image
+	// TODO: renombrar convas?
+	canvas   *gg.Context
 	fontSize float64
 	dpi      float64
 }
 
-func NewScene(canvas draw.Image, opts ...SceneOpt) *Scene {
+func NewScene(canvas *gg.Context, opts ...SceneOpt) *Scene {
 	s := &Scene{
 		canvas:   canvas,
 		fontSize: defaultFontSize,

@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"image"
 	"image/color"
 	"strings"
 	"unicode"
@@ -9,18 +8,17 @@ import (
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
-	"golang.org/x/image/math/fixed"
 )
 
 type Text struct {
 	BasePosition
 	scene    *Scene
 	text     string
-	width    int
+	width    float64
 	fontSize float64
 }
 
-func (s *Scene) Text(text string, width int, opts ...TextOpt) *Text {
+func (s *Scene) Text(text string, width float64, opts ...TextOpt) *Text {
 	t := &Text{
 		scene:    s,
 		text:     text,
@@ -40,7 +38,7 @@ func (t *Text) Size() (width, height int) {
 func (bs *Text) SetSize(width, height int) {
 }
 
-func (t *Text) Render() image.Rectangle {
+func (t *Text) Render() Rectangle {
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
 		DPI:     t.scene.dpi,
@@ -51,40 +49,37 @@ func (t *Text) Render() image.Rectangle {
 	}
 
 	m := face.Metrics()
-	ascent := m.Ascent.Ceil()
-	lineh := m.Height.Ceil()
+	ascent := float64(m.Ascent) / 64
+	lineh := float64(m.Height) / 64
 
 	height := ascent
 	lines := splitIntoLines(face, t.text, t.width)
 	for _, line := range lines {
-		d := &font.Drawer{
-			Dst:  t.scene.canvas,
-			Src:  image.NewUniform(color.Gray{Y: 0}),
-			Face: face,
-			Dot:  fixed.P(t.position.X, t.position.Y+height),
-		}
+		t.scene.canvas.SetFontFace(face)
+		t.scene.canvas.SetColor(color.Black)
+		// TODO: add ui.Color option
+		t.scene.canvas.DrawString(line, float64(t.position.X), float64(t.position.Y+height))
 		height += lineh
-		d.DrawString(line)
 	}
 
-	return image.Rectangle{
+	return Rectangle{
 		Min: t.position,
-		Max: t.position.Add(image.Pt(t.width, lineh*len(lines))),
+		Max: t.position.Add(Point{t.width, lineh * float64(len(lines))}),
 	}
 }
 
-func splitIntoLines(f font.Face, text string, width int) (lines []string) {
+func splitIntoLines(f font.Face, text string, width float64) (lines []string) {
 	words := splitIntoWords(text)
 	for i, j := 0, 0; i < len(words); {
-		var offs int
+		var offs float64
 		sb := strings.Builder{}
 		for k, w := range words[j:] {
 			_, advance := font.BoundString(f, w)
-			if offs+advance.Ceil() > width {
+			if offs+float64(advance)/64 > width {
 				j += k
 				break
 			}
-			offs += advance.Ceil()
+			offs += float64(advance) / 64
 			sb.WriteString(w)
 			i++
 		}

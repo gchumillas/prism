@@ -7,6 +7,7 @@ import (
 	"image/draw"
 	"os"
 
+	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/platform"
 
 	"github.com/gchumillas/prism/internal/app"
@@ -17,19 +18,23 @@ type Storybook struct {
 	ui.BaseGroup
 	Touch    app.TapDispatcher
 	Screen   app.Renderer
-	Canvas   draw.Image
+	Canvas   *image.RGBA
 	FontSize float64
 	DPI      float64
 }
 
 func (sb *Storybook) Run() error {
-	s := ui.NewScene(sb.Canvas, ui.FontSize(sb.FontSize), ui.DPI(sb.DPI))
+	ctx := gg.NewContextForRGBA(sb.Canvas)
+	s := ui.NewScene(ctx, ui.FontSize(sb.FontSize), ui.DPI(sb.DPI))
 
-	text := "Lorem ipsum dolor lal kfh askd lajs lfkjah sdkj lkjsdff lkasd"
-	txt := s.Text(text, 225, ui.FontSize(18))
-	txt.SetX(100)
-	txt.SetY(100)
-	sb.Add(txt)
+	btn := s.LabelButton("Click me!")
+	btn.SetX(100)
+	btn.SetY(100)
+	sb.Add(btn)
+
+	sb.Touch.AddTapHandler(btn, func() {
+		fmt.Println("click!")
+	})
 
 	// refresh the screen
 	return sb.refresh()
@@ -46,8 +51,12 @@ func (sb *Storybook) Render() {
 func (sb *Storybook) refresh() error {
 	sb.Render()
 	b := sb.Canvas.Bounds()
-	r := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
-	return sb.Screen.Refresh([]app.Region{r})
+	r := ui.Rectangle{
+		Min: ui.Point{X: float64(b.Min.X), Y: float64(b.Min.Y)},
+		Max: ui.Point{X: float64(b.Max.X), Y: float64(b.Max.Y)},
+	}
+	s := app.Region{X0: r.Min.X, Y0: r.Min.Y, X1: r.Max.X, Y1: r.Max.Y}
+	return sb.Screen.Refresh([]app.Region{s})
 }
 
 func main() {

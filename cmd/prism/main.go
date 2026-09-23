@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"image/draw"
+	"image"
 	"os"
 
+	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/platform"
 
 	"github.com/gchumillas/prism/internal/app"
@@ -14,13 +15,14 @@ import (
 type Prism struct {
 	Touch    app.TapDispatcher
 	Screen   app.Renderer
-	Canvas   draw.Image
+	Canvas   *image.RGBA
 	FontSize float64
 	DPI      float64
 }
 
 func (prism *Prism) Run() error {
-	s := ui.NewScene(prism.Canvas, ui.FontSize(prism.FontSize), ui.DPI(prism.DPI))
+	ctx := gg.NewContextForRGBA(prism.Canvas)
+	s := ui.NewScene(ctx, ui.FontSize(prism.FontSize), ui.DPI(prism.DPI))
 
 	btn := s.LabelButton("Click me!")
 	btn.SetX(50)
@@ -32,8 +34,12 @@ func (prism *Prism) Run() error {
 
 	// refresh the screen
 	b := prism.Canvas.Bounds()
-	r := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
-	return prism.Screen.Refresh([]app.Region{r})
+	r := ui.Rectangle{
+		Min: ui.Point{X: float64(b.Min.X), Y: float64(b.Min.Y)},
+		Max: ui.Point{X: float64(b.Max.X), Y: float64(b.Max.Y)},
+	}
+	t := app.Region{X0: r.Min.X, Y0: r.Min.Y, X1: r.Max.X, Y1: r.Max.Y}
+	return prism.Screen.Refresh([]app.Region{t})
 }
 
 func main() {

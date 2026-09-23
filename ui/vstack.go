@@ -1,24 +1,20 @@
 package ui
 
-import (
-	"image"
-)
-
 type VStackChild interface {
 	Renderer
-	SetX(int)
-	SetY(int)
-	SetWidth(int)
+	SetX(float64)
+	SetY(float64)
+	SetWidth(float64)
 }
 
 type VStack struct {
 	BasePosition
-	width    int
-	gap      int
+	width    float64
+	gap      float64
 	children []VStackChild
 }
 
-func (s *Scene) VStack(width int, opts ...VStackOpt) *VStack {
+func (s *Scene) VStack(width float64, opts ...VStackOpt) *VStack {
 	vs := &VStack{width: width}
 	for _, opt := range opts {
 		opt.applyVStack(vs)
@@ -30,7 +26,7 @@ func (vs *VStack) Add(child VStackChild) {
 	vs.children = append(vs.children, child)
 }
 
-func (vs *VStack) Render() (r image.Rectangle) {
+func (vs *VStack) Render() (r Rectangle) {
 	y := vs.position.Y
 	for _, child := range vs.children {
 		child.SetX(vs.position.X)

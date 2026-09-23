@@ -4,7 +4,6 @@ package platform
 
 import (
 	"image"
-	"image/draw"
 	"syscall/js"
 
 	"github.com/gchumillas/prism/internal/app"
@@ -24,7 +23,7 @@ var (
 type Env struct {
 	Touch    app.TapDispatcher
 	Screen   app.Renderer
-	Canvas   draw.Image
+	Canvas   *image.RGBA
 	FontSize float64
 	DPI      float64
 }
@@ -51,7 +50,7 @@ func LoadRuntimeEnv() (*Env, error) {
 
 	tapCanvas = js.FuncOf(func(this js.Value, args []js.Value) any {
 		x, y := args[0], args[1]
-		td.Tap(x.Int(), y.Int())
+		td.Tap(x.Float(), y.Float())
 		return nil
 	})
 
@@ -92,7 +91,7 @@ type TouchDispatcher struct {
 	count    int
 }
 
-func (t *TouchDispatcher) Tap(x, y int) {
+func (t *TouchDispatcher) Tap(x, y float64) {
 	for _, h := range t.handlers {
 		if h.btn.Contains(x, y) {
 			h.action()

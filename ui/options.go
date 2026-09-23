@@ -9,13 +9,13 @@ type (
 )
 
 type (
-	gapOpt      int
+	gapOpt      float64
 	fontSizeOpt float64
 	dpiOpt      float64
 )
 
 func Gap(val int) gapOpt                 { return gapOpt(val) }
-func (val gapOpt) applyVStack(x *VStack) { x.gap = int(val) }
+func (val gapOpt) applyVStack(x *VStack) { x.gap = float64(val) }
 
 func FontSize(val float64) fontSizeOpt      { return fontSizeOpt(val) }
 func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
