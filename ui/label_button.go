@@ -32,7 +32,7 @@ func (lb *LabelButton) SetWidth(val int) {
 
 func (lb *LabelButton) Render() image.Rectangle {
 	p := lb.padding()
-	lb.label.x, lb.label.y = lb.x+p.X, lb.y+p.Y
+	lb.label.position = lb.position.Add(p)
 	lr := lb.label.Render()
 	lb.rect = image.Rectangle{
 		Min: lr.Min.Sub(p),

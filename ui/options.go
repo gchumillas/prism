@@ -18,12 +18,12 @@ type (
 )
 
 func X(val int) xOpt                             { return xOpt(val) }
-func (val xOpt) applyLabel(x *Label)             { x.x = int(val) }
-func (val xOpt) applyLabelButton(x *LabelButton) { x.x = int(val) }
+func (val xOpt) applyLabel(x *Label)             { x.position.X = int(val) }
+func (val xOpt) applyLabelButton(x *LabelButton) { x.position.Y = int(val) }
 
 func Y(val int) yOpt                             { return yOpt(val) }
-func (val yOpt) applyLabel(x *Label)             { x.y = int(val) }
-func (val yOpt) applyLabelButton(x *LabelButton) { x.y = int(val) }
+func (val yOpt) applyLabel(x *Label)             { x.position.Y = int(val) }
+func (val yOpt) applyLabelButton(x *LabelButton) { x.position.Y = int(val) }
 
 func Width(val int) widthOpt                         { return widthOpt(val) }
 func (val widthOpt) applyLabelButton(x *LabelButton) { x.width = int(val) }

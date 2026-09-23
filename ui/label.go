@@ -45,7 +45,7 @@ func (l *Label) Render() (r image.Rectangle) {
 		Dst:  l.scene.canvas,
 		Src:  image.NewUniform(color.Black),
 		Face: f,
-		Dot:  fixed.P(l.x, l.y+ascent),
+		Dot:  fixed.P(l.position.X, l.position.Y+ascent),
 	}
 	drawer.DrawString(l.text)
 
@@ -57,5 +57,9 @@ func (l *Label) Render() (r image.Rectangle) {
 	descent := metrics.Descent.Ceil()
 	h := ascent + descent
 
-	return image.Rect(l.x, l.y, l.x+w, l.y+h)
+	size := image.Pt(w, h)
+	return image.Rectangle{
+		Min: l.position,
+		Max: l.position.Add(size),
+	}
 }

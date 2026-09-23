@@ -15,15 +15,14 @@ type Modal struct {
 
 func (s *Scene) Modal() *Modal {
 	m := &Modal{scene: s}
-	m.x, m.y = 300, 300
 	r := s.canvas.Bounds()
 	p := r.Max.Sub(r.Min)
-	m.x, m.y = (p.X-m.width)/2, (p.Y-m.height)/2
+	m.position = image.Pt((p.X-300)/2, (p.Y-300)/2)
 	return m
 }
 
 func (m *Modal) Render() (rect image.Rectangle) {
-	r := image.Rect(m.x, m.y, m.x+m.width, m.y+m.height)
+	r := image.Rect(m.position.X, m.position.Y, m.position.X+m.width, m.position.Y+m.height)
 	draw.Draw(m.scene.canvas, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
 	drawRect(m.scene.canvas, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.Black)
 

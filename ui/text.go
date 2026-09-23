@@ -60,7 +60,7 @@ func (t *Text) Render() {
 			Dst:  t.scene.canvas,
 			Src:  image.NewUniform(color.Gray{Y: 0}),
 			Face: face,
-			Dot:  fixed.P(t.x, t.y+ascent+height*i),
+			Dot:  fixed.P(t.position.X, t.position.Y+ascent+height*i),
 		}
 		d.DrawString(line)
 	}
