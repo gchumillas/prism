@@ -22,7 +22,7 @@ func (s *Scene) Modal() *Modal {
 }
 
 func (m *Modal) Render() (rect image.Rectangle) {
-	r := image.Rect(m.position.X, m.position.Y, m.position.X+m.width, m.position.Y+m.height)
+	r := image.Rect(m.position.X, m.position.Y, m.position.X+m.size.X, m.position.Y+m.size.Y)
 	draw.Draw(m.scene.canvas, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
 	drawRect(m.scene.canvas, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.Black)
 
