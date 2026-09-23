@@ -40,7 +40,7 @@ func (t *Text) Size() (width, height int) {
 func (bs *Text) SetSize(width, height int) {
 }
 
-func (t *Text) Render() {
+func (t *Text) Render() (r image.Rectangle) {
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
 		DPI:     t.scene.dpi,
@@ -64,6 +64,7 @@ func (t *Text) Render() {
 		}
 		d.DrawString(line)
 	}
+	return
 }
 
 func splitIntoLines(f font.Face, text string, width int) (lines []string) {
