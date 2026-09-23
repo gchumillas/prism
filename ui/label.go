@@ -42,7 +42,8 @@ func (l *Label) Render() (r image.Rectangle) {
 	ascent := m.Ascent.Ceil()
 
 	drawer := &font.Drawer{
-		Dst:  l.scene.canvas,
+		Dst: l.scene.canvas,
+		// TODO: add ui.Color option
 		Src:  image.NewUniform(color.Black),
 		Face: f,
 		Dot:  fixed.P(l.position.X, l.position.Y+ascent),
