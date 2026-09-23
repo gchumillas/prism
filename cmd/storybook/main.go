@@ -25,17 +25,11 @@ type Storybook struct {
 func (sb *Storybook) Run() error {
 	s := ui.NewScene(sb.Canvas, ui.FontSize(sb.FontSize), ui.DPI(sb.DPI))
 
-	vl := s.VStack(150, ui.Gap(10))
-	vl.Add(s.LabelButton("Option 1"))
-	vl.Add(s.LabelButton("Option 2"))
-	vl.Add(s.LabelButton("Option 3"))
-	sb.Add(vl)
-
-	btn := s.LabelButton("Click me!", ui.Width(200), ui.X(200), ui.Y(200))
-	sb.Touch.AddTapHandler(btn, func() {
-		fmt.Println("clicked!")
-	})
-	sb.Add(btn)
+	text := "Lorem ipsum dolor lal kfh askd lajs lfkjah sdkj lkjsdff lkasd"
+	txt := s.Text(text, 225, ui.FontSize(18))
+	txt.SetX(100)
+	txt.SetY(100)
+	sb.Add(txt)
 
 	// refresh the screen
 	return sb.refresh()
