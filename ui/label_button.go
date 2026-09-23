@@ -8,11 +8,10 @@ import (
 
 type LabelButton struct {
 	BasePosition
-	scene *Scene
-	label *Label
-	width int
-
-	rect image.Rectangle
+	scene  *Scene
+	label  *Label
+	width  int
+	hitbox image.Rectangle
 }
 
 func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
@@ -32,21 +31,22 @@ func (lb *LabelButton) SetWidth(val int) {
 
 func (lb *LabelButton) Render() image.Rectangle {
 	p := lb.padding()
+	// TODO: center label horizontally
 	lb.label.position = lb.position.Add(p)
 	lr := lb.label.Render()
-	lb.rect = image.Rectangle{
+	lb.hitbox = image.Rectangle{
 		Min: lr.Min.Sub(p),
 		Max: image.Pt(max(lr.Max.X+p.X, lb.width), lr.Max.Y+p.Y),
 	}
-	drawRect(lb.scene.canvas, lb.rect.Min.X, lb.rect.Min.Y, lb.rect.Max.X, lb.rect.Max.Y, color.Black)
-	return lb.rect
+	drawRect(lb.scene.canvas, lb.hitbox.Min.X, lb.hitbox.Min.Y, lb.hitbox.Max.X, lb.hitbox.Max.Y, color.Black)
+	return lb.hitbox
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
-	p := image.Pt(x, y)
-	return p.In(lb.rect)
+	return image.Pt(x, y).In(lb.hitbox)
 }
 
+// TODO: rethink the padding strategy
 func (lb *LabelButton) padding() image.Point {
 	fs := lb.label.fontSize
 	scale := lb.scene.dpi / 72.0

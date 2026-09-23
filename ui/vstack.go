@@ -12,7 +12,7 @@ type VStackChild interface {
 }
 
 type VStack struct {
-	x, y     int
+	BasePosition
 	width    int
 	gap      int
 	children []VStackChild
@@ -30,18 +30,10 @@ func (vs *VStack) Add(child VStackChild) {
 	vs.children = append(vs.children, child)
 }
 
-func (vs *VStack) Position() (int, int) {
-	return vs.x, vs.y
-}
-
-func (vs *VStack) SetPosition(x, y int) {
-	vs.x, vs.y = x, y
-}
-
 func (vs *VStack) Render() (r image.Rectangle) {
-	y := vs.y
+	y := vs.position.Y
 	for _, child := range vs.children {
-		child.SetX(vs.x)
+		child.SetX(vs.position.X)
 		child.SetY(y)
 		child.SetWidth(vs.width)
 		r := child.Render()
