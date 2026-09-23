@@ -7,10 +7,12 @@ import (
 )
 
 type LabelButton struct {
+	BasePosition
 	scene *Scene
 	label *Label
 	width int
-	x, y  int
+
+	rect image.Rectangle
 }
 
 func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
@@ -24,41 +26,28 @@ func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
 	return lb
 }
 
-func (lb *LabelButton) SetX(val int) { lb.x = val }
-func (lb *LabelButton) SetY(val int) { lb.y = val }
-
-func (lb *LabelButton) Label() *Label {
-	return lb.label
-}
-
-func (lb *LabelButton) size() (int, int) {
-	w, h := lb.label.Size()
-	if lb.width > w {
-		w = lb.width
-	}
-	px, py := lb.padding()
-	return w + 2*px, h + 2*py
-}
-
 func (lb *LabelButton) SetWidth(val int) {
 	lb.width = val
 }
 
-func (lb *LabelButton) Render() (r image.Rectangle) {
-	w1, h1 := lb.size()
-	w0, h0 := lb.label.Size()
-	lb.label.SetPosition(lb.x+(w1-w0)/2, lb.y+(h1-h0)/2)
-	drawRect(lb.scene.canvas, lb.x, lb.y, lb.x+w1, lb.y+h1, color.Black)
-	lb.label.Render()
-	return image.Rect(lb.x, lb.y, lb.x+w1, lb.y+h1)
+func (lb *LabelButton) Render() image.Rectangle {
+	p := lb.padding()
+	lb.label.x, lb.label.y = lb.x+p.X, lb.y+p.Y
+	lr := lb.label.Render()
+	lb.rect = image.Rectangle{
+		Min: lr.Min.Sub(p),
+		Max: image.Pt(max(lr.Max.X+p.X, lb.width), lr.Max.Y+p.Y),
+	}
+	drawRect(lb.scene.canvas, lb.rect.Min.X, lb.rect.Min.Y, lb.rect.Max.X, lb.rect.Max.Y, color.Black)
+	return lb.rect
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
-	w, h := lb.size()
-	return (lb.x <= x && x <= lb.x+w) && (lb.y <= y && y <= lb.y+h)
+	p := image.Pt(x, y)
+	return p.In(lb.rect)
 }
 
-func (lb *LabelButton) padding() (px, py int) {
+func (lb *LabelButton) padding() image.Point {
 	fs := lb.label.fontSize
 	scale := lb.scene.dpi / 72.0
 	var x, y float64
@@ -73,5 +62,5 @@ func (lb *LabelButton) padding() (px, py int) {
 		x, y = 12, 6
 	}
 	x, y = math.Ceil(scale*x), math.Ceil(scale*y)
-	return int(x), int(y)
+	return image.Pt(int(x), int(y))
 }

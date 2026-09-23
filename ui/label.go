@@ -14,13 +14,6 @@ type Label struct {
 	scene    *Scene
 	text     string
 	fontSize float64
-
-	// cached results
-	cached bool
-	face   font.Face
-	width  int
-	height int
-	ascent int
 }
 
 func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
@@ -35,36 +28,8 @@ func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 	return l
 }
 
-func (l *Label) SetPosition(x, y int) {
-	l.x, l.y = x, y
-	l.cached = false
-}
-
-func (l *Label) Size() (int, int) {
-	l.calcSize()
-	return l.width, l.height
-}
-
-func (l *Label) Render() {
-	l.calcSize()
-	if l.width <= 0 || l.height <= 0 {
-		return
-	}
-	drawer := &font.Drawer{
-		Dst:  l.scene.canvas,
-		Src:  image.NewUniform(color.Gray{Y: 0}),
-		Face: l.face,
-		Dot:  fixed.P(l.x, l.y+l.ascent),
-	}
-	drawer.DrawString(l.text)
-}
-
-func (l *Label) calcSize() {
-	if l.cached {
-		return
-	}
-	var err error
-	l.face, err = opentype.NewFace(uiFont, &opentype.FaceOptions{
+func (l *Label) Render() (r image.Rectangle) {
+	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
 		DPI:     l.scene.dpi,
 		Hinting: font.HintingFull,
@@ -72,11 +37,25 @@ func (l *Label) calcSize() {
 	if err != nil {
 		panic(err)
 	}
-	bounds, _ := font.BoundString(l.face, l.text)
-	l.width = bounds.Max.X.Ceil()
-	metrics := l.face.Metrics()
-	l.ascent = metrics.Ascent.Ceil()
+
+	m := f.Metrics()
+	ascent := m.Ascent.Ceil()
+
+	drawer := &font.Drawer{
+		Dst:  l.scene.canvas,
+		Src:  image.NewUniform(color.Black),
+		Face: f,
+		Dot:  fixed.P(l.x, l.y+ascent),
+	}
+	drawer.DrawString(l.text)
+
+	bounds, _ := font.BoundString(f, l.text)
+	w := bounds.Max.X.Ceil()
+
+	metrics := f.Metrics()
+	ascent = metrics.Ascent.Ceil()
 	descent := metrics.Descent.Ceil()
-	l.height = l.ascent + descent
-	l.cached = true
+	h := ascent + descent
+
+	return image.Rect(l.x, l.y, l.x+w, l.y+h)
 }
