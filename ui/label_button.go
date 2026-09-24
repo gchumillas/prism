@@ -3,31 +3,35 @@ package ui
 var paddingBtn = Point{38, 19}
 
 type LabelButton struct {
-	BasePosition
 	scene  *Scene
-	label  *Label
 	hitbox Rectangle
+	vstack *VStack
+	label  *Label
 }
 
 func (s *Scene) LabelButton(text string) *LabelButton {
-	lb := &LabelButton{
-		scene: s,
-		label: s.Label(text),
-	}
+	lb := &LabelButton{scene: s}
+	lb.vstack = s.VStack(Padding(paddingBtn.X, paddingBtn.Y))
+	lb.label = s.Label(text)
+	lb.vstack.Add(lb.label)
 	return lb
 }
+
+func (lb *LabelButton) X() float64       { return lb.vstack.X() }
+func (lb *LabelButton) SetX(val float64) { lb.vstack.SetX(val) }
+
+func (lb *LabelButton) Y() float64       { return lb.vstack.Y() }
+func (lb *LabelButton) SetY(val float64) { lb.vstack.SetY(val) }
 
 func (lb *LabelButton) Height() float64 {
 	return lb.label.Height() + 2*paddingBtn.Y
 }
 
 func (lb *LabelButton) Render() Rectangle {
-	width := lb.label.Width() + 2*paddingBtn.X
-	lb.label.position = lb.position.Add(paddingBtn)
-	lr := lb.label.Render()
+	size := lb.label.Size().Add(paddingBtn.Mul(2))
 	lb.hitbox = Rectangle{
-		Min: lr.Min.Sub(paddingBtn),
-		Max: Point{max(lr.Max.X+paddingBtn.X, width), lr.Max.Y + paddingBtn.Y},
+		Min: lb.vstack.position,
+		Max: lb.vstack.position.Add(size),
 	}
 
 	lb.scene.canvas.SetLineWidth(4)

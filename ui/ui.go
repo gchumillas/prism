@@ -25,6 +25,10 @@ func (p Point) Sub(q Point) Point {
 	return Point{p.X - q.X, p.Y - q.Y}
 }
 
+func (p Point) Mul(k float64) Point {
+	return Point{p.X * k, p.Y * k}
+}
+
 func (p Point) In(r Rectangle) bool {
 	return r.Min.X <= p.X && p.X < r.Max.X &&
 		r.Min.Y <= p.Y && p.Y < r.Max.Y
