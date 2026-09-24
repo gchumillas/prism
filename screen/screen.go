@@ -50,7 +50,7 @@ type Region struct {
 type Screen struct {
 	conn   *net.UnixConn
 	pixels []byte
-	canvas *image.Gray16
+	canvas *image.RGBA
 }
 
 func Open() (*Screen, error) {
@@ -73,7 +73,7 @@ func Open() (*Screen, error) {
 		return nil, fmt.Errorf("mmap framebuffer: %w", err)
 	}
 
-	canvas := image.NewGray16(image.Rect(0, 0, Width, Height))
+	canvas := image.NewRGBA(image.Rect(0, 0, Width, Height))
 	draw.Draw(canvas, canvas.Bounds(), image.NewUniform(color.White), image.Point{}, draw.Src)
 
 	return &Screen{conn: conn, pixels: pixels, canvas: canvas}, nil
@@ -88,9 +88,9 @@ func (s *Screen) Refresh(x0, y0, x1, y1 int, waveform int32) error {
 	// Volcar canvas → pixels solo en la región afectada
 	for y := y0; y < y1; y++ {
 		for x := x0; x < x1; x++ {
-			c := s.canvas.Gray16At(x, y)
+			c := s.canvas.RGBAAt(x, y)
 			offset := (y*Width + x) * bytesPerPixel
-			le.PutUint16(s.pixels[offset:], gray16ToRGB565(c))
+			le.PutUint16(s.pixels[offset:], rgbaToRGB565(c))
 		}
 	}
 
@@ -120,9 +120,9 @@ func (s *Screen) RefreshRegions(regions []Region) error {
 	for _, r := range regions {
 		for y := r.Y0; y < r.Y1; y++ {
 			for x := r.X0; x < r.X1; x++ {
-				c := s.canvas.Gray16At(x, y)
+				c := s.canvas.RGBAAt(x, y)
 				offset := (y*Width + x) * bytesPerPixel
-				le.PutUint16(s.pixels[offset:], gray16ToRGB565(c))
+				le.PutUint16(s.pixels[offset:], rgbaToRGB565(c))
 			}
 		}
 	}
@@ -148,7 +148,7 @@ func (s *Screen) RefreshRegions(regions []Region) error {
 	return nil
 }
 
-func (s *Screen) Canvas() *image.Gray16 {
+func (s *Screen) Canvas() *image.RGBA {
 	return s.canvas
 }
 
@@ -207,7 +207,6 @@ func putUpdateParams(buf []byte, r Region) {
 	le.PutUint32(buf[28:], 0) // extraMode
 }
 
-func gray16ToRGB565(c color.Gray16) uint16 {
-	gray8 := uint16(c.Y >> 8)
-	return (gray8>>3)<<11 | (gray8>>2)<<5 | (gray8 >> 3)
+func rgbaToRGB565(c color.RGBA) uint16 {
+	return uint16(c.R>>3)<<11 | uint16(c.G>>2)<<5 | uint16(c.B>>3)
 }

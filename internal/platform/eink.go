@@ -3,7 +3,7 @@
 package platform
 
 import (
-	"image/draw"
+	"image"
 
 	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/screen"
@@ -13,7 +13,7 @@ import (
 type Env struct {
 	Touch    app.TapDispatcher
 	Screen   app.Renderer
-	Canvas   draw.Image
+	Canvas   *image.RGBA
 	FontSize float64
 	DPI      float64
 }
@@ -51,7 +51,7 @@ func OpenScreen() (s *Screen, err error) {
 	return
 }
 
-func (s *Screen) Canvas() draw.Image {
+func (s *Screen) Canvas() *image.RGBA {
 	return s.screen.Canvas()
 }
 
@@ -59,7 +59,7 @@ func (s *Screen) Refresh(regs []app.Region) error {
 	var rs []screen.Region
 	for _, reg := range regs {
 		rs = append(rs, screen.Region{
-			X0: reg.X0, Y0: reg.Y0, X1: reg.X1, Y1: reg.Y1,
+			X0: int(reg.X0), Y0: int(reg.Y0), X1: int(reg.X1), Y1: int(reg.Y1),
 			Waveform: screen.WaveformGC16,
 		})
 	}
@@ -117,7 +117,7 @@ func (td *TouchDispatcher) Listen() {
 		curPoint = ts.Points[0]
 		if curPoint.ID < 0 && prevPoint.ID > 0 {
 			for _, handler := range td.handlers {
-				x, y := int(prevPoint.X), int(screen.Height-prevPoint.Y)
+				x, y := float64(prevPoint.X), float64(screen.Height-prevPoint.Y)
 				if handler.btn.Contains(x, y) {
 					handler.action()
 				}

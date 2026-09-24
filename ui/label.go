@@ -1,12 +1,10 @@
 package ui
 
 import (
-	"image"
 	"image/color"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
-	"golang.org/x/image/math/fixed"
 )
 
 type Label struct {
@@ -28,7 +26,7 @@ func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 	return l
 }
 
-func (l *Label) Render() (r image.Rectangle) {
+func (l *Label) Render() (r Rectangle) {
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
 		DPI:     l.scene.dpi,
@@ -38,28 +36,21 @@ func (l *Label) Render() (r image.Rectangle) {
 		panic(err)
 	}
 
-	m := f.Metrics()
-	ascent := m.Ascent.Ceil()
-
-	drawer := &font.Drawer{
-		Dst: l.scene.canvas,
-		// TODO: add ui.Color option
-		Src:  image.NewUniform(color.Black),
-		Face: f,
-		Dot:  fixed.P(l.position.X, l.position.Y+ascent),
-	}
-	drawer.DrawString(l.text)
-
 	bounds, _ := font.BoundString(f, l.text)
-	w := bounds.Max.X.Ceil()
+	w := float64(bounds.Max.X) / 64
 
 	metrics := f.Metrics()
-	ascent = metrics.Ascent.Ceil()
-	descent := metrics.Descent.Ceil()
+	ascent := float64(metrics.Ascent) / 64
+	descent := float64(metrics.Descent) / 64
 	h := ascent + descent
 
-	size := image.Pt(w, h)
-	return image.Rectangle{
+	l.scene.canvas.SetFontFace(f)
+	l.scene.canvas.SetColor(color.Black)
+	// TODO: add ui.Color option
+	l.scene.canvas.DrawString(l.text, float64(l.position.X), l.position.Y+float64(ascent))
+
+	size := Point{w, h}
+	return Rectangle{
 		Min: l.position,
 		Max: l.position.Add(size),
 	}

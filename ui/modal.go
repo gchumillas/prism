@@ -1,11 +1,5 @@
 package ui
 
-import (
-	"image"
-	"image/color"
-	"image/draw"
-)
-
 type Modal struct {
 	BaseGroup
 	BasePosition
@@ -15,16 +9,21 @@ type Modal struct {
 
 func (s *Scene) Modal() *Modal {
 	m := &Modal{scene: s}
-	r := s.canvas.Bounds()
-	p := r.Max.Sub(r.Min)
-	m.position = image.Pt((p.X-300)/2, (p.Y-300)/2)
+	r := s.canvas.Image().Bounds()
+	t := Rectangle{
+		Min: Point{X: float64(r.Min.X), Y: float64(r.Min.Y)},
+		Max: Point{X: float64(r.Max.X), Y: float64(r.Max.Y)},
+	}
+	p := t.Max.Sub(t.Min)
+	m.position = Point{(p.X - 300) / 2, (p.Y - 300) / 2}
 	return m
 }
 
-func (m *Modal) Render() (rect image.Rectangle) {
-	r := image.Rect(m.position.X, m.position.Y, m.position.X+m.size.X, m.position.Y+m.size.Y)
-	draw.Draw(m.scene.canvas, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
-	drawRect(m.scene.canvas, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.Black)
+func (m *Modal) Render() (rect Rectangle) {
+	// r := image.Rect(m.position.X, m.position.Y, m.position.X+m.size.X, m.position.Y+m.size.Y)
+	// img := m.scene.canvas.Image()
+	// draw.Draw(img, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
+	// drawRect(img, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.Black)
 
 	for _, c := range m.children {
 		c.Render()
