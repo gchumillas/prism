@@ -1,11 +1,10 @@
 package ui
 
 type (
-	SceneOpt       interface{ applyScene(*Scene) }
-	VStackOpt      interface{ applyVStack(*VStack) }
-	LabelOpt       interface{ applyLabel(*Label) }
-	LabelButtonOpt interface{ applyLabelButton(*LabelButton) }
-	TextOpt        interface{ applyText(*Text) }
+	SceneOpt  interface{ applyScene(*Scene) }
+	VStackOpt interface{ applyVStack(*VStack) }
+	LabelOpt  interface{ applyLabel(*Label) }
+	TextOpt   interface{ applyText(*Text) }
 )
 
 type (

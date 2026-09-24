@@ -10,13 +10,10 @@ type LabelButton struct {
 	hitbox Rectangle
 }
 
-func (s *Scene) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
+func (s *Scene) LabelButton(text string) *LabelButton {
 	lb := &LabelButton{
 		scene: s,
 		label: s.Label(text),
-	}
-	for _, opt := range opts {
-		opt.applyLabelButton(lb)
 	}
 	return lb
 }
