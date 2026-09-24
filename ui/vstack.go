@@ -4,6 +4,7 @@ type VStackChild interface {
 	Renderer
 	SetX(float64)
 	SetY(float64)
+	Height() float64
 }
 
 type VStack struct {
@@ -25,12 +26,14 @@ func (vs *VStack) Add(child VStackChild) {
 }
 
 func (vs *VStack) Render() (r Rectangle) {
-	y := vs.position.Y
-	for _, child := range vs.children {
+	height := vs.position.Y
+	for i, child := range vs.children {
+		if i > 0 {
+			height += vs.gap + vs.children[i-1].Height()
+		}
 		child.SetX(vs.position.X)
-		child.SetY(y)
-		r := child.Render()
-		y += vs.gap + (r.Max.Y - r.Min.Y)
+		child.SetY(height)
+		r = r.Union(child.Render())
 	}
 	return
 }

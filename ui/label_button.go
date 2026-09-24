@@ -6,7 +6,6 @@ type LabelButton struct {
 	BasePosition
 	scene  *Scene
 	label  *Label
-	width  float64
 	hitbox Rectangle
 }
 
@@ -18,24 +17,23 @@ func (s *Scene) LabelButton(text string) *LabelButton {
 	return lb
 }
 
-func (lb *LabelButton) SetWidth(val float64) {
-	lb.width = val
+func (lb *LabelButton) Height() float64 {
+	return lb.label.Height() + 2*paddingBtn.Y
 }
 
 func (lb *LabelButton) Render() Rectangle {
-	// TODO: center label horizontally
+	width := lb.label.Width() + 2*paddingBtn.X
 	lb.label.position = lb.position.Add(paddingBtn)
 	lr := lb.label.Render()
 	lb.hitbox = Rectangle{
 		Min: lr.Min.Sub(paddingBtn),
-		Max: Point{max(lr.Max.X+paddingBtn.X, lb.width), lr.Max.Y + paddingBtn.Y},
+		Max: Point{max(lr.Max.X+paddingBtn.X, width), lr.Max.Y + paddingBtn.Y},
 	}
 
 	lb.scene.canvas.SetLineWidth(4)
-	lb.scene.canvas.DrawRectangle(float64(lb.hitbox.Min.X), float64(lb.hitbox.Min.Y), float64(lb.hitbox.Max.X-lb.hitbox.Min.X), float64(lb.hitbox.Max.Y-lb.hitbox.Min.Y))
+	lb.scene.canvas.DrawRectangle(lb.hitbox.Min.X, lb.hitbox.Min.Y, lb.hitbox.Max.X-lb.hitbox.Min.X, lb.hitbox.Max.Y-lb.hitbox.Min.Y)
 	lb.scene.canvas.Stroke()
 
-	// drawRect(lb.scene.canvas, lb.hitbox.Min.X, lb.hitbox.Min.Y, lb.hitbox.Max.X, lb.hitbox.Max.Y, color.Black)
 	return lb.hitbox
 }
 
