@@ -38,7 +38,7 @@ func (lb *LabelButton) Render() Rectangle {
 	lb.scene.canvas.DrawRectangle(lb.hitbox.Min.X, lb.hitbox.Min.Y, lb.hitbox.Max.X-lb.hitbox.Min.X, lb.hitbox.Max.Y-lb.hitbox.Min.Y)
 	lb.scene.canvas.Stroke()
 
-	return lb.hitbox
+	return lb.hitbox.Union(lb.vstack.Render())
 }
 
 func (lb *LabelButton) Contains(x, y float64) bool {
