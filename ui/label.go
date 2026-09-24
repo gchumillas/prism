@@ -26,6 +26,36 @@ func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 	return l
 }
 
+func (l *Label) Height() float64 {
+	// TODO: implement some caching system to avoid unnecessary recalculation
+	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
+		Size:    l.fontSize,
+		DPI:     defaultDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	metrics := f.Metrics()
+	ascent := float64(metrics.Ascent) / 64
+	descent := float64(metrics.Descent) / 64
+	return ascent + descent
+}
+
+func (l *Label) Width() float64 {
+	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
+		Size:    l.fontSize,
+		DPI:     defaultDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		panic(err)
+	}
+	bounds, _ := font.BoundString(f, l.text)
+	return float64(bounds.Max.X) / 64
+}
+
 func (l *Label) Render() (r Rectangle) {
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
