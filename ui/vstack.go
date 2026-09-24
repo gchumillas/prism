@@ -4,18 +4,16 @@ type VStackChild interface {
 	Renderer
 	SetX(float64)
 	SetY(float64)
-	SetWidth(float64)
 }
 
 type VStack struct {
 	BasePosition
-	width    float64
 	gap      float64
 	children []VStackChild
 }
 
-func (s *Scene) VStack(width float64, opts ...VStackOpt) *VStack {
-	vs := &VStack{width: width}
+func (s *Scene) VStack(opts ...VStackOpt) *VStack {
+	vs := &VStack{}
 	for _, opt := range opts {
 		opt.applyVStack(vs)
 	}
@@ -31,7 +29,6 @@ func (vs *VStack) Render() (r Rectangle) {
 	for _, child := range vs.children {
 		child.SetX(vs.position.X)
 		child.SetY(y)
-		child.SetWidth(vs.width)
 		r := child.Render()
 		y += vs.gap + (r.Max.Y - r.Min.Y)
 	}
