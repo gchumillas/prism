@@ -9,10 +9,9 @@ import (
 	"github.com/gchumillas/prism/internal/app"
 )
 
-// IMPORTANT: these values must match those defined in docs/src/app.tsx
 const (
-	canvasWidth  = 468
-	canvasHeight = 624
+	canvasWidth  = 1404
+	canvasHeight = 1872
 )
 
 var (
@@ -25,7 +24,6 @@ type Env struct {
 	Screen   app.Renderer
 	Canvas   *image.RGBA
 	FontSize float64
-	DPI      float64
 }
 
 func LoadRuntimeEnv() (*Env, error) {
@@ -43,7 +41,6 @@ func LoadRuntimeEnv() (*Env, error) {
 			Screen:   ws,
 			Canvas:   canvas,
 			FontSize: 10,
-			DPI:      96,
 		}
 		return nil
 	})

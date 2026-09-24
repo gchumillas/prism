@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'preact/hooks'
 
-// IMPORTANT: these values must match those defined in cmd/platform_web.go
-const canvasWidth = 468
-const canvasHeight = 624
+// IMPORTANT: these values must match those defined in internal/platform/web.go
+const canvasWidth = 1404
+const canvasHeight = 1872
+const scale = 0.4
 
 const App = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -13,7 +14,7 @@ const App = () => {
   ) => {
     const canvas = e.currentTarget
     const rect = canvas.getBoundingClientRect()
-    tapCanvas(e.clientX - rect.top, e.clientY - rect.left)
+    tapCanvas((e.clientX - rect.left) / scale, (e.clientY - rect.top) / scale)
   }
 
   useEffect(() => {
@@ -38,7 +39,11 @@ const App = () => {
       width={canvasWidth}
       height={canvasHeight}
       onClick={handleClick}
-      style={{ border: '1px solid black' }}
+      style={{
+        border: '2px solid black',
+        width: canvasWidth * scale,
+        height: canvasHeight * scale
+      }}
     />
   )
 }

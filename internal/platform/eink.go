@@ -15,7 +15,6 @@ type Env struct {
 	Screen   app.Renderer
 	Canvas   *image.RGBA
 	FontSize float64
-	DPI      float64
 }
 
 func LoadRuntimeEnv() (_ *Env, err error) {
@@ -34,7 +33,6 @@ func LoadRuntimeEnv() (_ *Env, err error) {
 		Screen:   s,
 		Canvas:   s.Canvas(),
 		FontSize: 10,
-		DPI:      226,
 	}, nil
 }
 
