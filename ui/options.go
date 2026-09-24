@@ -8,9 +8,13 @@ type (
 )
 
 type (
+	paddingOpt  Point
 	gapOpt      float64
 	fontSizeOpt float64
 )
+
+func Padding(width, height float64) paddingOpt { return paddingOpt(Point{X: width, Y: height}) }
+func (val paddingOpt) applyVStack(x *VStack)   { x.padding = Point(val) }
 
 func Gap(val int) gapOpt                 { return gapOpt(val) }
 func (val gapOpt) applyVStack(x *VStack) { x.gap = float64(val) }

@@ -26,7 +26,7 @@ func (sb *Storybook) Run() error {
 	ctx := gg.NewContextForRGBA(sb.Canvas)
 	s := ui.NewScene(ctx, ui.FontSize(sb.FontSize))
 
-	vs := s.VStack(ui.Gap(20))
+	vs := s.VStack(ui.Padding(20, 30), ui.Gap(20))
 	vs.SetX(100)
 	vs.SetY(100)
 	vs.Add(s.LabelButton("One"))

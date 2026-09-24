@@ -9,6 +9,7 @@ type VStackChild interface {
 
 type VStack struct {
 	BasePosition
+	padding  Point
 	gap      float64
 	children []VStackChild
 }
@@ -26,12 +27,12 @@ func (vs *VStack) Add(child VStackChild) {
 }
 
 func (vs *VStack) Render() (r Rectangle) {
-	height := vs.position.Y
+	height := vs.position.Y + vs.padding.Y
 	for i, child := range vs.children {
 		if i > 0 {
 			height += vs.gap + vs.children[i-1].Height()
 		}
-		child.SetX(vs.position.X)
+		child.SetX(vs.position.X + vs.padding.X)
 		child.SetY(height)
 		r = r.Union(child.Render())
 	}
