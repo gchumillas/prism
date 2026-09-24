@@ -29,7 +29,7 @@ func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 func (l *Label) Render() (r Rectangle) {
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
-		DPI:     l.scene.dpi,
+		DPI:     defaultDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {

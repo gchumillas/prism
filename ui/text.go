@@ -41,7 +41,7 @@ func (bs *Text) SetSize(width, height int) {
 func (t *Text) Render() Rectangle {
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
-		DPI:     t.scene.dpi,
+		DPI:     defaultDPI,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {

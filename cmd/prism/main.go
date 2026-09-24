@@ -17,12 +17,11 @@ type Prism struct {
 	Screen   app.Renderer
 	Canvas   *image.RGBA
 	FontSize float64
-	DPI      float64
 }
 
 func (prism *Prism) Run() error {
 	ctx := gg.NewContextForRGBA(prism.Canvas)
-	s := ui.NewScene(ctx, ui.FontSize(prism.FontSize), ui.DPI(prism.DPI))
+	s := ui.NewScene(ctx, ui.FontSize(prism.FontSize))
 
 	btn := s.LabelButton("Click me!")
 	btn.SetX(50)
@@ -54,7 +53,6 @@ func main() {
 		Screen:   env.Screen,
 		Canvas:   env.Canvas,
 		FontSize: env.FontSize,
-		DPI:      env.DPI,
 	}
 	if err := prism.Run(); err != nil {
 		fmt.Fprint(os.Stderr, err)

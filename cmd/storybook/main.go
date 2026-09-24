@@ -20,12 +20,11 @@ type Storybook struct {
 	Screen   app.Renderer
 	Canvas   *image.RGBA
 	FontSize float64
-	DPI      float64
 }
 
 func (sb *Storybook) Run() error {
 	ctx := gg.NewContextForRGBA(sb.Canvas)
-	s := ui.NewScene(ctx, ui.FontSize(sb.FontSize), ui.DPI(sb.DPI))
+	s := ui.NewScene(ctx, ui.FontSize(sb.FontSize))
 
 	btn := s.LabelButton("Click me!")
 	btn.SetX(100)
@@ -71,7 +70,6 @@ func main() {
 		Screen:   env.Screen,
 		Canvas:   env.Canvas,
 		FontSize: env.FontSize,
-		DPI:      env.DPI,
 	}
 	if err := sb.Run(); err != nil {
 		fmt.Fprint(os.Stderr, err)
