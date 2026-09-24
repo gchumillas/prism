@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'preact/hooks'
 // IMPORTANT: these values must match those defined in internal/platform/web.go
 const canvasWidth = 1404
 const canvasHeight = 1872
-const scale = 0.4
+const scale = 1
 
 const App = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -40,7 +40,6 @@ const App = () => {
       height={canvasHeight}
       onClick={handleClick}
       style={{
-        border: '2px solid black',
         width: canvasWidth * scale,
         height: canvasHeight * scale
       }}
