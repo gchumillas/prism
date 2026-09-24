@@ -26,16 +26,14 @@ func (sb *Storybook) Run() error {
 	ctx := gg.NewContextForRGBA(sb.Canvas)
 	s := ui.NewScene(ctx, ui.FontSize(sb.FontSize))
 
-	vs := s.VStack(ui.Padding(20, 30), ui.Gap(20))
-	vs.SetX(100)
-	vs.SetY(100)
-	vs.Add(s.LabelButton("One"))
-	vs.Add(s.LabelButton("Two"))
-	vs.Add(s.LabelButton("Three"))
-	sb.Add(vs)
+	btn := s.LabelButton("Click me!")
+	btn.SetX(100)
+	btn.SetY(200)
+	sb.Add(btn)
 
-	r := vs.Render()
-	fmt.Println(r)
+	sb.Touch.AddTapHandler(btn, func() {
+		fmt.Println("clicked!")
+	})
 
 	// refresh the screen
 	return sb.refresh()

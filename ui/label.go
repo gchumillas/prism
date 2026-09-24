@@ -56,6 +56,27 @@ func (l *Label) Width() float64 {
 	return float64(bounds.Max.X) / 64
 }
 
+func (l *Label) Size() Point {
+	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
+		Size:    l.fontSize,
+		DPI:     defaultDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	bounds, _ := font.BoundString(f, l.text)
+	width := float64(bounds.Max.X) / 64
+
+	metrics := f.Metrics()
+	ascent := float64(metrics.Ascent) / 64
+	descent := float64(metrics.Descent) / 64
+	height := ascent + descent
+
+	return Point{X: width, Y: height}
+}
+
 func (l *Label) Render() (r Rectangle) {
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
