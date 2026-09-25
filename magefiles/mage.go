@@ -9,6 +9,7 @@ import (
 
 var Aliases = map[string]any{
 	"Lint": Lint.Run,
+	"Test": Test.Run,
 	"Docs": Docs.Start,
 }
 
@@ -31,6 +32,14 @@ type Docs mg.Namespace
 // Start stars doc server.
 func (Docs) Start() error {
 	return sh.RunV("pkgsite")
+}
+
+// --- Test ---
+type Test mg.Namespace
+
+// Run runs the tests.
+func (Test) Run() error {
+	return sh.RunV("go", "test", "./...")
 }
 
 // ---- Web ----

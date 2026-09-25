@@ -3,5 +3,8 @@
 /docs/public/prism.wasm
 /docs/public/storybook.wasm
 
+# snapshots for testing
+*/testdata/*.png
+
 # misc
 /test.*
