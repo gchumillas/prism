@@ -6,10 +6,17 @@ linters:
 formatters:
   enable:
     - gofumpt
+    - gci
   settings:
     gofumpt:
       extra:
         group-params: true
+    gci:
+      sections:
+        - standard
+        - default
+        - blank
+        - dot
 
 run:
   timeout: 5m

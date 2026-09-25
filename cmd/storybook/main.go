@@ -8,9 +8,8 @@ import (
 	"os"
 
 	"github.com/fogleman/gg"
-	"github.com/gchumillas/prism/internal/platform"
-
 	"github.com/gchumillas/prism/internal/app"
+	"github.com/gchumillas/prism/internal/platform"
 	"github.com/gchumillas/prism/ui"
 )
 
