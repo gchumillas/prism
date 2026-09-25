@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"image"
 	"image/color"
 	"strings"
 	"unicode"
@@ -8,17 +9,18 @@ import (
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/math/fixed"
 )
 
 type Text struct {
 	BasePosition
 	scene    *Scene
 	text     string
-	width    float64
+	width    int
 	fontSize float64
 }
 
-func (s *Scene) Text(text string, width float64, opts ...TextOpt) *Text {
+func (s *Scene) Text(text string, width int, opts ...TextOpt) *Text {
 	t := &Text{
 		scene:    s,
 		text:     text,
@@ -38,7 +40,7 @@ func (t *Text) Size() (width, height int) {
 func (bs *Text) SetSize(width, height int) {
 }
 
-func (t *Text) Render() Rectangle {
+func (t *Text) Render() image.Rectangle {
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
 		DPI:     defaultDPI,
@@ -49,8 +51,8 @@ func (t *Text) Render() Rectangle {
 	}
 
 	m := face.Metrics()
-	ascent := float64(m.Ascent) / 64
-	lineh := float64(m.Height) / 64
+	ascent := m.Ascent.Ceil()
+	lineh := m.Height.Ceil()
 
 	height := ascent
 	lines := splitIntoLines(face, t.text, t.width)
@@ -62,24 +64,24 @@ func (t *Text) Render() Rectangle {
 		height += lineh
 	}
 
-	return Rectangle{
+	return image.Rectangle{
 		Min: t.position,
-		Max: t.position.Add(Point{t.width, lineh * float64(len(lines))}),
+		Max: t.position.Add(image.Pt(t.width, lineh*len(lines))),
 	}
 }
 
-func splitIntoLines(f font.Face, text string, width float64) (lines []string) {
+func splitIntoLines(f font.Face, text string, width int) (lines []string) {
 	words := splitIntoWords(text)
 	for i, j := 0, 0; i < len(words); {
-		var offs float64
+		var offs fixed.Int26_6
 		sb := strings.Builder{}
 		for k, w := range words[j:] {
 			_, advance := font.BoundString(f, w)
-			if offs+float64(advance)/64 > width {
+			if offs+advance > fixed.I(width) {
 				j += k
 				break
 			}
-			offs += float64(advance) / 64
+			offs += advance
 			sb.WriteString(w)
 			i++
 		}

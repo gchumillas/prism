@@ -19,13 +19,13 @@ func (s *Scene) ImageFromReader(r io.Reader) (img *Image, err error) {
 	return
 }
 
-func (i *Image) Render() Rectangle {
-	i.scene.canvas.DrawImage(i.img, int(i.position.X), int(i.position.Y))
+func (i *Image) Render() image.Rectangle {
+	i.scene.canvas.DrawImage(i.img, i.position.X, i.position.Y)
 	b := i.img.Bounds()
 	size := b.Max.Sub(b.Min)
 
-	return Rectangle{
+	return image.Rectangle{
 		Min: i.position,
-		Max: i.position.Add(Point{X: float64(size.X), Y: float64(size.Y)}),
+		Max: i.position.Add(size),
 	}
 }

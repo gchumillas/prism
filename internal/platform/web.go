@@ -47,7 +47,7 @@ func LoadRuntimeEnv() (*Env, error) {
 
 	tapCanvas = js.FuncOf(func(this js.Value, args []js.Value) any {
 		x, y := args[0], args[1]
-		td.Tap(x.Float(), y.Float())
+		td.Tap(x.Int(), y.Int())
 		return nil
 	})
 
@@ -88,7 +88,7 @@ type TouchDispatcher struct {
 	count    int
 }
 
-func (t *TouchDispatcher) Tap(x, y float64) {
+func (t *TouchDispatcher) Tap(x, y int) {
 	for _, h := range t.handlers {
 		if h.btn.Contains(x, y) {
 			h.action()

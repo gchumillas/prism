@@ -1,7 +1,7 @@
 package app
 
 type Region struct {
-	X0, Y0, X1, Y1 float64
+	X0, Y0, X1, Y1 int
 }
 
 // TODO: rename to Displayer
@@ -10,7 +10,7 @@ type Renderer interface {
 }
 
 type Tappable interface {
-	Contains(x, y float64) bool
+	Contains(x, y int) bool
 }
 
 type TapDispatcher interface {

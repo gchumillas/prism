@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"image"
 	"image/color"
 
 	"golang.org/x/image/font"
@@ -26,7 +27,7 @@ func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 	return l
 }
 
-func (l *Label) Height() float64 {
+func (l *Label) Height() int {
 	// TODO: implement some caching system to avoid unnecessary recalculation
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
@@ -38,12 +39,12 @@ func (l *Label) Height() float64 {
 	}
 
 	metrics := f.Metrics()
-	ascent := float64(metrics.Ascent) / 64
-	descent := float64(metrics.Descent) / 64
+	ascent := metrics.Ascent.Ceil()
+	descent := metrics.Descent.Ceil()
 	return ascent + descent
 }
 
-func (l *Label) Width() float64 {
+func (l *Label) Width() int {
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
 		DPI:     defaultDPI,
@@ -53,10 +54,10 @@ func (l *Label) Width() float64 {
 		panic(err)
 	}
 	bounds, _ := font.BoundString(f, l.text)
-	return float64(bounds.Max.X) / 64
+	return bounds.Max.X.Ceil()
 }
 
-func (l *Label) Size() Point {
+func (l *Label) Size() image.Point {
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
 		DPI:     defaultDPI,
@@ -67,17 +68,17 @@ func (l *Label) Size() Point {
 	}
 
 	bounds, _ := font.BoundString(f, l.text)
-	width := float64(bounds.Max.X) / 64
+	width := bounds.Max.X.Ceil()
 
 	metrics := f.Metrics()
-	ascent := float64(metrics.Ascent) / 64
-	descent := float64(metrics.Descent) / 64
+	ascent := metrics.Ascent.Ceil()
+	descent := metrics.Descent.Ceil()
 	height := ascent + descent
 
-	return Point{X: width, Y: height}
+	return image.Point{X: width, Y: height}
 }
 
-func (l *Label) Render() (r Rectangle) {
+func (l *Label) Render() (r image.Rectangle) {
 	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    l.fontSize,
 		DPI:     defaultDPI,
@@ -88,20 +89,20 @@ func (l *Label) Render() (r Rectangle) {
 	}
 
 	bounds, _ := font.BoundString(f, l.text)
-	w := float64(bounds.Max.X) / 64
+	w := bounds.Max.X.Ceil()
 
 	metrics := f.Metrics()
-	ascent := float64(metrics.Ascent) / 64
-	descent := float64(metrics.Descent) / 64
+	ascent := metrics.Ascent.Ceil()
+	descent := metrics.Descent.Ceil()
 	h := ascent + descent
 
 	l.scene.canvas.SetFontFace(f)
 	l.scene.canvas.SetColor(color.Black)
 	// TODO: add ui.Color option
-	l.scene.canvas.DrawString(l.text, float64(l.position.X), l.position.Y+float64(ascent))
+	l.scene.canvas.DrawString(l.text, float64(l.position.X), float64(l.position.Y+ascent))
 
-	size := Point{w, h}
-	return Rectangle{
+	size := image.Point{w, h}
+	return image.Rectangle{
 		Min: l.position,
 		Max: l.position.Add(size),
 	}
