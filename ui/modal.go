@@ -1,5 +1,7 @@
 package ui
 
+import "image"
+
 type Modal struct {
 	BaseGroup
 	BasePosition
@@ -10,16 +12,16 @@ type Modal struct {
 func (s *Scene) Modal() *Modal {
 	m := &Modal{scene: s}
 	r := s.canvas.Image().Bounds()
-	t := Rectangle{
-		Min: Point{X: float64(r.Min.X), Y: float64(r.Min.Y)},
-		Max: Point{X: float64(r.Max.X), Y: float64(r.Max.Y)},
+	t := image.Rectangle{
+		Min: image.Point{X: r.Min.X, Y: r.Min.Y},
+		Max: image.Point{X: r.Max.X, Y: r.Max.Y},
 	}
 	p := t.Max.Sub(t.Min)
-	m.position = Point{(p.X - 300) / 2, (p.Y - 300) / 2}
+	m.position = image.Point{(p.X - 300) / 2, (p.Y - 300) / 2}
 	return m
 }
 
-func (m *Modal) Render() (rect Rectangle) {
+func (m *Modal) Render() (rect image.Rectangle) {
 	// r := image.Rect(m.position.X, m.position.Y, m.position.X+m.size.X, m.position.Y+m.size.Y)
 	// img := m.scene.canvas.Image()
 	// draw.Draw(img, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)

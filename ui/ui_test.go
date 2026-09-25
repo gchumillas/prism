@@ -2,15 +2,17 @@ package ui_test
 
 import (
 	"bytes"
-	_ "embed"
+	"image"
 	"image/color"
-	_ "image/png"
 	"testing"
 
 	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/test"
 	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
+
+	_ "embed"
+	_ "image/png"
 )
 
 //go:embed "testdata/pen24.png"
@@ -37,9 +39,9 @@ func TestImage_Render(t *testing.T) {
 	img, err := s.ImageFromReader(penBuff)
 	require.NoError(t, err)
 	r := img.Render()
-	require.Equal(t, ui.Rectangle{
-		Min: ui.Point{X: 0, Y: 0},
-		Max: ui.Point{X: 24, Y: 24},
+	require.Equal(t, image.Rectangle{
+		Min: image.Point{X: 0, Y: 0},
+		Max: image.Point{X: 24, Y: 24},
 	}, r)
 }
 

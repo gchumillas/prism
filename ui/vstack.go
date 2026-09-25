@@ -1,16 +1,18 @@
 package ui
 
+import "image"
+
 type VStackChild interface {
 	Renderer
-	SetX(float64)
-	SetY(float64)
-	Height() float64
+	SetX(int)
+	SetY(int)
+	Height() int
 }
 
 type VStack struct {
 	BasePosition
-	padding  Point
-	gap      float64
+	padding  image.Point
+	gap      int
 	children []VStackChild
 }
 
@@ -26,7 +28,7 @@ func (vs *VStack) Add(child VStackChild) {
 	vs.children = append(vs.children, child)
 }
 
-func (vs *VStack) Render() (r Rectangle) {
+func (vs *VStack) Render() (r image.Rectangle) {
 	height := vs.position.Y + vs.padding.Y
 	for i, child := range vs.children {
 		if i > 0 {

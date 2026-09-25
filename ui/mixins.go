@@ -1,5 +1,7 @@
 package ui
 
+import "image"
+
 type BaseGroup struct {
 	children []Renderer
 }
@@ -22,19 +24,19 @@ func (b *BaseGroup) Remove(child Renderer) {
 }
 
 type BasePosition struct {
-	position Point
+	position image.Point
 }
 
-func (bp *BasePosition) X() float64       { return bp.position.X }
-func (bp *BasePosition) Y() float64       { return bp.position.Y }
-func (bp *BasePosition) SetX(val float64) { bp.position.X = val }
-func (bp *BasePosition) SetY(val float64) { bp.position.Y = val }
+func (bp *BasePosition) X() int       { return bp.position.X }
+func (bp *BasePosition) Y() int       { return bp.position.Y }
+func (bp *BasePosition) SetX(val int) { bp.position.X = val }
+func (bp *BasePosition) SetY(val int) { bp.position.Y = val }
 
 type BaseSize struct {
-	size Point
+	size image.Point
 }
 
-func (bs *BaseSize) Width() float64        { return bs.size.X }
-func (bs *BaseSize) Height() float64       { return bs.size.Y }
-func (bs *BaseSize) SetWidth(val float64)  { bs.size.X = val }
-func (bs *BaseSize) SetHeight(val float64) { bs.size.Y = val }
+func (bs *BaseSize) Width() int        { return bs.size.X }
+func (bs *BaseSize) Height() int       { return bs.size.Y }
+func (bs *BaseSize) SetWidth(val int)  { bs.size.X = val }
+func (bs *BaseSize) SetHeight(val int) { bs.size.Y = val }

@@ -1,5 +1,7 @@
 package ui
 
+import "image"
+
 type (
 	SceneOpt  interface{ applyScene(*Scene) }
 	VStackOpt interface{ applyVStack(*VStack) }
@@ -8,16 +10,16 @@ type (
 )
 
 type (
-	paddingOpt  Point
-	gapOpt      float64
+	paddingOpt  image.Point
+	gapOpt      int
 	fontSizeOpt float64
 )
 
-func Padding(width, height float64) paddingOpt { return paddingOpt(Point{X: width, Y: height}) }
-func (val paddingOpt) applyVStack(x *VStack)   { x.padding = Point(val) }
+func Padding(width, height int) paddingOpt   { return paddingOpt(image.Point{X: width, Y: height}) }
+func (val paddingOpt) applyVStack(x *VStack) { x.padding = image.Point(val) }
 
 func Gap(val int) gapOpt                 { return gapOpt(val) }
-func (val gapOpt) applyVStack(x *VStack) { x.gap = float64(val) }
+func (val gapOpt) applyVStack(x *VStack) { x.gap = int(val) }
 
 func FontSize(val float64) fontSizeOpt      { return fontSizeOpt(val) }
 func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }

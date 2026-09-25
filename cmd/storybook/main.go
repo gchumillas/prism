@@ -49,11 +49,7 @@ func (sb *Storybook) Render() {
 func (sb *Storybook) refresh() error {
 	sb.Render()
 	b := sb.Canvas.Bounds()
-	r := ui.Rectangle{
-		Min: ui.Point{X: float64(b.Min.X), Y: float64(b.Min.Y)},
-		Max: ui.Point{X: float64(b.Max.X), Y: float64(b.Max.Y)},
-	}
-	s := app.Region{X0: r.Min.X, Y0: r.Min.Y, X1: r.Max.X, Y1: r.Max.Y}
+	s := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
 	return sb.Screen.Refresh([]app.Region{s})
 }
 
