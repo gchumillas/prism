@@ -4,7 +4,7 @@
 /docs/public/storybook.wasm
 
 # snapshots for testing
-*/testdata/*.png
+*/testdata/Test*.png
 
 # misc
 /test.*

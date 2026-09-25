@@ -1,13 +1,47 @@
 package ui_test
 
 import (
+	"bytes"
+	_ "embed"
 	"image/color"
+	_ "image/png"
 	"testing"
 
 	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/test"
 	"github.com/gchumillas/prism/ui"
+	"github.com/stretchr/testify/require"
 )
+
+//go:embed "testdata/pen24.png"
+var penPNG []byte
+
+func TestScene_ImageFromReader(t *testing.T) {
+	canvas := gg.NewContext(30, 30)
+	s := ui.NewScene(canvas)
+
+	penBuff := bytes.NewBuffer(penPNG)
+	img, err := s.ImageFromReader(penBuff)
+	require.NoError(t, err)
+	img.Render()
+
+	snap := test.GenSnapshot(t, canvas)
+	test.RectHasSomeColors(t, snap, 0, 0, 24, 24)
+}
+
+func TestImage_Render(t *testing.T) {
+	canvas := gg.NewContext(30, 30)
+	s := ui.NewScene(canvas)
+
+	penBuff := bytes.NewBuffer(penPNG)
+	img, err := s.ImageFromReader(penBuff)
+	require.NoError(t, err)
+	r := img.Render()
+	require.Equal(t, ui.Rectangle{
+		Min: ui.Point{X: 0, Y: 0},
+		Max: ui.Point{X: 24, Y: 24},
+	}, r)
+}
 
 func TestLabelButton_Render(t *testing.T) {
 	canvas := gg.NewContext(220, 80)
