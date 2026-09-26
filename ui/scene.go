@@ -10,7 +10,6 @@ const (
 )
 
 type Scene struct {
-	// TODO: renombrar convas?
 	canvas   *gg.Context
 	fontSize float64
 }
