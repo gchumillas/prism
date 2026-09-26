@@ -15,6 +15,13 @@ type Label struct {
 	fontSize float64
 }
 
+type LabelOpt interface {
+	applyLabel(*Label)
+}
+
+// avail options
+func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
+
 func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 	l := &Label{
 		scene:    s,

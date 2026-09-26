@@ -16,6 +16,14 @@ type VStack struct {
 	children []VStackChild
 }
 
+type VStackOpt interface {
+	applyVStack(*VStack)
+}
+
+// avail options
+func (val paddingOpt) applyVStack(x *VStack) { x.padding = image.Point(val) }
+func (val gapOpt) applyVStack(x *VStack)     { x.gap = int(val) }
+
 func (s *Scene) VStack(opts ...VStackOpt) *VStack {
 	vs := &VStack{}
 	for _, opt := range opts {

@@ -20,6 +20,13 @@ type Text struct {
 	fontSize float64
 }
 
+type TextOpt interface {
+	applyText(*Text)
+}
+
+// avail options
+func (val fontSizeOpt) applyText(x *Text) { x.fontSize = float64(val) }
+
 func (s *Scene) Text(text string, width int, opts ...TextOpt) *Text {
 	t := &Text{
 		scene:    s,
