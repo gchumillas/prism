@@ -2,6 +2,7 @@ package ui
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/fogleman/gg"
 )
@@ -44,6 +45,7 @@ func (lb *LabelButton) Render() image.Rectangle {
 	lb.canvas.DrawRectangle(
 		float64(lb.hitbox.Min.X), float64(lb.hitbox.Min.Y),
 		float64(lb.hitbox.Max.X-lb.hitbox.Min.X), float64(lb.hitbox.Max.Y-lb.hitbox.Min.Y))
+	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 
 	return lb.hitbox.Union(lb.vstack.Render())

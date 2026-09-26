@@ -6,9 +6,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/test"
-	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 
 	_ "embed"
@@ -19,15 +17,15 @@ import (
 var penPNG []byte
 
 func TestScene_ImageFromReader(t *testing.T) {
-	canvas := gg.NewContext(30, 30)
-	s := ui.NewScene(canvas)
+	app := test.NewApp(30, 30, color.White)
 
 	penBuff := bytes.NewBuffer(penPNG)
-	img, err := s.ImageFromReader(penBuff)
+	img, err := app.ImageFromReader(penBuff)
 	require.NoError(t, err)
-	img.Render()
+	app.Add(img)
 
-	snap := test.TakeSnapshot(t, canvas.Image())
+	app.Refresh()
+	snap := test.TakeSnapshot(t, app.Screen())
 	test.RectHasSomeColors(t, snap, 0, 0, 24, 24)
 }
 
@@ -58,19 +56,19 @@ func TestImage_Render(t *testing.T) {
 }
 
 func TestLabelButton_Render(t *testing.T) {
-	canvas := gg.NewContext(220, 80)
-	s := ui.NewScene(canvas)
-	btn := s.LabelButton("Click me!")
-	btn.Render()
+	app := test.NewApp(220, 80, color.White)
+	btn := app.LabelButton("Click me!")
+	app.Add(btn)
 
-	snap := test.TakeSnapshot(t, canvas.Image())
-	test.VlineIsColor(t, snap, 100, 5, 10, color.Transparent) // top padding
-	test.HlineIsColor(t, snap, 10, 35, 10, color.Transparent) // left padding
-	test.RectHasSomeColors(t, snap, 35, 20, 170, 50)          // text
-	test.DotHasSomeColors(t, snap, 0, 0, 5)                   // left-top corner
-	test.DotHasSomeColors(t, snap, 205, 0, 5)                 // right-top corner
-	test.DotHasSomeColors(t, snap, 205, 75, 5)                // right-bottom corner
-	test.DotHasSomeColors(t, snap, 0, 75, 5)                  // left-bottom corner
+	app.Refresh()
+	snap := test.TakeSnapshot(t, app.Screen())
+	test.VlineIsColor(t, snap, 100, 5, 10, color.White) // top padding
+	test.HlineIsColor(t, snap, 10, 35, 10, color.White) // left padding
+	test.RectHasSomeColors(t, snap, 35, 20, 170, 50)    // text
+	test.DotHasSomeColors(t, snap, 0, 0, 5)             // left-top corner
+	test.DotHasSomeColors(t, snap, 205, 0, 5)           // right-top corner
+	test.DotHasSomeColors(t, snap, 205, 75, 5)          // right-bottom corner
+	test.DotHasSomeColors(t, snap, 0, 75, 5)            // left-bottom corner
 }
 
 func TestLabelButton_Contains(t *testing.T) {
