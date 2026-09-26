@@ -13,7 +13,7 @@ import (
 
 const testDir = "testdata"
 
-func GenSnapshot(t *testing.T, img image.Image) image.Image {
+func TakeSnapshot(t *testing.T, img image.Image) image.Image {
 	if os.Getenv("GENERATE_SNAPSHOTS") == "1" {
 		name := filepath.Join(testDir, t.Name()+".png")
 		err := os.MkdirAll(testDir, 0o755)
