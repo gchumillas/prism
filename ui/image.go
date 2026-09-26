@@ -13,8 +13,8 @@ type Image struct {
 	img    image.Image
 }
 
-func (s *Scene) ImageFromReader(r io.Reader) (img *Image, err error) {
-	img = &Image{canvas: s.canvas}
+func (c *Context) ImageFromReader(r io.Reader) (img *Image, err error) {
+	img = &Image{canvas: c.canvas}
 	if img.img, _, err = image.Decode(r); err != nil {
 		return
 	}

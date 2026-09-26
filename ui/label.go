@@ -23,10 +23,10 @@ type LabelOpt interface {
 // avail options
 func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
 
-func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
+func (c *Context) Label(text string, opts ...LabelOpt) *Label {
 	l := &Label{
-		canvas:   s.canvas,
-		fontSize: s.fontSize,
+		canvas:   c.canvas,
+		fontSize: c.fontSize,
 		text:     text,
 	}
 	for _, opt := range opts {

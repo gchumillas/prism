@@ -24,7 +24,7 @@ type VStackOpt interface {
 func (val paddingOpt) applyVStack(x *VStack) { x.padding = image.Point(val) }
 func (val gapOpt) applyVStack(x *VStack)     { x.gap = int(val) }
 
-func (s *Scene) VStack(opts ...VStackOpt) *VStack {
+func (c *Context) VStack(opts ...VStackOpt) *VStack {
 	vs := &VStack{}
 	for _, opt := range opts {
 		opt.applyVStack(vs)

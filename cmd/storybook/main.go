@@ -23,9 +23,9 @@ type Storybook struct {
 
 func (sb *Storybook) Run() error {
 	ctx := gg.NewContextForRGBA(sb.Canvas)
-	s := ui.NewScene(ctx, ui.FontSize(sb.FontSize))
+	c := ui.NewContext(ctx, ui.FontSize(sb.FontSize))
 
-	btn := s.LabelButton("Click me!")
+	btn := c.LabelButton("Click me!")
 	btn.SetX(100)
 	btn.SetY(200)
 	sb.Add(btn)
