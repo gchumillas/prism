@@ -1,18 +1,19 @@
 package test
 
 import (
+	"image"
 	"image/color"
+	"image/png"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/fogleman/gg"
 	"github.com/stretchr/testify/require"
 )
 
 const testDir = "testdata"
 
-func GenSnapshot(t *testing.T, canvas *gg.Context) *gg.Context {
+func GenSnapshot(t *testing.T, img image.Image) image.Image {
 	if os.Getenv("GENERATE_SNAPSHOTS") == "1" {
 		name := filepath.Join(testDir, t.Name()+".png")
 		err := os.MkdirAll(testDir, 0o755)
@@ -20,10 +21,10 @@ func GenSnapshot(t *testing.T, canvas *gg.Context) *gg.Context {
 		f, err := os.Create(name)
 		require.NoError(t, err)
 		defer func() { _ = f.Close() }()
-		err = canvas.EncodePNG(f)
+		err = png.Encode(f, img)
 		require.NoError(t, err)
 	}
-	return canvas
+	return img
 }
 
 func rectIsValid(t *testing.T, x0, y0, x1, y1 int) bool {
@@ -35,12 +36,11 @@ func rectIsValid(t *testing.T, x0, y0, x1, y1 int) bool {
 	return true
 }
 
-func rectIsColor(t *testing.T, canvas *gg.Context, x0, y0, x1, y1 int, c color.Color) bool {
+func RectIsColor(t *testing.T, img image.Image, x0, y0, x1, y1 int, c color.Color) bool {
 	t.Helper()
 	if !rectIsValid(t, x0, y0, x1, y1) {
 		return false
 	}
-	img := canvas.Image()
 	c = img.ColorModel().Convert(c)
 	b := img.Bounds()
 	x0, y0 = max(x0, b.Min.X), max(y0, b.Min.Y)
@@ -56,13 +56,11 @@ func rectIsColor(t *testing.T, canvas *gg.Context, x0, y0, x1, y1 int, c color.C
 	return true
 }
 
-func RectHasSomeColors(t *testing.T, canvas *gg.Context, x0, y0, x1, y1 int) {
+func RectHasSomeColors(t *testing.T, img image.Image, x0, y0, x1, y1 int) {
 	t.Helper()
 	if !rectIsValid(t, x0, y0, x1, y1) {
 		return
 	}
-
-	img := canvas.Image()
 	b := img.Bounds()
 	x0, y0 = max(x0, b.Min.X), max(y0, b.Min.Y)
 	x1, y1 = min(x1, b.Max.X-1), min(y1, b.Max.Y-1)
@@ -77,20 +75,17 @@ func RectHasSomeColors(t *testing.T, canvas *gg.Context, x0, y0, x1, y1 int) {
 	t.Error("Want single color, got multiple")
 }
 
-func HlineIsColor(t *testing.T, canvas *gg.Context, x0, y0, width int, c color.Color) {
+func HlineIsColor(t *testing.T, img image.Image, x0, y0, width int, c color.Color) {
 	t.Helper()
-	x1, y1 := x0+width-1, y0
-	rectIsColor(t, canvas, x0, y0, x1, y1, c)
+	RectIsColor(t, img, x0, y0, x0+width-1, y0, c)
 }
 
-func VlineIsColor(t *testing.T, canvas *gg.Context, x0, y0, height int, c color.Color) {
+func VlineIsColor(t *testing.T, img image.Image, x0, y0, height int, c color.Color) {
 	t.Helper()
-	x1, y1 := x0, y0+height-1
-	rectIsColor(t, canvas, x0, y0, x1, y1, c)
+	RectIsColor(t, img, x0, y0, x0, y0+height-1, c)
 }
 
-func DotHasSomeColors(t *testing.T, canvas *gg.Context, x, y, size int) {
+func DotHasSomeColors(t *testing.T, img image.Image, x, y, size int) {
 	t.Helper()
-	x0, y0, x1, y1 := x-size, y-size, x+size, y+size
-	RectHasSomeColors(t, canvas, x0, y0, x1, y1)
+	RectHasSomeColors(t, img, x-size, y-size, x+size, y+size)
 }
