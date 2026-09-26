@@ -72,7 +72,7 @@ func RectHasSomeColors(t *testing.T, img image.Image, x0, y0, x1, y1 int) {
 			}
 		}
 	}
-	t.Error("Want single color, got multiple")
+	t.Error("Want some colors, got a single color")
 }
 
 func HlineIsColor(t *testing.T, img image.Image, x0, y0, width int, c color.Color) {
