@@ -32,17 +32,31 @@ func TestScene_ImageFromReader(t *testing.T) {
 }
 
 func TestImage_Render(t *testing.T) {
-	canvas := gg.NewContext(30, 30)
-	s := ui.NewScene(canvas)
+	app := test.NewApp(320, 240, color.White)
 
 	penBuff := bytes.NewBuffer(penPNG)
-	img, err := s.ImageFromReader(penBuff)
+	img, err := app.ImageFromReader(penBuff)
+	img.SetX(10)
+	img.SetY(20)
 	require.NoError(t, err)
+	app.Add(img)
+
+	// draw the image and preserve the "dirty region"
 	r := img.Render()
-	require.Equal(t, image.Rectangle{
-		Min: image.Point{X: 0, Y: 0},
-		Max: image.Point{X: 24, Y: 24},
-	}, r)
+	require.Equal(t, image.Rect(10, 20, 34, 44), r)
+	app.Refresh()
+
+	// check the element is there
+	snap := test.GenSnapshot(t, app.Screen())
+	test.RectHasSomeColors(t, snap, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+
+	// remove the element and refresh only "dirty region"
+	app.Remove(img)
+	app.RefreshRect(r)
+
+	// check the element is NOT there
+	snap = test.GenSnapshot(t, app.Screen())
+	test.RectIsColor(t, snap, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
 }
 
 func TestLabelButton_Render(t *testing.T) {
