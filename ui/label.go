@@ -27,7 +27,7 @@ type LabelOpt interface {
 // avail options
 func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
 
-func (c *Context) Label(text string, opts ...LabelOpt) *Label {
+func (c Context) Label(text string, opts ...LabelOpt) *Label {
 	l := &Label{
 		canvas:   c.canvas,
 		fontSize: c.fontSize,

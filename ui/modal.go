@@ -8,7 +8,7 @@ type Modal struct {
 	BaseSize
 }
 
-func (c *Context) Modal() *Modal {
+func (c Context) Modal() *Modal {
 	m := &Modal{}
 	r := c.canvas.Image().Bounds()
 	t := image.Rectangle{

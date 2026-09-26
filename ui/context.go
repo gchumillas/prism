@@ -22,7 +22,7 @@ type ContextOpt interface {
 func (val fontSizeOpt) applyContext(x *Context) { x.fontSize = float64(val) }
 
 // TODO: el canvas debería construirse internamente
-func NewContext(canvas *gg.Context, opts ...ContextOpt) *Context {
+func NewContext(canvas *gg.Context, opts ...ContextOpt) Context {
 	c := &Context{
 		canvas:   canvas,
 		fontSize: defaultFontSize,
@@ -30,5 +30,5 @@ func NewContext(canvas *gg.Context, opts ...ContextOpt) *Context {
 	for _, opt := range opts {
 		opt.applyContext(c)
 	}
-	return c
+	return *c
 }

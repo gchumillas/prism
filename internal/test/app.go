@@ -20,7 +20,7 @@ type App struct {
 func NewApp(width, height int, bgColor color.Color) *App {
 	canvas := gg.NewContext(width, height)
 	return &App{
-		Context: *ui.NewContext(canvas, ui.FontSize(10)),
+		Context: ui.NewContext(canvas, ui.FontSize(10)),
 		canvas:  canvas,
 		screen:  image.NewRGBA(image.Rect(0, 0, width, height)),
 		bgColor: bgColor,
