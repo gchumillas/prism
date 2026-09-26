@@ -47,16 +47,14 @@ func TestImage_Render(t *testing.T) {
 	app.Refresh()
 
 	// check the element is there
-	snap := test.TakeSnapshot(t, app.Screen())
-	test.RectHasSomeColors(t, snap, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+	test.RectHasSomeColors(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
 
 	// remove the element and refresh only "dirty region"
 	app.Remove(img)
 	app.RefreshRect(r)
 
 	// check the element is NOT there
-	snap = test.TakeSnapshot(t, app.Screen())
-	test.RectIsColor(t, snap, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
+	test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
 }
 
 func TestLabelButton_Render(t *testing.T) {
