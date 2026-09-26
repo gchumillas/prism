@@ -50,6 +50,9 @@ func (lb *LabelButton) Render() image.Rectangle {
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
+	if lb.hitbox.Empty() {
+		panic("The hitbox is empty. Did you forget calling Render?")
+	}
 	p := image.Pt(x, y)
 	return p.In(lb.hitbox)
 }

@@ -72,3 +72,20 @@ func TestLabelButton_Render(t *testing.T) {
 	test.DotHasSomeColors(t, snap, 205, 75, 5)                // right-bottom corner
 	test.DotHasSomeColors(t, snap, 0, 75, 5)                  // left-bottom corner
 }
+
+func TestLabelButton_Contains(t *testing.T) {
+	app := test.NewApp(320, 240, color.White)
+	btn := app.LabelButton("Click me!")
+	btn.SetX(100)
+	btn.SetY(50)
+	btn.Render()
+	require.False(t, btn.Contains(0, 0))   // outside
+	require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
+	require.True(t, btn.Contains(110, 60)) // inside
+
+	t.Run("forgot calling Render", func(t *testing.T) {
+		app := test.NewApp(320, 240, color.White)
+		btn := app.LabelButton("Click me!")
+		require.Panics(t, func() { btn.Contains(0, 0) })
+	})
+}
