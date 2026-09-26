@@ -16,10 +16,10 @@ type LabelButton struct {
 	label  *Label
 }
 
-func (s *Scene) LabelButton(text string) *LabelButton {
-	lb := &LabelButton{canvas: s.canvas}
-	lb.vstack = s.VStack(Padding(paddingBtn.X, paddingBtn.Y))
-	lb.label = s.Label(text)
+func (c *Context) LabelButton(text string) *LabelButton {
+	lb := &LabelButton{canvas: c.canvas}
+	lb.vstack = c.VStack(Padding(paddingBtn.X, paddingBtn.Y))
+	lb.label = c.Label(text)
 	lb.vstack.Add(lb.label)
 	return lb
 }

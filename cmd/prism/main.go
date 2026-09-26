@@ -20,7 +20,7 @@ type Prism struct {
 
 func (prism *Prism) Run() error {
 	ctx := gg.NewContextForRGBA(prism.Canvas)
-	s := ui.NewScene(ctx, ui.FontSize(prism.FontSize))
+	s := ui.NewContext(ctx, ui.FontSize(prism.FontSize))
 
 	btn := s.LabelButton("Click me!")
 	btn.SetX(50)

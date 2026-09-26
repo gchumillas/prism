@@ -16,7 +16,7 @@ import (
 //go:embed "testdata/pen24.png"
 var penPNG []byte
 
-func TestScene_ImageFromReader(t *testing.T) {
+func TestContext_ImageFromReader(t *testing.T) {
 	app := test.NewApp(30, 30, color.White)
 
 	penBuff := bytes.NewBuffer(penPNG)

@@ -9,25 +9,26 @@ const (
 	defaultDPI      = 226
 )
 
-type Scene struct {
+type Context struct {
 	canvas   *gg.Context
 	fontSize float64
 }
 
-type SceneOpt interface {
-	applyScene(*Scene)
+type ContextOpt interface {
+	applyContext(*Context)
 }
 
 // avail options
-func (val fontSizeOpt) applyScene(x *Scene) { x.fontSize = float64(val) }
+func (val fontSizeOpt) applyContext(x *Context) { x.fontSize = float64(val) }
 
-func NewScene(canvas *gg.Context, opts ...SceneOpt) *Scene {
-	s := &Scene{
+// TODO: el canvas debería construirse internamente
+func NewContext(canvas *gg.Context, opts ...ContextOpt) *Context {
+	c := &Context{
 		canvas:   canvas,
 		fontSize: defaultFontSize,
 	}
 	for _, opt := range opts {
-		opt.applyScene(s)
+		opt.applyContext(c)
 	}
-	return s
+	return c
 }
