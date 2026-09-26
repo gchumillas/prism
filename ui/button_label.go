@@ -16,7 +16,7 @@ type LabelButton struct {
 	label  *Label
 }
 
-func (c *Context) LabelButton(text string) *LabelButton {
+func (c Context) LabelButton(text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
 	lb.vstack = c.VStack(Padding(paddingBtn.X, paddingBtn.Y))
 	lb.label = c.Label(text)
