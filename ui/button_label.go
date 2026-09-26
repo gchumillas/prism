@@ -35,7 +35,7 @@ func (lb *LabelButton) Height() int {
 }
 
 func (lb *LabelButton) Render() image.Rectangle {
-	size := lb.label.Size().Add(paddingBtn.Mul(2))
+	size := image.Pt(lb.label.Width(), lb.label.Height()).Add(paddingBtn.Mul(2))
 	lb.hitbox = image.Rectangle{
 		Min: lb.vstack.position,
 		Max: lb.vstack.position.Add(size),

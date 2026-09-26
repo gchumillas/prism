@@ -14,6 +14,10 @@ type Label struct {
 	canvas   *gg.Context
 	text     string
 	fontSize float64
+
+	face    font.Face
+	descent int
+	ascent  int
 }
 
 type LabelOpt interface {
@@ -32,84 +36,38 @@ func (c *Context) Label(text string, opts ...LabelOpt) *Label {
 	for _, opt := range opts {
 		opt.applyLabel(l)
 	}
+
+	var err error
+	l.face, err = opentype.NewFace(uiFont, &opentype.FaceOptions{
+		Size:    l.fontSize,
+		DPI:     defaultDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	metrics := l.face.Metrics()
+	l.descent = metrics.Descent.Ceil()
+	l.ascent = metrics.Ascent.Ceil()
 	return l
 }
 
 func (l *Label) Height() int {
-	// TODO: implement some caching system to avoid unnecessary recalculation
-	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
-		Size:    l.fontSize,
-		DPI:     defaultDPI,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	metrics := f.Metrics()
-	ascent := metrics.Ascent.Ceil()
-	descent := metrics.Descent.Ceil()
-	return ascent + descent
+	return l.descent + l.ascent
 }
 
 func (l *Label) Width() int {
-	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
-		Size:    l.fontSize,
-		DPI:     defaultDPI,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		panic(err)
-	}
-	bounds, _ := font.BoundString(f, l.text)
+	bounds, _ := font.BoundString(l.face, l.text)
 	return bounds.Max.X.Ceil()
 }
 
-func (l *Label) Size() image.Point {
-	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
-		Size:    l.fontSize,
-		DPI:     defaultDPI,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	bounds, _ := font.BoundString(f, l.text)
-	width := bounds.Max.X.Ceil()
-
-	metrics := f.Metrics()
-	ascent := metrics.Ascent.Ceil()
-	descent := metrics.Descent.Ceil()
-	height := ascent + descent
-
-	return image.Point{X: width, Y: height}
-}
-
 func (l *Label) Render() (r image.Rectangle) {
-	f, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
-		Size:    l.fontSize,
-		DPI:     defaultDPI,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	bounds, _ := font.BoundString(f, l.text)
-	w := bounds.Max.X.Ceil()
-
-	metrics := f.Metrics()
-	ascent := metrics.Ascent.Ceil()
-	descent := metrics.Descent.Ceil()
-	h := ascent + descent
-
-	l.canvas.SetFontFace(f)
+	l.canvas.SetFontFace(l.face)
 	l.canvas.SetColor(color.Black)
-	// TODO: add ui.Color option
-	l.canvas.DrawString(l.text, float64(l.position.X), float64(l.position.Y+ascent))
+	l.canvas.DrawString(l.text, float64(l.position.X), float64(l.position.Y+l.ascent))
 
-	size := image.Point{w, h}
+	size := image.Point{l.Width(), l.Height()}
 	return image.Rectangle{
 		Min: l.position,
 		Max: l.position.Add(size),
