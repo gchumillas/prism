@@ -27,7 +27,7 @@ func TestScene_ImageFromReader(t *testing.T) {
 	require.NoError(t, err)
 	img.Render()
 
-	snap := test.GenSnapshot(t, canvas)
+	snap := test.GenSnapshot(t, canvas.Image())
 	test.RectHasSomeColors(t, snap, 0, 0, 24, 24)
 }
 
@@ -51,7 +51,7 @@ func TestLabelButton_Render(t *testing.T) {
 	btn := s.LabelButton("Click me!")
 	btn.Render()
 
-	snap := test.GenSnapshot(t, canvas)
+	snap := test.GenSnapshot(t, canvas.Image())
 	test.VlineIsColor(t, snap, 100, 5, 10, color.Transparent) // top padding
 	test.HlineIsColor(t, snap, 10, 35, 10, color.Transparent) // left padding
 	test.RectHasSomeColors(t, snap, 35, 20, 170, 50)          // text
