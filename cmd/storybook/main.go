@@ -54,7 +54,7 @@ func (sb *Storybook) refresh() error {
 }
 
 func main() {
-	env, err := platform.LoadRuntimeEnv()
+	env, err := platform.LoadRuntime()
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)

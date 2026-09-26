@@ -17,7 +17,7 @@ type Env struct {
 	FontSize float64
 }
 
-func LoadRuntimeEnv() (_ *Env, err error) {
+func LoadRuntime() (_ *Env, err error) {
 	s, err := OpenScreen()
 	if err != nil {
 		return nil, err

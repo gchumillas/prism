@@ -37,7 +37,7 @@ func (prism *Prism) Run() error {
 }
 
 func main() {
-	env, err := platform.LoadRuntimeEnv()
+	env, err := platform.LoadRuntime()
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)

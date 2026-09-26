@@ -26,7 +26,7 @@ type Env struct {
 	FontSize float64
 }
 
-func LoadRuntimeEnv() (*Env, error) {
+func LoadRuntime() (*Env, error) {
 	env := make(chan *Env)
 
 	canvas := image.NewRGBA(image.Rect(0, 0, canvasWidth, canvasHeight))
