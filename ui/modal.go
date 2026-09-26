@@ -6,11 +6,10 @@ type Modal struct {
 	BaseGroup
 	BasePosition
 	BaseSize
-	scene *Scene
 }
 
 func (s *Scene) Modal() *Modal {
-	m := &Modal{scene: s}
+	m := &Modal{}
 	r := s.canvas.Image().Bounds()
 	t := image.Rectangle{
 		Min: image.Point{X: r.Min.X, Y: r.Min.Y},

@@ -3,16 +3,18 @@ package ui
 import (
 	"image"
 	"io"
+
+	"github.com/fogleman/gg"
 )
 
 type Image struct {
 	BasePosition
-	scene *Scene
-	img   image.Image
+	canvas *gg.Context
+	img    image.Image
 }
 
 func (s *Scene) ImageFromReader(r io.Reader) (img *Image, err error) {
-	img = &Image{scene: s}
+	img = &Image{canvas: s.canvas}
 	if img.img, _, err = image.Decode(r); err != nil {
 		return
 	}
@@ -20,7 +22,7 @@ func (s *Scene) ImageFromReader(r io.Reader) (img *Image, err error) {
 }
 
 func (i *Image) Render() image.Rectangle {
-	i.scene.canvas.DrawImage(i.img, i.position.X, i.position.Y)
+	i.canvas.DrawImage(i.img, i.position.X, i.position.Y)
 	b := i.img.Bounds()
 	size := b.Max.Sub(b.Min)
 

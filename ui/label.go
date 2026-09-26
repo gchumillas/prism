@@ -4,13 +4,14 @@ import (
 	"image"
 	"image/color"
 
+	"github.com/fogleman/gg"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
 
 type Label struct {
 	BasePosition
-	scene    *Scene
+	canvas   *gg.Context
 	text     string
 	fontSize float64
 }
@@ -24,7 +25,7 @@ func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
 
 func (s *Scene) Label(text string, opts ...LabelOpt) *Label {
 	l := &Label{
-		scene:    s,
+		canvas:   s.canvas,
 		fontSize: s.fontSize,
 		text:     text,
 	}
@@ -103,10 +104,10 @@ func (l *Label) Render() (r image.Rectangle) {
 	descent := metrics.Descent.Ceil()
 	h := ascent + descent
 
-	l.scene.canvas.SetFontFace(f)
-	l.scene.canvas.SetColor(color.Black)
+	l.canvas.SetFontFace(f)
+	l.canvas.SetColor(color.Black)
 	// TODO: add ui.Color option
-	l.scene.canvas.DrawString(l.text, float64(l.position.X), float64(l.position.Y+ascent))
+	l.canvas.DrawString(l.text, float64(l.position.X), float64(l.position.Y+ascent))
 
 	size := image.Point{w, h}
 	return image.Rectangle{

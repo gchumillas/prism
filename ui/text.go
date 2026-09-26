@@ -7,6 +7,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/fogleman/gg"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
@@ -14,7 +15,7 @@ import (
 
 type Text struct {
 	BasePosition
-	scene    *Scene
+	canvas   *gg.Context
 	text     string
 	width    int
 	fontSize float64
@@ -29,7 +30,7 @@ func (val fontSizeOpt) applyText(x *Text) { x.fontSize = float64(val) }
 
 func (s *Scene) Text(text string, width int, opts ...TextOpt) *Text {
 	t := &Text{
-		scene:    s,
+		canvas:   s.canvas,
 		text:     text,
 		width:    width,
 		fontSize: s.fontSize,
@@ -64,10 +65,10 @@ func (t *Text) Render() image.Rectangle {
 	height := ascent
 	lines := splitIntoLines(face, t.text, t.width)
 	for _, line := range lines {
-		t.scene.canvas.SetFontFace(face)
-		t.scene.canvas.SetColor(color.Black)
+		t.canvas.SetFontFace(face)
+		t.canvas.SetColor(color.Black)
 		// TODO: add ui.Color option
-		t.scene.canvas.DrawString(line, float64(t.position.X), float64(t.position.Y+height))
+		t.canvas.DrawString(line, float64(t.position.X), float64(t.position.Y+height))
 		height += lineh
 	}
 
