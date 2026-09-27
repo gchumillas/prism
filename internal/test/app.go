@@ -17,7 +17,8 @@ type App struct {
 	bgColor color.Color
 }
 
-func NewApp(width, height int, bgColor color.Color) *App {
+func NewApp() *App {
+	width, height, bgColor := 320, 240, color.White
 	canvas := gg.NewContext(width, height)
 	return &App{
 		Context: ui.NewContext(canvas, ui.FontSize(10)),

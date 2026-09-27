@@ -17,7 +17,7 @@ import (
 var penPNG []byte
 
 func TestContext_ImageFromReader(t *testing.T) {
-	app := test.NewApp(30, 30, color.White)
+	app := test.NewApp()
 
 	penBuff := bytes.NewBuffer(penPNG)
 	img, err := app.ImageFromReader(penBuff)
@@ -29,7 +29,7 @@ func TestContext_ImageFromReader(t *testing.T) {
 }
 
 func TestImage_Render(t *testing.T) {
-	app := test.NewApp(320, 240, color.White)
+	app := test.NewApp()
 
 	penBuff := bytes.NewBuffer(penPNG)
 	img, err := app.ImageFromReader(penBuff)
@@ -55,7 +55,7 @@ func TestImage_Render(t *testing.T) {
 }
 
 func TestLabelButton_Render(t *testing.T) {
-	app := test.NewApp(220, 80, color.White)
+	app := test.NewApp()
 	btn := app.LabelButton("Click me!")
 	app.Add(btn)
 
@@ -70,7 +70,7 @@ func TestLabelButton_Render(t *testing.T) {
 	test.DotHasSomeColors(t, screen, 0, 75, 5)            // left-bottom corner
 
 	t.Run("dirty rect", func(t *testing.T) {
-		app := test.NewApp(320, 240, color.White)
+		app := test.NewApp()
 		btn := app.LabelButton("Click me!")
 		app.Add(btn)
 		r := btn.Render()
@@ -89,7 +89,7 @@ func TestLabelButton_Render(t *testing.T) {
 }
 
 func TestLabelButton_Contains(t *testing.T) {
-	app := test.NewApp(320, 240, color.White)
+	app := test.NewApp()
 	btn := app.LabelButton("Click me!")
 	btn.SetX(100)
 	btn.SetY(50)
@@ -99,7 +99,7 @@ func TestLabelButton_Contains(t *testing.T) {
 	require.True(t, btn.Contains(110, 60)) // inside
 
 	t.Run("forgot calling Render", func(t *testing.T) {
-		app := test.NewApp(320, 240, color.White)
+		app := test.NewApp()
 		btn := app.LabelButton("Click me!")
 		require.Panics(t, func() { btn.Contains(0, 0) })
 	})
