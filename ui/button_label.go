@@ -45,7 +45,7 @@ func (lb *LabelButton) Render() image.Rectangle {
 	lb.canvas.SetLineWidth(float64(lineWidth))
 	lb.canvas.DrawRectangle(
 		float64(lb.hitbox.Min.X), float64(lb.hitbox.Min.Y),
-		float64(lb.hitbox.Max.X-lb.hitbox.Min.X), float64(lb.hitbox.Max.Y-lb.hitbox.Min.Y))
+		float64(lb.hitbox.Dx()), float64(lb.hitbox.Dy()))
 	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 

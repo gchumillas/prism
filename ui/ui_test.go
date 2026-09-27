@@ -72,6 +72,8 @@ func TestLabelButton_Render(t *testing.T) {
 	t.Run("dirty rect", func(t *testing.T) {
 		app := test.NewApp()
 		btn := app.LabelButton("Click me!")
+		btn.SetX(100)
+		btn.SetY(50)
 		app.Add(btn)
 		r := btn.Render()
 
@@ -83,8 +85,6 @@ func TestLabelButton_Render(t *testing.T) {
 		app.Remove(btn)
 		app.RefreshRect(r)
 		test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
-
-		test.TakeSnapshot(t, app.Screen())
 	})
 }
 
@@ -101,6 +101,49 @@ func TestLabelButton_Contains(t *testing.T) {
 	t.Run("forgot calling Render", func(t *testing.T) {
 		app := test.NewApp()
 		btn := app.LabelButton("Click me!")
+		require.Panics(t, func() { btn.Contains(0, 0) })
+	})
+}
+
+func TestImageButton_Render(t *testing.T) {
+	app := test.NewApp()
+
+	penBuff := bytes.NewBuffer(penPNG)
+	btn, err := app.ImageButtonFromReader(penBuff)
+	require.NoError(t, err)
+	btn.SetX(100)
+	btn.SetY(50)
+	app.Add(btn)
+	r := btn.Render()
+
+	// the widget is there
+	app.Refresh()
+	test.RectHasSomeColors(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+
+	// the widget is NOT there
+	app.Remove(btn)
+	app.RefreshRect(r)
+	test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
+}
+
+func TestImageButton_Contains(t *testing.T) {
+	app := test.NewApp()
+
+	penBuff := bytes.NewBuffer(penPNG)
+	btn, err := app.ImageButtonFromReader(penBuff)
+	require.NoError(t, err)
+	btn.SetX(100)
+	btn.SetY(50)
+	btn.Render()
+	require.False(t, btn.Contains(0, 0))   // outside
+	require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
+	require.True(t, btn.Contains(110, 60)) // inside
+
+	t.Run("forgot calling Render", func(t *testing.T) {
+		app := test.NewApp()
+		penBuff := bytes.NewBuffer(penPNG)
+		btn, err := app.ImageButtonFromReader(penBuff)
+		require.NoError(t, err)
 		require.Panics(t, func() { btn.Contains(0, 0) })
 	})
 }
