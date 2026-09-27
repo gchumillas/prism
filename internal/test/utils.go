@@ -6,6 +6,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,8 +15,9 @@ import (
 const testDir = "testdata"
 
 func TakeSnapshot(t *testing.T, img image.Image) {
-	name := filepath.Join(testDir, t.Name()+".png")
-	err := os.MkdirAll(testDir, 0o755)
+	name := filepath.Join(testDir, t.Name()) + ".png"
+	dir := strings.TrimSuffix(name, filepath.Base(name))
+	err := os.MkdirAll(dir, 0o755)
 	require.NoError(t, err)
 	f, err := os.Create(name)
 	require.NoError(t, err)

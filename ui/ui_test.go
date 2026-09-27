@@ -68,6 +68,24 @@ func TestLabelButton_Render(t *testing.T) {
 	test.DotHasSomeColors(t, screen, 205, 0, 5)           // right-top corner
 	test.DotHasSomeColors(t, screen, 205, 75, 5)          // right-bottom corner
 	test.DotHasSomeColors(t, screen, 0, 75, 5)            // left-bottom corner
+
+	t.Run("dirty rect", func(t *testing.T) {
+		app := test.NewApp(320, 240, color.White)
+		btn := app.LabelButton("Click me!")
+		app.Add(btn)
+		r := btn.Render()
+
+		// the widget is there
+		app.Refresh()
+		test.RectHasSomeColors(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+
+		// the widget is NOT there
+		app.Remove(btn)
+		app.RefreshRect(r)
+		test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
+
+		test.TakeSnapshot(t, app.Screen())
+	})
 }
 
 func TestLabelButton_Contains(t *testing.T) {
