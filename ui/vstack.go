@@ -21,8 +21,9 @@ type VStackOpt interface {
 }
 
 // avail options
-func (val paddingOpt) applyVStack(x *VStack) { x.padding = image.Point(val) }
-func (val gapOpt) applyVStack(x *VStack)     { x.gap = int(val) }
+func (val paddingXOpt) applyVStack(x *VStack) { x.padding.X = int(val) }
+func (val paddingYOpt) applyVStack(x *VStack) { x.padding.Y = int(val) }
+func (val gapOpt) applyVStack(x *VStack)      { x.gap = int(val) }
 
 func (c Context) VStack(opts ...VStackOpt) *VStack {
 	vs := &VStack{}

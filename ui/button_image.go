@@ -19,7 +19,7 @@ type ImageButton struct {
 
 func (c Context) ImageButtonFromReader(r io.Reader) (_ *ImageButton, err error) {
 	ib := &ImageButton{canvas: c.canvas}
-	ib.vstack = c.VStack(Padding(imgBtnPad.X, imgBtnPad.Y))
+	ib.vstack = c.VStack(Px(imgBtnPad.X), Py(imgBtnPad.Y))
 	if ib.img, err = c.ImageFromReader(r); err != nil {
 		return
 	}
