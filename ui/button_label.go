@@ -41,14 +41,20 @@ func (lb *LabelButton) Render() image.Rectangle {
 		Max: lb.vstack.position.Add(size),
 	}
 
-	lb.canvas.SetLineWidth(4)
+	lineWidth := 4
+	lb.canvas.SetLineWidth(float64(lineWidth))
 	lb.canvas.DrawRectangle(
 		float64(lb.hitbox.Min.X), float64(lb.hitbox.Min.Y),
 		float64(lb.hitbox.Max.X-lb.hitbox.Min.X), float64(lb.hitbox.Max.Y-lb.hitbox.Min.Y))
 	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 
-	return lb.hitbox.Union(lb.vstack.Render())
+	r := lb.vstack.Render().Union(lb.hitbox)
+	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
+	return image.Rectangle{
+		Min: r.Min.Sub(margin),
+		Max: r.Max.Add(margin),
+	}
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
