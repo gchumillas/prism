@@ -21,6 +21,8 @@ type VStackOpt interface {
 }
 
 // avail options
+func (val xOpt) applyVStack(x *VStack)        { x.SetX(int(val)) }
+func (val yOpt) applyVStack(x *VStack)        { x.SetY(int(val)) }
 func (val paddingXOpt) applyVStack(x *VStack) { x.padding.X = int(val) }
 func (val paddingYOpt) applyVStack(x *VStack) { x.padding.Y = int(val) }
 func (val gapOpt) applyVStack(x *VStack)      { x.gap = int(val) }

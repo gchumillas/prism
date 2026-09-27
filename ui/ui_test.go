@@ -2,11 +2,13 @@ package ui_test
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	"testing"
 
 	"github.com/gchumillas/prism/internal/test"
+	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 
 	_ "embed"
@@ -28,13 +30,27 @@ func TestContext_ImageFromReader(t *testing.T) {
 	test.RectHasSomeColors(t, app.Screen(), 0, 0, 24, 24)
 }
 
+func TestImage_options(t *testing.T) {
+	t.Run("X Y", func(t *testing.T) {
+		app := test.NewApp()
+		penBuff := bytes.NewBuffer(penPNG)
+		img, err := app.ImageFromReader(penBuff, ui.X(30), ui.Y(30))
+		require.NoError(t, err)
+		app.Add(img)
+
+		app.Refresh()
+		test.HlineIsColor(t, app.Screen(), 0, 40, 20, color.White)   // nothing here
+		test.VlineIsColor(t, app.Screen(), 40, 0, 20, color.White)   // nothing here
+		test.RectIsColor(t, app.Screen(), 0, 0, 20, 20, color.White) // nothing here
+		test.RectHasSomeColors(t, app.Screen(), 30, 30, 54, 54)      // something here
+	})
+}
+
 func TestImage_Render(t *testing.T) {
 	app := test.NewApp()
 
 	penBuff := bytes.NewBuffer(penPNG)
-	img, err := app.ImageFromReader(penBuff)
-	img.SetX(10)
-	img.SetY(20)
+	img, err := app.ImageFromReader(penBuff, ui.X(10), ui.Y(20))
 	require.NoError(t, err)
 	app.Add(img)
 
@@ -54,6 +70,20 @@ func TestImage_Render(t *testing.T) {
 	test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
 }
 
+func TestLabelButton_options(t *testing.T) {
+	t.Run("X Y", func(t *testing.T) {
+		app := test.NewApp()
+		btn := app.LabelButton("Click me!", ui.X(100), ui.Y(50))
+		app.Add(btn)
+
+		app.Refresh()
+		test.HlineIsColor(t, app.Screen(), 0, 200, 90, color.White)  // nothing here
+		test.VlineIsColor(t, app.Screen(), 200, 0, 40, color.White)  // nothing here
+		test.RectIsColor(t, app.Screen(), 0, 0, 90, 40, color.White) // nothing here
+		test.RectHasSomeColors(t, app.Screen(), 100, 50, 200, 100)   // something here
+	})
+}
+
 func TestLabelButton_Render(t *testing.T) {
 	app := test.NewApp()
 	btn := app.LabelButton("Click me!")
@@ -71,9 +101,7 @@ func TestLabelButton_Render(t *testing.T) {
 
 	t.Run("dirty rect", func(t *testing.T) {
 		app := test.NewApp()
-		btn := app.LabelButton("Click me!")
-		btn.SetX(100)
-		btn.SetY(50)
+		btn := app.LabelButton("Click me!", ui.X(100), ui.Y(50))
 		app.Add(btn)
 		r := btn.Render()
 
@@ -90,9 +118,7 @@ func TestLabelButton_Render(t *testing.T) {
 
 func TestLabelButton_Contains(t *testing.T) {
 	app := test.NewApp()
-	btn := app.LabelButton("Click me!")
-	btn.SetX(100)
-	btn.SetY(50)
+	btn := app.LabelButton("Click me!", ui.X(100), ui.Y(50))
 	btn.Render()
 	require.False(t, btn.Contains(0, 0))   // outside
 	require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
@@ -105,14 +131,28 @@ func TestLabelButton_Contains(t *testing.T) {
 	})
 }
 
+func TestImageButton_options(t *testing.T) {
+	t.Run("X Y", func(t *testing.T) {
+		app := test.NewApp()
+		penBuff := bytes.NewBuffer(penPNG)
+		btn, err := app.ImageButtonFromReader(penBuff, ui.X(100), ui.Y(50))
+		require.NoError(t, err)
+		app.Add(btn)
+
+		app.Refresh()
+		test.HlineIsColor(t, app.Screen(), 0, 65, 90, color.White)   // nothing here
+		test.VlineIsColor(t, app.Screen(), 115, 0, 40, color.White)  // nothing here
+		test.RectIsColor(t, app.Screen(), 0, 0, 90, 45, color.White) // nothing here
+		test.RectHasSomeColors(t, app.Screen(), 90, 40, 140, 90)     // something here
+	})
+}
+
 func TestImageButton_Render(t *testing.T) {
 	app := test.NewApp()
 
 	penBuff := bytes.NewBuffer(penPNG)
-	btn, err := app.ImageButtonFromReader(penBuff)
+	btn, err := app.ImageButtonFromReader(penBuff, ui.X(100), ui.Y(50))
 	require.NoError(t, err)
-	btn.SetX(100)
-	btn.SetY(50)
 	app.Add(btn)
 	r := btn.Render()
 
@@ -130,10 +170,8 @@ func TestImageButton_Contains(t *testing.T) {
 	app := test.NewApp()
 
 	penBuff := bytes.NewBuffer(penPNG)
-	btn, err := app.ImageButtonFromReader(penBuff)
+	btn, err := app.ImageButtonFromReader(penBuff, ui.X(100), ui.Y(50))
 	require.NoError(t, err)
-	btn.SetX(100)
-	btn.SetY(50)
 	btn.Render()
 	require.False(t, btn.Contains(0, 0))   // outside
 	require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
@@ -145,5 +183,22 @@ func TestImageButton_Contains(t *testing.T) {
 		btn, err := app.ImageButtonFromReader(penBuff)
 		require.NoError(t, err)
 		require.Panics(t, func() { btn.Contains(0, 0) })
+	})
+}
+
+func TestVStack_options(t *testing.T) {
+	t.Run("X Y", func(t *testing.T) {
+		app := test.NewApp()
+		vs := app.VStack(ui.X(100), ui.Y(50))
+		for i := range 2 {
+			vs.Add(app.Label(fmt.Sprintf("Item %d", i)))
+		}
+		app.Add(vs)
+
+		app.Refresh()
+		test.HlineIsColor(t, app.Screen(), 0, 65, 90, color.White)   // nothing here
+		test.VlineIsColor(t, app.Screen(), 115, 0, 40, color.White)  // nothing here
+		test.RectIsColor(t, app.Screen(), 0, 0, 90, 45, color.White) // nothing here
+		test.RectHasSomeColors(t, app.Screen(), 90, 40, 200, 125)    // something here
 	})
 }
