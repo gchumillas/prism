@@ -5,7 +5,6 @@ import (
 	"image"
 	"os"
 
-	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/internal/platform"
 	"github.com/gchumillas/prism/ui"
@@ -19,8 +18,7 @@ type Prism struct {
 }
 
 func (prism *Prism) Run() error {
-	ctx := gg.NewContextForRGBA(prism.Canvas)
-	s := ui.NewContext(ctx, ui.FontSize(prism.FontSize))
+	s := ui.NewContextFromRGBA(prism.Canvas, ui.FontSize(prism.FontSize))
 
 	btn := s.LabelButton("Click me!")
 	btn.SetX(50)

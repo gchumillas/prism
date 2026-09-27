@@ -7,7 +7,6 @@ import (
 	"image/draw"
 	"os"
 
-	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/internal/platform"
 	"github.com/gchumillas/prism/ui"
@@ -22,8 +21,7 @@ type Storybook struct {
 }
 
 func (sb *Storybook) Run() error {
-	ctx := gg.NewContextForRGBA(sb.Canvas)
-	c := ui.NewContext(ctx, ui.FontSize(sb.FontSize))
+	c := ui.NewContextFromRGBA(sb.Canvas, ui.FontSize(sb.FontSize))
 
 	btn := c.LabelButton("Click me!")
 	btn.SetX(100)

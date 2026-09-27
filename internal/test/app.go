@@ -5,27 +5,24 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/ui"
 )
 
 type App struct {
 	ui.BaseGroup
 	ui.Context
-	canvas  *gg.Context
-	screen  *image.RGBA
-	bgColor color.Color
+	screen *image.RGBA
 }
 
 func NewApp() *App {
-	width, height, bgColor := 320, 240, color.White
-	canvas := gg.NewContext(width, height)
-	return &App{
-		Context: ui.NewContext(canvas, ui.FontSize(10)),
-		canvas:  canvas,
+	width, height := 320, 240
+	ctx := ui.NewContext(width, height, ui.FontSize(10))
+	app := &App{
+		Context: ctx,
 		screen:  image.NewRGBA(image.Rect(0, 0, width, height)),
-		bgColor: bgColor,
 	}
+	app.Add(app.Surface(width, height, color.White))
+	return app
 }
 
 func (app *App) Screen() *image.RGBA {
@@ -33,11 +30,6 @@ func (app *App) Screen() *image.RGBA {
 }
 
 func (app *App) render() {
-	width, height := app.canvas.Width(), app.canvas.Height()
-	app.canvas.DrawRectangle(0, 0, float64(width), float64(height))
-	app.canvas.SetColor(app.bgColor)
-	app.canvas.Fill()
-
 	for _, c := range app.Children() {
 		c.Render()
 	}
@@ -45,12 +37,12 @@ func (app *App) render() {
 
 func (app *App) Refresh() {
 	app.render()
-	img := app.canvas.Image()
+	img := app.Image()
 	draw.Draw(app.screen, img.Bounds(), img, image.Pt(0, 0), draw.Src)
 }
 
 func (app *App) RefreshRect(r image.Rectangle) {
 	app.render()
-	img := app.canvas.Image()
+	img := app.Image()
 	draw.Draw(app.screen, r, img, r.Min, draw.Src)
 }
