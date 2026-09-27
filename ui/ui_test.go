@@ -18,6 +18,21 @@ import (
 //go:embed "testdata/pen24.png"
 var penPNG []byte
 
+func TestSurface(t *testing.T) {
+	t.Run("Render", func(t *testing.T) {
+		app := test.NewApp()
+		fillColor := color.Gray{Y: 50}
+		s := app.Surface(50, 100, fillColor, ui.X(100), ui.Y(50))
+		app.Add(s)
+
+		app.Refresh()
+		test.HlineIsColor(t, app.Screen(), 0, 100, 90, color.White)     // nothing here
+		test.VlineIsColor(t, app.Screen(), 125, 0, 40, color.White)     // nothing here
+		test.RectIsColor(t, app.Screen(), 0, 0, 90, 40, color.White)    // nothing here
+		test.RectIsColor(t, app.Screen(), 110, 60, 145, 145, fillColor) // something here
+	})
+}
+
 func TestImage(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
