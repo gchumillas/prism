@@ -13,18 +13,15 @@ import (
 
 const testDir = "testdata"
 
-func TakeSnapshot(t *testing.T, img image.Image) image.Image {
-	if os.Getenv("GENERATE_SNAPSHOTS") == "1" {
-		name := filepath.Join(testDir, t.Name()+".png")
-		err := os.MkdirAll(testDir, 0o755)
-		require.NoError(t, err)
-		f, err := os.Create(name)
-		require.NoError(t, err)
-		defer func() { _ = f.Close() }()
-		err = png.Encode(f, img)
-		require.NoError(t, err)
-	}
-	return img
+func TakeSnapshot(t *testing.T, img image.Image) {
+	name := filepath.Join(testDir, t.Name()+".png")
+	err := os.MkdirAll(testDir, 0o755)
+	require.NoError(t, err)
+	f, err := os.Create(name)
+	require.NoError(t, err)
+	defer func() { _ = f.Close() }()
+	err = png.Encode(f, img)
+	require.NoError(t, err)
 }
 
 func rectIsValid(t *testing.T, x0, y0, x1, y1 int) bool {

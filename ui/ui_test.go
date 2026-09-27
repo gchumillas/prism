@@ -25,8 +25,7 @@ func TestContext_ImageFromReader(t *testing.T) {
 	app.Add(img)
 
 	app.Refresh()
-	snap := test.TakeSnapshot(t, app.Screen())
-	test.RectHasSomeColors(t, snap, 0, 0, 24, 24)
+	test.RectHasSomeColors(t, app.Screen(), 0, 0, 24, 24)
 }
 
 func TestImage_Render(t *testing.T) {
@@ -61,14 +60,14 @@ func TestLabelButton_Render(t *testing.T) {
 	app.Add(btn)
 
 	app.Refresh()
-	snap := test.TakeSnapshot(t, app.Screen())
-	test.VlineIsColor(t, snap, 100, 5, 10, color.White) // top padding
-	test.HlineIsColor(t, snap, 10, 35, 10, color.White) // left padding
-	test.RectHasSomeColors(t, snap, 35, 20, 170, 50)    // text
-	test.DotHasSomeColors(t, snap, 0, 0, 5)             // left-top corner
-	test.DotHasSomeColors(t, snap, 205, 0, 5)           // right-top corner
-	test.DotHasSomeColors(t, snap, 205, 75, 5)          // right-bottom corner
-	test.DotHasSomeColors(t, snap, 0, 75, 5)            // left-bottom corner
+	screen := app.Screen()
+	test.VlineIsColor(t, screen, 100, 5, 10, color.White) // top padding
+	test.HlineIsColor(t, screen, 10, 35, 10, color.White) // left padding
+	test.RectHasSomeColors(t, screen, 35, 20, 170, 50)    // text
+	test.DotHasSomeColors(t, screen, 0, 0, 5)             // left-top corner
+	test.DotHasSomeColors(t, screen, 205, 0, 5)           // right-top corner
+	test.DotHasSomeColors(t, screen, 205, 75, 5)          // right-bottom corner
+	test.DotHasSomeColors(t, screen, 0, 75, 5)            // left-bottom corner
 }
 
 func TestLabelButton_Contains(t *testing.T) {

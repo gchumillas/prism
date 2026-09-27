@@ -1,8 +1,5 @@
 {
   "go.testTimeout": "5s",
   "go.buildTags": "mage",
-  "go.testFlags": ["-benchtime=1s"],
-  "go.testEnvVars": {
-    "GENERATE_SNAPSHOTS": "1"
-  }
+  "go.testFlags": ["-benchtime=1s"]
 }
