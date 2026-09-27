@@ -18,7 +18,7 @@ type LabelButton struct {
 
 func (c Context) LabelButton(text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
-	lb.vstack = c.VStack(Padding(labelBtnPad.X, labelBtnPad.Y))
+	lb.vstack = c.VStack(Px(labelBtnPad.X), Py(labelBtnPad.Y))
 	lb.label = c.Label(text)
 	lb.vstack.Add(lb.label)
 	return lb
