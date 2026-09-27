@@ -7,7 +7,7 @@ import (
 	"github.com/fogleman/gg"
 )
 
-var paddingBtn = image.Point{38, 19}
+var labelBtnPad = image.Point{38, 19}
 
 type LabelButton struct {
 	canvas *gg.Context
@@ -18,7 +18,7 @@ type LabelButton struct {
 
 func (c Context) LabelButton(text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
-	lb.vstack = c.VStack(Padding(paddingBtn.X, paddingBtn.Y))
+	lb.vstack = c.VStack(Padding(labelBtnPad.X, labelBtnPad.Y))
 	lb.label = c.Label(text)
 	lb.vstack.Add(lb.label)
 	return lb
@@ -31,11 +31,11 @@ func (lb *LabelButton) Y() int       { return lb.vstack.Y() }
 func (lb *LabelButton) SetY(val int) { lb.vstack.SetY(val) }
 
 func (lb *LabelButton) Height() int {
-	return lb.label.Height() + 2*paddingBtn.Y
+	return lb.label.Height() + 2*labelBtnPad.Y
 }
 
 func (lb *LabelButton) Render() image.Rectangle {
-	size := image.Pt(lb.label.Width(), lb.label.Height()).Add(paddingBtn.Mul(2))
+	size := image.Pt(lb.label.Width(), lb.label.Height()).Add(labelBtnPad.Mul(2))
 	lb.hitbox = image.Rectangle{
 		Min: lb.vstack.position,
 		Max: lb.vstack.position.Add(size),
