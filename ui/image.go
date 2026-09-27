@@ -21,6 +21,15 @@ func (c Context) ImageFromReader(r io.Reader) (img *Image, err error) {
 	return
 }
 
+func (i *Image) Size() image.Point {
+	b := i.img.Bounds()
+	return image.Pt(b.Dx(), b.Dy())
+}
+
+func (i *Image) Height() int {
+	return i.Size().Y
+}
+
 func (i *Image) Render() image.Rectangle {
 	i.canvas.DrawImage(i.img, i.position.X, i.position.Y)
 	b := i.img.Bounds()
