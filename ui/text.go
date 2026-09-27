@@ -26,6 +26,8 @@ type TextOpt interface {
 }
 
 // avail options
+func (val xOpt) applyText(x *Text)        { x.SetX(int(val)) }
+func (val yOpt) applyText(x *Text)        { x.SetY(int(val)) }
 func (val fontSizeOpt) applyText(x *Text) { x.fontSize = float64(val) }
 
 func (c Context) Text(text string, width int, opts ...TextOpt) *Text {

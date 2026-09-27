@@ -13,9 +13,20 @@ type Image struct {
 	img    image.Image
 }
 
-func (c Context) ImageFromReader(r io.Reader) (img *Image, err error) {
-	img = &Image{canvas: c.canvas}
-	if img.img, _, err = image.Decode(r); err != nil {
+type ImageOpt interface {
+	applyImage(*Image)
+}
+
+// avail options
+func (val xOpt) applyImage(x *Image) { x.SetX(int(val)) }
+func (val yOpt) applyImage(x *Image) { x.SetY(int(val)) }
+
+func (c Context) ImageFromReader(r io.Reader, opts ...ImageOpt) (i *Image, err error) {
+	i = &Image{canvas: c.canvas}
+	for _, opt := range opts {
+		opt.applyImage(i)
+	}
+	if i.img, _, err = image.Decode(r); err != nil {
 		return
 	}
 	return

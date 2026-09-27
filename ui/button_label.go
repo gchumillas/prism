@@ -16,9 +16,20 @@ type LabelButton struct {
 	label  *Label
 }
 
-func (c Context) LabelButton(text string) *LabelButton {
+type LabelButtonOpt interface {
+	applyLabelButton(*LabelButton)
+}
+
+// avail options
+func (val xOpt) applyLabelButton(x *LabelButton) { x.SetX(int(val)) }
+func (val yOpt) applyLabelButton(x *LabelButton) { x.SetY(int(val)) }
+
+func (c Context) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
 	lb.vstack = c.VStack(Px(labelBtnPad.X), Py(labelBtnPad.Y))
+	for _, opt := range opts {
+		opt.applyLabelButton(lb)
+	}
 	lb.label = c.Label(text)
 	lb.vstack.Add(lb.label)
 	return lb

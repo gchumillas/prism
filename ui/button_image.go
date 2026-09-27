@@ -17,9 +17,20 @@ type ImageButton struct {
 	img    *Image
 }
 
-func (c Context) ImageButtonFromReader(r io.Reader) (_ *ImageButton, err error) {
+type ImageButtonOpt interface {
+	applyImageButton(*ImageButton)
+}
+
+// avail options
+func (val xOpt) applyImageButton(x *ImageButton) { x.SetX(int(val)) }
+func (val yOpt) applyImageButton(x *ImageButton) { x.SetY(int(val)) }
+
+func (c Context) ImageButtonFromReader(r io.Reader, opts ...ImageButtonOpt) (_ *ImageButton, err error) {
 	ib := &ImageButton{canvas: c.canvas}
 	ib.vstack = c.VStack(Px(imgBtnPad.X), Py(imgBtnPad.Y))
+	for _, opt := range opts {
+		opt.applyImageButton(ib)
+	}
 	if ib.img, err = c.ImageFromReader(r); err != nil {
 		return
 	}

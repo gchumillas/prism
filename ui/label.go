@@ -25,6 +25,8 @@ type LabelOpt interface {
 }
 
 // avail options
+func (val xOpt) applyLabel(x *Label)        { x.SetX(int(val)) }
+func (val yOpt) applyLabel(x *Label)        { x.SetY(int(val)) }
 func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
 
 func (c Context) Label(text string, opts ...LabelOpt) *Label {
