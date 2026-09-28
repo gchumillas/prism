@@ -13,6 +13,11 @@ var Aliases = map[string]any{
 	"Docs": Docs.Start,
 }
 
+// Setup prepares the development environment.
+func Setup() error {
+	return sh.Run("git", "config", "core.hooksPath", ".githooks")
+}
+
 // ---- Lint ----
 type Lint mg.Namespace
 
