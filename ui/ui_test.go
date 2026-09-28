@@ -18,11 +18,11 @@ import (
 //go:embed "testdata/pen24.png"
 var penPNG []byte
 
-func TestSurface(t *testing.T) {
+func TestRectangle(t *testing.T) {
 	t.Run("Render", func(t *testing.T) {
 		app := test.NewApp()
 		fillColor := color.Gray{Y: 50}
-		s := app.Surface(50, 100, fillColor, ui.X(100), ui.Y(50))
+		s := app.Rectangle(50, 100, fillColor, ui.X(100), ui.Y(50))
 		app.Add(s)
 
 		app.Refresh()
