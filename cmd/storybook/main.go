@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"image"
 	"image/color"
-	"image/draw"
 	"os"
 
 	"github.com/gchumillas/prism/internal/app"
@@ -14,16 +12,14 @@ import (
 
 type Storybook struct {
 	ui.BaseGroup
-	Touch    app.TapDispatcher
-	Screen   app.Renderer
-	Canvas   *image.RGBA
-	FontSize float64
+	ui.Context
+	// physical devices
+	Touch  app.TapDispatcher
+	Screen app.Renderer
 }
 
 func (sb *Storybook) Run() error {
-	c := ui.NewContextFromRGBA(sb.Canvas, ui.FontSize(sb.FontSize))
-
-	btn := c.LabelButton("Click me!")
+	btn := sb.LabelButton("Click me!")
 	btn.SetX(100)
 	btn.SetY(200)
 	sb.Add(btn)
@@ -37,8 +33,8 @@ func (sb *Storybook) Run() error {
 }
 
 func (sb *Storybook) Render() {
-	r := sb.Canvas.Bounds()
-	draw.Draw(sb.Canvas, r, image.NewUniform(color.White), image.Pt(0, 0), draw.Src)
+	r := sb.Image().Bounds()
+	sb.Rectangle(r.Dx(), r.Dy(), color.White)
 	for _, e := range sb.Children() {
 		e.Render()
 	}
@@ -46,7 +42,7 @@ func (sb *Storybook) Render() {
 
 func (sb *Storybook) refresh() error {
 	sb.Render()
-	b := sb.Canvas.Bounds()
+	b := sb.Image().Bounds()
 	s := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
 	return sb.Screen.Refresh([]app.Region{s})
 }
@@ -59,11 +55,11 @@ func main() {
 	}
 
 	sb := &Storybook{
-		Touch:    env.Touch,
-		Screen:   env.Screen,
-		Canvas:   env.Canvas,
-		FontSize: env.FontSize,
+		Context: ui.NewContextFromRGBA(env.Canvas, ui.FontSize(env.FontSize)),
+		Touch:   env.Touch,
+		Screen:  env.Screen,
 	}
+
 	if err := sb.Run(); err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
