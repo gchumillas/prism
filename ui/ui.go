@@ -23,10 +23,7 @@ var uiFont = func() *opentype.Font {
 }()
 
 type Renderer interface {
-	// Render draws the element and returns the dirty region that the
-	// refresh system must repaint. This may be larger than the element's
-	// own bounds (e.g. to cover borders or effects drawn outside them).
-	Render() image.Rectangle
+	Render() (dirty []image.Rectangle)
 }
 
 type Context struct {

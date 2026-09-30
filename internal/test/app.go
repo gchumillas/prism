@@ -15,7 +15,7 @@ type App struct {
 }
 
 func NewApp() *App {
-	width, height := 320, 240
+	width, height := 640, 480
 	ctx := ui.NewContext(width, height, ui.FontSize(10))
 	app := &App{
 		Context: ctx,
@@ -29,16 +29,19 @@ func (app *App) Screen() *image.RGBA {
 	return app.screen
 }
 
-func (app *App) render() {
+func (app *App) render() (dirtyRegs []image.Rectangle) {
 	for _, c := range app.Children() {
-		c.Render()
+		dirtyRegs = append(dirtyRegs, c.Render()...)
 	}
+	return ui.MergeRegions(dirtyRegs)
 }
 
 func (app *App) Refresh() {
-	app.render()
 	img := app.Image()
-	draw.Draw(app.screen, img.Bounds(), img, image.Pt(0, 0), draw.Src)
+	dirtyRegs := app.render()
+	for _, r := range dirtyRegs {
+		draw.Draw(app.screen, r, img, r.Min, draw.Src)
+	}
 }
 
 func (app *App) RefreshRect(r image.Rectangle) {

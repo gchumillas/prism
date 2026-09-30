@@ -20,7 +20,7 @@ func (c Context) Modal() *Modal {
 	return m
 }
 
-func (m *Modal) Render() (rect image.Rectangle) {
+func (m *Modal) Render() (rect []image.Rectangle) {
 	for _, c := range m.children {
 		c.Render()
 	}

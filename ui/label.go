@@ -64,14 +64,14 @@ func (l *Label) Width() int {
 	return bounds.Max.X.Ceil()
 }
 
-func (l *Label) Render() (r image.Rectangle) {
+func (l *Label) Render() []image.Rectangle {
 	l.canvas.SetFontFace(l.face)
 	l.canvas.SetColor(color.Black)
 	l.canvas.DrawString(l.text, float64(l.position.X), float64(l.position.Y+l.ascent))
 
 	size := image.Point{l.Width(), l.Height()}
-	return image.Rectangle{
+	return []image.Rectangle{{
 		Min: l.position,
 		Max: l.position.Add(size),
-	}
+	}}
 }
