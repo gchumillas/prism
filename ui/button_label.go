@@ -45,7 +45,7 @@ func (lb *LabelButton) Height() int {
 	return lb.label.Height() + 2*labelBtnPad.Y
 }
 
-func (lb *LabelButton) Render() image.Rectangle {
+func (lb *LabelButton) Render() []image.Rectangle {
 	size := image.Pt(lb.label.Width(), lb.label.Height()).Add(labelBtnPad.Mul(2))
 	lb.hitbox = image.Rectangle{
 		Min: lb.vstack.position,
@@ -60,12 +60,11 @@ func (lb *LabelButton) Render() image.Rectangle {
 	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 
-	r := lb.vstack.Render().Union(lb.hitbox)
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return image.Rectangle{
-		Min: r.Min.Sub(margin),
-		Max: r.Max.Add(margin),
-	}
+	return append(lb.vstack.Render(), image.Rectangle{
+		Min: lb.hitbox.Min.Sub(margin),
+		Max: lb.hitbox.Max.Add(margin),
+	})
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {

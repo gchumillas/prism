@@ -41,13 +41,13 @@ func (i *Image) Height() int {
 	return i.Size().Y
 }
 
-func (i *Image) Render() image.Rectangle {
+func (i *Image) Render() []image.Rectangle {
 	i.canvas.DrawImage(i.img, i.position.X, i.position.Y)
 	b := i.img.Bounds()
 	size := b.Max.Sub(b.Min)
 
-	return image.Rectangle{
+	return []image.Rectangle{{
 		Min: i.position,
 		Max: i.position.Add(size),
-	}
+	}}
 }

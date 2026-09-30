@@ -50,7 +50,7 @@ func (t *Text) Size() (width, height int) {
 func (bs *Text) SetSize(width, height int) {
 }
 
-func (t *Text) Render() image.Rectangle {
+func (t *Text) Render() []image.Rectangle {
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
 		DPI:     defaultDPI,
@@ -74,10 +74,10 @@ func (t *Text) Render() image.Rectangle {
 		height += lineh
 	}
 
-	return image.Rectangle{
+	return []image.Rectangle{{
 		Min: t.position,
 		Max: t.position.Add(image.Pt(t.width, lineh*len(lines))),
-	}
+	}}
 }
 
 func splitIntoLines(f font.Face, text string, width int) (lines []string) {

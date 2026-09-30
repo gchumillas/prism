@@ -48,7 +48,7 @@ func (ib *ImageButton) Height() int {
 	return ib.img.Height() + 2*imgBtnPad.Y
 }
 
-func (ib *ImageButton) Render() image.Rectangle {
+func (ib *ImageButton) Render() []image.Rectangle {
 	pos := ib.vstack.position
 	size := ib.img.Size().Add(imgBtnPad.Mul(2))
 
@@ -65,12 +65,11 @@ func (ib *ImageButton) Render() image.Rectangle {
 		float64(ib.hitbox.Dx()), float64(ib.hitbox.Dy()))
 	ib.canvas.Stroke()
 
-	r := ib.vstack.Render().Union(ib.hitbox)
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return image.Rectangle{
-		Min: r.Min.Sub(margin),
-		Max: r.Max.Add(margin),
-	}
+	return append(ib.vstack.Render(), image.Rectangle{
+		Min: ib.hitbox.Min.Sub(margin),
+		Max: ib.hitbox.Max.Add(margin),
+	})
 }
 
 func (ib *ImageButton) Contains(x, y int) bool {

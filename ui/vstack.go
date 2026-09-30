@@ -39,7 +39,7 @@ func (vs *VStack) Add(child VStackChild) {
 	vs.children = append(vs.children, child)
 }
 
-func (vs *VStack) Render() (r image.Rectangle) {
+func (vs *VStack) Render() (dirtyRegs []image.Rectangle) {
 	height := vs.position.Y + vs.padding.Y
 	for i, child := range vs.children {
 		if i > 0 {
@@ -47,7 +47,7 @@ func (vs *VStack) Render() (r image.Rectangle) {
 		}
 		child.SetX(vs.position.X + vs.padding.X)
 		child.SetY(height)
-		r = r.Union(child.Render())
+		dirtyRegs = append(dirtyRegs, child.Render()...)
 	}
 	return
 }

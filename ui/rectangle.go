@@ -38,7 +38,7 @@ func (r *Rectangle) Height() int {
 	return r.size.Y
 }
 
-func (r *Rectangle) Render() image.Rectangle {
+func (r *Rectangle) Render() []image.Rectangle {
 	rec := image.Rectangle{Min: r.position, Max: r.position.Add(r.size)}
 	r.canvas.DrawRectangle(
 		float64(rec.Min.X), float64(rec.Min.Y),
@@ -46,5 +46,5 @@ func (r *Rectangle) Render() image.Rectangle {
 	)
 	r.canvas.SetColor(r.fillColor)
 	r.canvas.Fill()
-	return rec
+	return []image.Rectangle{rec}
 }
