@@ -16,7 +16,8 @@ type App struct {
 
 func NewApp() *App {
 	width, height := 640, 480
-	ctx := ui.NewContext(width, height, ui.FontSize(10))
+	ctx := ui.NewContext(width, height)
+	ctx.FontSize = 10
 	app := &App{
 		Context: ctx,
 		screen:  image.NewRGBA(image.Rect(0, 0, width, height)),

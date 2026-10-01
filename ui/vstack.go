@@ -4,35 +4,22 @@ import "image"
 
 type VStackChild interface {
 	Renderer
+	// TODO: replace with SetPosition
 	SetX(int)
 	SetY(int)
+	// TODO: replace with Size()?
 	Height() int
 }
 
 type VStack struct {
-	BasePosition
-	padding  image.Point
-	gap      int
+	Position image.Point
+	Padding  image.Point
+	Gap      int
 	children []VStackChild
 }
 
-type VStackOpt interface {
-	applyVStack(*VStack)
-}
-
-// avail options
-func (val xOpt) applyVStack(x *VStack)        { x.SetX(int(val)) }
-func (val yOpt) applyVStack(x *VStack)        { x.SetY(int(val)) }
-func (val paddingXOpt) applyVStack(x *VStack) { x.padding.X = int(val) }
-func (val paddingYOpt) applyVStack(x *VStack) { x.padding.Y = int(val) }
-func (val gapOpt) applyVStack(x *VStack)      { x.gap = int(val) }
-
-func (c Context) VStack(opts ...VStackOpt) *VStack {
-	vs := &VStack{}
-	for _, opt := range opts {
-		opt.applyVStack(vs)
-	}
-	return vs
+func (c Context) VStack() *VStack {
+	return &VStack{}
 }
 
 func (vs *VStack) Add(child VStackChild) {
@@ -40,12 +27,12 @@ func (vs *VStack) Add(child VStackChild) {
 }
 
 func (vs *VStack) Render() (dirtyRegs []image.Rectangle) {
-	height := vs.position.Y + vs.padding.Y
+	height := vs.Position.Y + vs.Padding.Y
 	for i, child := range vs.children {
 		if i > 0 {
-			height += vs.gap + vs.children[i-1].Height()
+			height += vs.Gap + vs.children[i-1].Height()
 		}
-		child.SetX(vs.position.X + vs.padding.X)
+		child.SetX(vs.Position.X + vs.Padding.X)
 		child.SetY(height)
 		dirtyRegs = append(dirtyRegs, child.Render()...)
 	}

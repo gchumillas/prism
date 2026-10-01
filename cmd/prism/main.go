@@ -18,11 +18,12 @@ type Prism struct {
 }
 
 func (prism *Prism) Run() error {
-	s := ui.NewContextFromRGBA(prism.Canvas, ui.FontSize(prism.FontSize))
+	c := ui.NewContextFromRGBA(prism.Canvas)
+	c.FontSize = prism.FontSize
 
-	btn := s.LabelButton("Click me!")
-	btn.SetX(50)
-	btn.SetY(100)
+	btn := c.LabelButton("Click me!")
+	btn.Position.X = 50
+	btn.Position.Y = 100
 	prism.Touch.AddTapHandler(btn, func() {
 		fmt.Println("tapped!")
 	})

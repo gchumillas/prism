@@ -8,29 +8,23 @@ import (
 )
 
 type Image struct {
-	BasePosition
-	canvas *gg.Context
-	img    image.Image
+	Position image.Point
+	canvas   *gg.Context
+	img      image.Image
 }
 
-type ImageOpt interface {
-	applyImage(*Image)
-}
-
-// avail options
-func (val xOpt) applyImage(x *Image) { x.SetX(int(val)) }
-func (val yOpt) applyImage(x *Image) { x.SetY(int(val)) }
-
-func (c Context) ImageFromReader(r io.Reader, opts ...ImageOpt) (i *Image, err error) {
+// TODO: rename to LoadImage()
+func (c Context) ImageFromReader(r io.Reader) (i *Image, err error) {
 	i = &Image{canvas: c.canvas}
-	for _, opt := range opts {
-		opt.applyImage(i)
-	}
 	if i.img, _, err = image.Decode(r); err != nil {
 		return
 	}
 	return
 }
+
+// TODO: replace with SetPosition
+func (i *Image) SetX(val int) { i.Position.X = val }
+func (i *Image) SetY(val int) { i.Position.Y = val }
 
 func (i *Image) Size() image.Point {
 	b := i.img.Bounds()
@@ -42,12 +36,12 @@ func (i *Image) Height() int {
 }
 
 func (i *Image) Render() []image.Rectangle {
-	i.canvas.DrawImage(i.img, i.position.X, i.position.Y)
+	i.canvas.DrawImage(i.img, i.Position.X, i.Position.Y)
 	b := i.img.Bounds()
 	size := b.Max.Sub(b.Min)
 
 	return []image.Rectangle{{
-		Min: i.position,
-		Max: i.position.Add(size),
+		Min: i.Position,
+		Max: i.Position.Add(size),
 	}}
 }

@@ -4,8 +4,7 @@ import "image"
 
 type Modal struct {
 	BaseGroup
-	BasePosition
-	BaseSize
+	Position image.Point
 }
 
 func (c Context) Modal() *Modal {
@@ -16,7 +15,7 @@ func (c Context) Modal() *Modal {
 		Max: image.Point{X: r.Max.X, Y: r.Max.Y},
 	}
 	p := t.Max.Sub(t.Min)
-	m.position = image.Point{(p.X - 300) / 2, (p.Y - 300) / 2}
+	m.Position = image.Point{(p.X - 300) / 2, (p.Y - 300) / 2}
 	return m
 }
 
