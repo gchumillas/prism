@@ -14,31 +14,19 @@ import (
 )
 
 type Text struct {
-	BasePosition
+	Position image.Point
 	canvas   *gg.Context
 	text     string
 	width    int
 	fontSize float64
 }
 
-type TextOpt interface {
-	applyText(*Text)
-}
-
-// avail options
-func (val xOpt) applyText(x *Text)        { x.SetX(int(val)) }
-func (val yOpt) applyText(x *Text)        { x.SetY(int(val)) }
-func (val fontSizeOpt) applyText(x *Text) { x.fontSize = float64(val) }
-
-func (c Context) Text(text string, width int, opts ...TextOpt) *Text {
+func (c Context) Text(text string, width int) *Text {
 	t := &Text{
 		canvas:   c.canvas,
 		text:     text,
 		width:    width,
-		fontSize: c.fontSize,
-	}
-	for _, opt := range opts {
-		opt.applyText(t)
+		fontSize: c.FontSize,
 	}
 	return t
 }
@@ -72,13 +60,13 @@ func (t *Text) Render() []image.Rectangle {
 		t.canvas.SetFontFace(face)
 		t.canvas.SetColor(color.Black)
 		// TODO: add ui.Color option
-		t.canvas.DrawString(line, float64(t.position.X), float64(t.position.Y+height))
+		t.canvas.DrawString(line, float64(t.Position.X), float64(t.Position.Y+height))
 		height += lineh
 	}
 
 	return []image.Rectangle{{
-		Min: t.position,
-		Max: t.position.Add(image.Pt(t.width, lineh*len(lines))),
+		Min: t.Position,
+		Max: t.Position.Add(image.Pt(t.width, lineh*len(lines))),
 	}}
 }
 

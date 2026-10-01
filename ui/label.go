@@ -10,7 +10,7 @@ import (
 )
 
 type Label struct {
-	BasePosition
+	Position image.Point
 	canvas   *gg.Context
 	text     string
 	fontSize float64
@@ -20,23 +20,11 @@ type Label struct {
 	ascent  int
 }
 
-type LabelOpt interface {
-	applyLabel(*Label)
-}
-
-// avail options
-func (val xOpt) applyLabel(x *Label)        { x.SetX(int(val)) }
-func (val yOpt) applyLabel(x *Label)        { x.SetY(int(val)) }
-func (val fontSizeOpt) applyLabel(x *Label) { x.fontSize = float64(val) }
-
-func (c Context) Label(text string, opts ...LabelOpt) *Label {
+func (c Context) Label(text string) *Label {
 	l := &Label{
 		canvas:   c.canvas,
-		fontSize: c.fontSize,
+		fontSize: c.FontSize,
 		text:     text,
-	}
-	for _, opt := range opts {
-		opt.applyLabel(l)
 	}
 
 	var err error
@@ -55,6 +43,9 @@ func (c Context) Label(text string, opts ...LabelOpt) *Label {
 	return l
 }
 
+func (l *Label) SetX(val int) { l.Position.X = val }
+func (l *Label) SetY(val int) { l.Position.Y = val }
+
 func (l *Label) Height() int {
 	return l.descent + l.ascent
 }
@@ -67,11 +58,11 @@ func (l *Label) Width() int {
 func (l *Label) Render() []image.Rectangle {
 	l.canvas.SetFontFace(l.face)
 	l.canvas.SetColor(color.Black)
-	l.canvas.DrawString(l.text, float64(l.position.X), float64(l.position.Y+l.ascent))
+	l.canvas.DrawString(l.text, float64(l.Position.X), float64(l.Position.Y+l.ascent))
 
 	size := image.Point{l.Width(), l.Height()}
 	return []image.Rectangle{{
-		Min: l.position,
-		Max: l.position.Add(size),
+		Min: l.Position,
+		Max: l.Position.Add(size),
 	}}
 }

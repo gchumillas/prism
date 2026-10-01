@@ -11,26 +11,18 @@ import (
 var imgBtnPad = image.Pt(5, 5)
 
 type ImageButton struct {
-	canvas *gg.Context
-	hitbox image.Rectangle
-	vstack *VStack
-	img    *Image
+	Position image.Point
+	Padding  image.Point
+	canvas   *gg.Context
+	hitbox   image.Rectangle
+	vstack   *VStack
+	img      *Image
 }
 
-type ImageButtonOpt interface {
-	applyImageButton(*ImageButton)
-}
-
-// avail options
-func (val xOpt) applyImageButton(x *ImageButton) { x.SetX(int(val)) }
-func (val yOpt) applyImageButton(x *ImageButton) { x.SetY(int(val)) }
-
-func (c Context) ImageButtonFromReader(r io.Reader, opts ...ImageButtonOpt) (_ *ImageButton, err error) {
+func (c Context) ImageButtonFromReader(r io.Reader) (_ *ImageButton, err error) {
 	ib := &ImageButton{canvas: c.canvas}
-	ib.vstack = c.VStack(Px(imgBtnPad.X), Py(imgBtnPad.Y))
-	for _, opt := range opts {
-		opt.applyImageButton(ib)
-	}
+	ib.vstack = c.VStack()
+	ib.Padding = imgBtnPad
 	if ib.img, err = c.ImageFromReader(r); err != nil {
 		return
 	}
@@ -38,23 +30,21 @@ func (c Context) ImageButtonFromReader(r io.Reader, opts ...ImageButtonOpt) (_ *
 	return ib, nil
 }
 
-func (ib *ImageButton) X() int       { return ib.vstack.X() }
-func (ib *ImageButton) SetX(val int) { ib.vstack.SetX(val) }
-
-func (ib *ImageButton) Y() int       { return ib.vstack.Y() }
-func (ib *ImageButton) SetY(val int) { ib.vstack.SetY(val) }
+func (lb *ImageButton) SetX(val int) { lb.Position.X = val }
+func (lb *ImageButton) SetY(val int) { lb.Position.Y = val }
 
 func (ib *ImageButton) Height() int {
 	return ib.img.Height() + 2*imgBtnPad.Y
 }
 
 func (ib *ImageButton) Render() []image.Rectangle {
-	pos := ib.vstack.position
+	ib.vstack.Padding = ib.Padding
+	ib.vstack.Position = ib.Position
 	size := ib.img.Size().Add(imgBtnPad.Mul(2))
 
 	ib.hitbox = image.Rectangle{
-		Min: pos,
-		Max: pos.Add(size),
+		Min: ib.Position,
+		Max: ib.Position.Add(size),
 	}
 
 	lineWidth := 4

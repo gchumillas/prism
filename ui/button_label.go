@@ -10,46 +10,38 @@ import (
 var labelBtnPad = image.Point{38, 19}
 
 type LabelButton struct {
-	canvas *gg.Context
-	hitbox image.Rectangle
-	vstack *VStack
-	label  *Label
+	Position image.Point
+	Padding  image.Point
+	canvas   *gg.Context
+	hitbox   image.Rectangle
+	vstack   *VStack
+	label    *Label
 }
 
-type LabelButtonOpt interface {
-	applyLabelButton(*LabelButton)
-}
-
-// avail options
-func (val xOpt) applyLabelButton(x *LabelButton) { x.SetX(int(val)) }
-func (val yOpt) applyLabelButton(x *LabelButton) { x.SetY(int(val)) }
-
-func (c Context) LabelButton(text string, opts ...LabelButtonOpt) *LabelButton {
+func (c Context) LabelButton(text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
-	lb.vstack = c.VStack(Px(labelBtnPad.X), Py(labelBtnPad.Y))
-	for _, opt := range opts {
-		opt.applyLabelButton(lb)
-	}
+	lb.vstack = c.VStack()
+	lb.Padding = labelBtnPad
 	lb.label = c.Label(text)
 	lb.vstack.Add(lb.label)
 	return lb
 }
 
-func (lb *LabelButton) X() int       { return lb.vstack.X() }
-func (lb *LabelButton) SetX(val int) { lb.vstack.SetX(val) }
-
-func (lb *LabelButton) Y() int       { return lb.vstack.Y() }
-func (lb *LabelButton) SetY(val int) { lb.vstack.SetY(val) }
+func (lb *LabelButton) SetX(val int) { lb.Position.X = val }
+func (lb *LabelButton) SetY(val int) { lb.Position.Y = val }
 
 func (lb *LabelButton) Height() int {
 	return lb.label.Height() + 2*labelBtnPad.Y
 }
 
 func (lb *LabelButton) Render() []image.Rectangle {
+	lb.vstack.Padding = lb.Padding
+	lb.vstack.Position = lb.Position
+
 	size := image.Pt(lb.label.Width(), lb.label.Height()).Add(labelBtnPad.Mul(2))
 	lb.hitbox = image.Rectangle{
-		Min: lb.vstack.position,
-		Max: lb.vstack.position.Add(size),
+		Min: lb.vstack.Position,
+		Max: lb.vstack.Position.Add(size),
 	}
 
 	lineWidth := 4

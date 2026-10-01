@@ -28,38 +28,23 @@ type Renderer interface {
 
 type Context struct {
 	canvas   *gg.Context
-	fontSize float64
+	FontSize float64
 }
 
-type ContextOpt interface {
-	applyContext(*Context)
-}
-
-// avail options
-func (val fontSizeOpt) applyContext(x *Context) { x.fontSize = float64(val) }
-
-func NewContext(width, height int, opts ...ContextOpt) Context {
+func NewContext(width, height int) Context {
 	canvas := gg.NewContext(width, height)
-	c := &Context{
+	return Context{
 		canvas:   canvas,
-		fontSize: defaultFontSize,
+		FontSize: defaultFontSize,
 	}
-	for _, opt := range opts {
-		opt.applyContext(c)
-	}
-	return *c
 }
 
-func NewContextFromRGBA(img *image.RGBA, opts ...ContextOpt) Context {
+func NewContextFromRGBA(img *image.RGBA) Context {
 	canvas := gg.NewContextForRGBA(img)
-	c := &Context{
+	return Context{
 		canvas:   canvas,
-		fontSize: defaultFontSize,
+		FontSize: defaultFontSize,
 	}
-	for _, opt := range opts {
-		opt.applyContext(c)
-	}
-	return *c
 }
 
 func (c Context) Image() image.Image {

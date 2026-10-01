@@ -20,8 +20,8 @@ type Storybook struct {
 
 func (sb *Storybook) Run() error {
 	btn := sb.LabelButton("Click me!")
-	btn.SetX(100)
-	btn.SetY(200)
+	btn.Position.X = 100
+	btn.Position.Y = 200
 	sb.Add(btn)
 
 	sb.Touch.AddTapHandler(btn, func() {
@@ -54,8 +54,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	ctx := ui.NewContextFromRGBA(env.Canvas)
+	ctx.FontSize = env.FontSize
 	sb := &Storybook{
-		Context: ui.NewContextFromRGBA(env.Canvas, ui.FontSize(env.FontSize)),
+		Context: ctx,
 		Touch:   env.Touch,
 		Screen:  env.Screen,
 	}
