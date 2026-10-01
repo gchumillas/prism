@@ -43,11 +43,13 @@ func (c Context) Text(text string, width int, opts ...TextOpt) *Text {
 	return t
 }
 
+// TODO: implement Text.Size()
 func (t *Text) Size() (width, height int) {
 	return
 }
 
-func (bs *Text) SetSize(width, height int) {
+// TODO: implement Text.SetSize()
+func (t *Text) SetSize(width, height int) {
 }
 
 func (t *Text) Render() []image.Rectangle {
