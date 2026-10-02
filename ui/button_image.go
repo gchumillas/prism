@@ -30,8 +30,9 @@ func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	return ib, nil
 }
 
-func (lb *ImageButton) SetX(val int) { lb.Position.X = val }
-func (lb *ImageButton) SetY(val int) { lb.Position.Y = val }
+func (ib *ImageButton) SetPosition(val image.Point) {
+	ib.Position = val
+}
 
 func (ib *ImageButton) Height() int {
 	return ib.img.Height() + 2*imgBtnPad.Y

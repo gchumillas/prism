@@ -7,9 +7,7 @@ import (
 
 type VStackChild interface {
 	Renderer
-	// TODO: replace with SetPosition
-	SetX(int)
-	SetY(int)
+	SetPosition(image.Point)
 	Height() int
 }
 
@@ -45,8 +43,7 @@ func (vs *VStack) Render() (dirtyRegs []image.Rectangle) {
 		if i > 0 {
 			height += vs.Gap + vs.children[i-1].Height()
 		}
-		child.SetX(vs.Position.X + vs.Padding.X)
-		child.SetY(height)
+		child.SetPosition(image.Pt(vs.Position.X+vs.Padding.X, height))
 		dirtyRegs = append(dirtyRegs, child.Render()...)
 	}
 	return

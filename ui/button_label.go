@@ -27,8 +27,9 @@ func NewLabelButton(c Context, text string) *LabelButton {
 	return lb
 }
 
-func (lb *LabelButton) SetX(val int) { lb.Position.X = val }
-func (lb *LabelButton) SetY(val int) { lb.Position.Y = val }
+func (lb *LabelButton) SetPosition(val image.Point) {
+	lb.Position = val
+}
 
 func (lb *LabelButton) Height() int {
 	return lb.label.Height() + 2*labelBtnPad.Y

@@ -21,9 +21,9 @@ func LoadImage(c Context, r io.Reader) (i *Image, err error) {
 	return
 }
 
-// TODO: replace with SetPosition
-func (i *Image) SetX(val int) { i.Position.X = val }
-func (i *Image) SetY(val int) { i.Position.Y = val }
+func (lb *Image) SetPosition(val image.Point) {
+	lb.Position = val
+}
 
 func (i *Image) Size() image.Point {
 	b := i.img.Bounds()
