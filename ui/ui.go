@@ -26,6 +26,11 @@ type Renderer interface {
 	Render(pos image.Point) (dirtyRegs []image.Rectangle)
 }
 
+type Widget interface {
+	Renderer
+	Size() image.Point
+}
+
 type Context struct {
 	canvas   *gg.Context
 	FontSize float64

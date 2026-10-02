@@ -42,13 +42,9 @@ func NewLabel(c Context, text string) *Label {
 	return l
 }
 
-func (l *Label) Height() int {
-	return l.descent + l.ascent
-}
-
-func (l *Label) Width() int {
+func (l *Label) Size() image.Point {
 	bounds, _ := font.BoundString(l.face, l.text)
-	return bounds.Max.X.Ceil()
+	return image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
 }
 
 func (l *Label) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
@@ -56,7 +52,7 @@ func (l *Label) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	l.canvas.SetColor(color.Black)
 	l.canvas.DrawString(l.text, float64(pos.X), float64(pos.Y+l.ascent))
 
-	size := image.Point{l.Width(), l.Height()}
+	size := l.Size()
 	return []image.Rectangle{{
 		Min: pos,
 		Max: pos.Add(size),

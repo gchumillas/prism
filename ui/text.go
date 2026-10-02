@@ -30,6 +30,22 @@ func NewText(c Context, text string, width int) *Text {
 	return t
 }
 
+func (t *Text) Size() image.Point {
+	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
+		Size:    t.fontSize,
+		DPI:     defaultDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	m := face.Metrics()
+	lineh := m.Height.Ceil()
+	lines := splitIntoLines(face, t.text, t.width)
+	return image.Pt(t.width, lineh*len(lines))
+}
+
 func (t *Text) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
@@ -44,14 +60,14 @@ func (t *Text) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	ascent := m.Ascent.Ceil()
 	lineh := m.Height.Ceil()
 
-	height := ascent
+	y := ascent
 	lines := splitIntoLines(face, t.text, t.width)
 	for _, line := range lines {
 		t.canvas.SetFontFace(face)
 		t.canvas.SetColor(color.Black)
 		// TODO: add ui.Color option
-		t.canvas.DrawString(line, float64(pos.X), float64(pos.Y+height))
-		height += lineh
+		t.canvas.DrawString(line, float64(pos.X), float64(pos.Y+y))
+		y += lineh
 	}
 
 	return []image.Rectangle{{

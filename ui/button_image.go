@@ -29,8 +29,8 @@ func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	return ib, nil
 }
 
-func (ib *ImageButton) Height() int {
-	return ib.img.Height() + 2*imgBtnPad.Y
+func (ib *ImageButton) Size() image.Point {
+	return ib.img.Size().Add(imgBtnPad.Mul(2))
 }
 
 func (ib *ImageButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {

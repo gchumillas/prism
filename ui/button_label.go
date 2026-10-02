@@ -26,13 +26,13 @@ func NewLabelButton(c Context, text string) *LabelButton {
 	return lb
 }
 
-func (lb *LabelButton) Height() int {
-	return lb.label.Height() + 2*labelBtnPad.Y
+func (lb *LabelButton) Size() image.Point {
+	return lb.label.Size().Add(labelBtnPad.Mul(2))
 }
 
 func (lb *LabelButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	lb.vstack.Padding = lb.Padding
-	size := image.Pt(lb.label.Width(), lb.label.Height()).Add(labelBtnPad.Mul(2))
+	size := lb.label.Size().Add(labelBtnPad.Mul(2))
 	lb.hitbox = image.Rectangle{
 		Min: pos,
 		Max: pos.Add(size),
