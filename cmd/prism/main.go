@@ -22,12 +22,10 @@ func (prism *Prism) Run() error {
 	c.FontSize = prism.FontSize
 
 	btn := ui.NewLabelButton(c, "Click me!")
-	btn.Position.X = 50
-	btn.Position.Y = 100
 	prism.Touch.AddTapHandler(btn, func() {
 		fmt.Println("tapped!")
 	})
-	btn.Render()
+	btn.Render(image.Pt(50, 100))
 
 	// refresh the screen
 	b := prism.Canvas.Bounds()

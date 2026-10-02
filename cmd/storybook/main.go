@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"os"
 	"slices"
@@ -21,8 +22,6 @@ type Storybook struct {
 
 func (sb *Storybook) Run() error {
 	btn := ui.NewLabelButton(sb.ctx, "Click me!")
-	btn.Position.X = 100
-	btn.Position.Y = 200
 	sb.Add(btn)
 
 	sb.Touch.AddTapHandler(btn, func() {
@@ -47,7 +46,7 @@ func (sb *Storybook) Render() {
 	r := sb.ctx.Canvas().Bounds()
 	ui.NewRectangle(sb.ctx, r.Dx(), r.Dy(), color.White)
 	for _, e := range sb.children {
-		e.Render()
+		e.Render(image.Pt(100, 200))
 	}
 }
 

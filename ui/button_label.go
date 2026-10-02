@@ -10,12 +10,11 @@ import (
 var labelBtnPad = image.Point{38, 19}
 
 type LabelButton struct {
-	Position image.Point
-	Padding  image.Point
-	canvas   *gg.Context
-	hitbox   image.Rectangle
-	vstack   *VStack
-	label    *Label
+	Padding image.Point
+	canvas  *gg.Context
+	hitbox  image.Rectangle
+	vstack  *VStack
+	label   *Label
 }
 
 func NewLabelButton(c Context, text string) *LabelButton {
@@ -27,22 +26,16 @@ func NewLabelButton(c Context, text string) *LabelButton {
 	return lb
 }
 
-func (lb *LabelButton) SetPosition(val image.Point) {
-	lb.Position = val
-}
-
 func (lb *LabelButton) Height() int {
 	return lb.label.Height() + 2*labelBtnPad.Y
 }
 
-func (lb *LabelButton) Render() []image.Rectangle {
+func (lb *LabelButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	lb.vstack.Padding = lb.Padding
-	lb.vstack.Position = lb.Position
-
 	size := image.Pt(lb.label.Width(), lb.label.Height()).Add(labelBtnPad.Mul(2))
 	lb.hitbox = image.Rectangle{
-		Min: lb.vstack.Position,
-		Max: lb.vstack.Position.Add(size),
+		Min: pos,
+		Max: pos.Add(size),
 	}
 
 	lineWidth := 4
@@ -54,7 +47,7 @@ func (lb *LabelButton) Render() []image.Rectangle {
 	lb.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return append(lb.vstack.Render(), image.Rectangle{
+	return append(lb.vstack.Render(pos), image.Rectangle{
 		Min: lb.hitbox.Min.Sub(margin),
 		Max: lb.hitbox.Max.Add(margin),
 	})

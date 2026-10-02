@@ -8,9 +8,8 @@ import (
 )
 
 type Image struct {
-	Position image.Point
-	canvas   *gg.Context
-	img      image.Image
+	canvas *gg.Context
+	img    image.Image
 }
 
 func LoadImage(c Context, r io.Reader) (i *Image, err error) {
@@ -19,10 +18,6 @@ func LoadImage(c Context, r io.Reader) (i *Image, err error) {
 		return
 	}
 	return
-}
-
-func (i *Image) SetPosition(val image.Point) {
-	i.Position = val
 }
 
 func (i *Image) Size() image.Point {
@@ -34,13 +29,13 @@ func (i *Image) Height() int {
 	return i.Size().Y
 }
 
-func (i *Image) Render() []image.Rectangle {
-	i.canvas.DrawImage(i.img, i.Position.X, i.Position.Y)
+func (i *Image) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+	i.canvas.DrawImage(i.img, pos.X, pos.Y)
 	b := i.img.Bounds()
 	size := b.Max.Sub(b.Min)
 
 	return []image.Rectangle{{
-		Min: i.Position,
-		Max: i.Position.Add(size),
+		Min: pos,
+		Max: pos.Add(size),
 	}}
 }

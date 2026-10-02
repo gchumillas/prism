@@ -8,7 +8,6 @@ import (
 )
 
 type Rectangle struct {
-	Position  image.Point
 	canvas    *gg.Context
 	size      image.Point
 	fillColor color.Color
@@ -23,16 +22,12 @@ func NewRectangle(c Context, width, height int, fillColor color.Color) *Rectangl
 	return s
 }
 
-func (r *Rectangle) SetPosition(val image.Point) {
-	r.Position = val
-}
-
 func (r *Rectangle) Height() int {
 	return r.size.Y
 }
 
-func (r *Rectangle) Render() []image.Rectangle {
-	rec := image.Rectangle{Min: r.Position, Max: r.Position.Add(r.size)}
+func (r *Rectangle) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+	rec := image.Rectangle{Min: pos, Max: pos.Add(r.size)}
 	r.canvas.DrawRectangle(
 		float64(rec.Min.X), float64(rec.Min.Y),
 		float64(rec.Dx()), float64(rec.Dy()),

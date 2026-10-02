@@ -137,11 +137,9 @@ func TestMergeRegions(t *testing.T) {
 func TestRectangle(t *testing.T) {
 	t.Run("Render", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 		fillColor := color.Gray{Y: 50}
 		r := ui.NewRectangle(app.Context, 50, 100, fillColor)
-		r.Position.X = 100
-		r.Position.Y = 50
-
 		app.Add(r)
 
 		app.Refresh()
@@ -155,10 +153,9 @@ func TestRectangle(t *testing.T) {
 func TestImage(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(30, 30)
 		penBuff := bytes.NewBuffer(penPNG)
 		img, err := ui.LoadImage(app.Context, penBuff)
-		img.Position.X = 30
-		img.Position.Y = 30
 		require.NoError(t, err)
 		app.Add(img)
 
@@ -171,16 +168,15 @@ func TestImage(t *testing.T) {
 
 	t.Run("Render", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(10, 20)
 
 		penBuff := bytes.NewBuffer(penPNG)
 		img, err := ui.LoadImage(app.Context, penBuff)
-		img.Position.X = 10
-		img.Position.Y = 20
 		require.NoError(t, err)
 		app.Add(img)
 
 		// draw the image and preserve the "dirty region"
-		regs := img.Render()
+		regs := img.Render(app.Padding)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 		require.Equal(t, image.Rect(10, 20, 34, 44), r)
@@ -201,9 +197,8 @@ func TestImage(t *testing.T) {
 func TestLabelButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 		btn := ui.NewLabelButton(app.Context, "Click me!")
-		btn.Position.X = 100
-		btn.Position.Y = 50
 		app.Add(btn)
 
 		app.Refresh()
@@ -231,11 +226,10 @@ func TestLabelButton(t *testing.T) {
 
 	t.Run("Render result", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 		btn := ui.NewLabelButton(app.Context, "Click me!")
-		btn.Position.X = 100
-		btn.Position.Y = 50
 		app.Add(btn)
-		regs := btn.Render()
+		regs := btn.Render(app.Padding)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 
@@ -251,10 +245,11 @@ func TestLabelButton(t *testing.T) {
 
 	t.Run("Contains", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 		btn := ui.NewLabelButton(app.Context, "Click me!")
-		btn.Position.X = 100
-		btn.Position.Y = 50
-		btn.Render()
+		app.Add(btn)
+
+		app.Refresh()
 		require.False(t, btn.Contains(0, 0))   // outside
 		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
 		require.True(t, btn.Contains(110, 60)) // inside
@@ -263,6 +258,7 @@ func TestLabelButton(t *testing.T) {
 	t.Run("Contains without rendering", func(t *testing.T) {
 		app := test.NewApp()
 		btn := ui.NewLabelButton(app.Context, "Click me!")
+		app.Add(btn)
 		require.Panics(t, func() { btn.Contains(0, 0) })
 	})
 }
@@ -270,11 +266,10 @@ func TestLabelButton(t *testing.T) {
 func TestImageButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 		penBuff := bytes.NewBuffer(penPNG)
 		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
-		btn.Position.X = 100
-		btn.Position.Y = 50
 		app.Add(btn)
 
 		app.Refresh()
@@ -286,14 +281,13 @@ func TestImageButton(t *testing.T) {
 
 	t.Run("Render", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 
 		penBuff := bytes.NewBuffer(penPNG)
 		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
-		btn.Position.X = 100
-		btn.Position.Y = 50
 		app.Add(btn)
-		regs := btn.Render()
+		regs := btn.Render(app.Padding)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 
@@ -309,13 +303,13 @@ func TestImageButton(t *testing.T) {
 
 	t.Run("Contains", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 
 		penBuff := bytes.NewBuffer(penPNG)
 		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
-		btn.Position.X = 100
-		btn.Position.Y = 50
-		btn.Render()
+		app.Add(btn)
+		app.Refresh()
 		require.False(t, btn.Contains(0, 0))   // outside
 		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
 		require.True(t, btn.Contains(110, 60)) // inside
@@ -326,6 +320,7 @@ func TestImageButton(t *testing.T) {
 		penBuff := bytes.NewBuffer(penPNG)
 		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
+		app.Add(btn)
 		require.Panics(t, func() { btn.Contains(0, 0) })
 	})
 }
@@ -335,16 +330,14 @@ type CustomWidget struct{ Label ui.Label }
 func NewCustomWidget(c ui.Context, text string) *CustomWidget {
 	return &CustomWidget{Label: *ui.NewLabel(c, text)}
 }
-func (cw *CustomWidget) Render() []image.Rectangle   { return cw.Label.Render() }
-func (cw *CustomWidget) SetPosition(val image.Point) { cw.Label.Position = val }
-func (cw *CustomWidget) Height() int                 { return cw.Label.Height() }
+func (cw *CustomWidget) Render(pos image.Point) []image.Rectangle { return cw.Label.Render(pos) }
+func (cw *CustomWidget) Height() int                              { return cw.Label.Height() }
 
 func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
+		app.Padding = image.Pt(100, 50)
 		vs := ui.NewVStack(app.Context)
-		vs.Position.X = 100
-		vs.Position.Y = 50
 		for i := range 2 {
 			vs.Add(ui.NewLabel(app.Context, fmt.Sprintf("Item %d", i)))
 		}

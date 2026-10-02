@@ -14,7 +14,6 @@ import (
 )
 
 type Text struct {
-	Position image.Point
 	canvas   *gg.Context
 	text     string
 	width    int
@@ -31,7 +30,7 @@ func NewText(c Context, text string, width int) *Text {
 	return t
 }
 
-func (t *Text) Render() []image.Rectangle {
+func (t *Text) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
 		DPI:     defaultDPI,
@@ -51,13 +50,13 @@ func (t *Text) Render() []image.Rectangle {
 		t.canvas.SetFontFace(face)
 		t.canvas.SetColor(color.Black)
 		// TODO: add ui.Color option
-		t.canvas.DrawString(line, float64(t.Position.X), float64(t.Position.Y+height))
+		t.canvas.DrawString(line, float64(pos.X), float64(pos.Y+height))
 		height += lineh
 	}
 
 	return []image.Rectangle{{
-		Min: t.Position,
-		Max: t.Position.Add(image.Pt(t.width, lineh*len(lines))),
+		Min: pos,
+		Max: pos.Add(image.Pt(t.width, lineh*len(lines))),
 	}}
 }
 
