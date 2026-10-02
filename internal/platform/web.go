@@ -90,7 +90,8 @@ type TouchDispatcher struct {
 
 func (t *TouchDispatcher) Tap(x, y int) {
 	for _, h := range t.handlers {
-		if h.btn.Contains(x, y) {
+		p := image.Pt(x, y)
+		if h.btn.Contains(p) {
 			h.action()
 		}
 	}
