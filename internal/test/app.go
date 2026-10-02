@@ -4,14 +4,15 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"slices"
 
 	"github.com/gchumillas/prism/ui"
 )
 
 type App struct {
-	ui.BaseGroup
 	ui.Context
-	screen *image.RGBA
+	screen   *image.RGBA
+	children []ui.Renderer
 }
 
 func NewApp() *App {
@@ -30,8 +31,18 @@ func (app *App) Screen() *image.RGBA {
 	return app.screen
 }
 
+func (app *App) Add(child ui.Renderer) {
+	app.children = append(app.children, child)
+}
+
+func (app *App) Remove(child ui.Renderer) {
+	app.children = slices.DeleteFunc(app.children, func(c ui.Renderer) bool {
+		return c == child
+	})
+}
+
 func (app *App) render() (dirtyRegs []image.Rectangle) {
-	for _, c := range app.Children() {
+	for _, c := range app.children {
 		dirtyRegs = append(dirtyRegs, c.Render()...)
 	}
 	return ui.MergeRegions(dirtyRegs)

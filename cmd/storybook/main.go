@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"slices"
 
 	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/internal/platform"
@@ -11,8 +12,8 @@ import (
 )
 
 type Storybook struct {
-	ui.BaseGroup
 	ui.Context
+	children []ui.Renderer
 	// physical devices
 	Touch  app.TapDispatcher
 	Screen app.Renderer
@@ -32,10 +33,20 @@ func (sb *Storybook) Run() error {
 	return sb.refresh()
 }
 
+func (sb *Storybook) Add(child ui.Renderer) {
+	sb.children = append(sb.children, child)
+}
+
+func (app *Storybook) Remove(child ui.Renderer) {
+	app.children = slices.DeleteFunc(app.children, func(c ui.Renderer) bool {
+		return c == child
+	})
+}
+
 func (sb *Storybook) Render() {
 	r := sb.Image().Bounds()
 	sb.Rectangle(r.Dx(), r.Dy(), color.White)
-	for _, e := range sb.Children() {
+	for _, e := range sb.children {
 		e.Render()
 	}
 }

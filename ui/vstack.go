@@ -1,13 +1,15 @@
 package ui
 
-import "image"
+import (
+	"image"
+	"slices"
+)
 
 type VStackChild interface {
 	Renderer
 	// TODO: replace with SetPosition
 	SetX(int)
 	SetY(int)
-	// TODO: replace with Size()?
 	Height() int
 }
 
@@ -15,6 +17,7 @@ type VStack struct {
 	Position image.Point
 	Padding  image.Point
 	Gap      int
+
 	children []VStackChild
 }
 
@@ -22,8 +25,18 @@ func (c Context) VStack() *VStack {
 	return &VStack{}
 }
 
+func (vs *VStack) Children() []VStackChild {
+	return vs.children
+}
+
 func (vs *VStack) Add(child VStackChild) {
 	vs.children = append(vs.children, child)
+}
+
+func (vs *VStack) Remove(child VStackChild) {
+	vs.children = slices.DeleteFunc(vs.children, func(c VStackChild) bool {
+		return c == child
+	})
 }
 
 func (vs *VStack) Render() (dirtyRegs []image.Rectangle) {
