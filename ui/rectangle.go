@@ -14,7 +14,7 @@ type Rectangle struct {
 	fillColor color.Color
 }
 
-func (c Context) Rectangle(width, height int, fillColor color.Color) *Rectangle {
+func NewRectangle(c Context, width, height int, fillColor color.Color) *Rectangle {
 	s := &Rectangle{
 		canvas:    c.canvas,
 		size:      image.Pt(width, height),

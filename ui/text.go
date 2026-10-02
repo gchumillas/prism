@@ -21,7 +21,7 @@ type Text struct {
 	fontSize float64
 }
 
-func (c Context) Text(text string, width int) *Text {
+func NewText(c Context, text string, width int) *Text {
 	t := &Text{
 		canvas:   c.canvas,
 		text:     text,

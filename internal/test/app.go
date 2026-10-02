@@ -23,7 +23,7 @@ func NewApp() *App {
 		Context: ctx,
 		screen:  image.NewRGBA(image.Rect(0, 0, width, height)),
 	}
-	app.Add(app.Rectangle(width, height, color.White))
+	app.Add(ui.NewRectangle(app.Context, width, height, color.White))
 	return app
 }
 

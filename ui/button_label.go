@@ -18,11 +18,11 @@ type LabelButton struct {
 	label    *Label
 }
 
-func (c Context) LabelButton(text string) *LabelButton {
+func NewLabelButton(c Context, text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
-	lb.vstack = c.VStack()
+	lb.vstack = NewVStack(c)
 	lb.Padding = labelBtnPad
-	lb.label = c.Label(text)
+	lb.label = NewLabel(c, text)
 	lb.vstack.Add(lb.label)
 	return lb
 }

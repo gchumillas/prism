@@ -138,7 +138,7 @@ func TestRectangle(t *testing.T) {
 	t.Run("Render", func(t *testing.T) {
 		app := test.NewApp()
 		fillColor := color.Gray{Y: 50}
-		r := app.Rectangle(50, 100, fillColor)
+		r := ui.NewRectangle(app.Context, 50, 100, fillColor)
 		r.Position.X = 100
 		r.Position.Y = 50
 
@@ -156,7 +156,7 @@ func TestImage(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
 		penBuff := bytes.NewBuffer(penPNG)
-		img, err := app.LoadImage(penBuff)
+		img, err := ui.LoadImage(app.Context, penBuff)
 		img.Position.X = 30
 		img.Position.Y = 30
 		require.NoError(t, err)
@@ -173,7 +173,7 @@ func TestImage(t *testing.T) {
 		app := test.NewApp()
 
 		penBuff := bytes.NewBuffer(penPNG)
-		img, err := app.LoadImage(penBuff)
+		img, err := ui.LoadImage(app.Context, penBuff)
 		img.Position.X = 10
 		img.Position.Y = 20
 		require.NoError(t, err)
@@ -201,7 +201,7 @@ func TestImage(t *testing.T) {
 func TestLabelButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
-		btn := app.LabelButton("Click me!")
+		btn := ui.NewLabelButton(app.Context, "Click me!")
 		btn.Position.X = 100
 		btn.Position.Y = 50
 		app.Add(btn)
@@ -215,7 +215,7 @@ func TestLabelButton(t *testing.T) {
 
 	t.Run("Render", func(t *testing.T) {
 		app := test.NewApp()
-		btn := app.LabelButton("Click me!")
+		btn := ui.NewLabelButton(app.Context, "Click me!")
 		app.Add(btn)
 
 		app.Refresh()
@@ -231,7 +231,7 @@ func TestLabelButton(t *testing.T) {
 
 	t.Run("Render result", func(t *testing.T) {
 		app := test.NewApp()
-		btn := app.LabelButton("Click me!")
+		btn := ui.NewLabelButton(app.Context, "Click me!")
 		btn.Position.X = 100
 		btn.Position.Y = 50
 		app.Add(btn)
@@ -251,7 +251,7 @@ func TestLabelButton(t *testing.T) {
 
 	t.Run("Contains", func(t *testing.T) {
 		app := test.NewApp()
-		btn := app.LabelButton("Click me!")
+		btn := ui.NewLabelButton(app.Context, "Click me!")
 		btn.Position.X = 100
 		btn.Position.Y = 50
 		btn.Render()
@@ -262,7 +262,7 @@ func TestLabelButton(t *testing.T) {
 
 	t.Run("Contains without rendering", func(t *testing.T) {
 		app := test.NewApp()
-		btn := app.LabelButton("Click me!")
+		btn := ui.NewLabelButton(app.Context, "Click me!")
 		require.Panics(t, func() { btn.Contains(0, 0) })
 	})
 }
@@ -271,7 +271,7 @@ func TestImageButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.LoadImageButton(penBuff)
+		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
 		btn.Position.X = 100
 		btn.Position.Y = 50
@@ -288,7 +288,7 @@ func TestImageButton(t *testing.T) {
 		app := test.NewApp()
 
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.LoadImageButton(penBuff)
+		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
 		btn.Position.X = 100
 		btn.Position.Y = 50
@@ -311,7 +311,7 @@ func TestImageButton(t *testing.T) {
 		app := test.NewApp()
 
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.LoadImageButton(penBuff)
+		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
 		btn.Position.X = 100
 		btn.Position.Y = 50
@@ -324,7 +324,7 @@ func TestImageButton(t *testing.T) {
 	t.Run("Contains without rendering", func(t *testing.T) {
 		app := test.NewApp()
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.LoadImageButton(penBuff)
+		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
 		require.Panics(t, func() { btn.Contains(0, 0) })
 	})
@@ -333,11 +333,11 @@ func TestImageButton(t *testing.T) {
 func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
-		vs := app.VStack()
+		vs := ui.NewVStack(app.Context)
 		vs.Position.X = 100
 		vs.Position.Y = 50
 		for i := range 2 {
-			vs.Add(app.Label(fmt.Sprintf("Item %d", i)))
+			vs.Add(ui.NewLabel(app.Context, fmt.Sprintf("Item %d", i)))
 		}
 		app.Add(vs)
 
@@ -353,24 +353,24 @@ func TestVStack(t *testing.T) {
 
 		// can stack images
 		penBuff := bytes.NewBuffer(penPNG)
-		imgBtn, err := app.LoadImageButton(penBuff)
+		imgBtn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
-		vs := app.VStack()
+		vs := ui.NewVStack(app.Context)
 		vs.Add(imgBtn)
 
 		// can stack buttons
-		lbBtn := app.LabelButton("Click me!")
+		lbBtn := ui.NewLabelButton(app.Context, "Click me!")
 		vs.Add(lbBtn)
 
 		// can stack rectangles
-		r := app.Rectangle(50, 100, color.White)
+		r := ui.NewRectangle(app.Context, 50, 100, color.White)
 		vs.Add(r)
 	})
 
 	t.Run("can remove widgets", func(t *testing.T) {
 		app := test.NewApp()
-		lbBtn := app.LabelButton("Click me!")
-		vs := app.VStack()
+		lbBtn := ui.NewLabelButton(app.Context, "Click me!")
+		vs := ui.NewVStack(app.Context)
 		vs.Add(lbBtn)
 		require.Contains(t, vs.Children(), lbBtn)
 		vs.Remove(lbBtn)
