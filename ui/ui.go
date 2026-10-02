@@ -23,7 +23,7 @@ var uiFont = func() *opentype.Font {
 }()
 
 type Renderer interface {
-	Render() (dirtyRegs []image.Rectangle)
+	Render(pos image.Point) (dirtyRegs []image.Rectangle)
 }
 
 type Context struct {

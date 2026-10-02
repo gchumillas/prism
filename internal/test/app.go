@@ -4,15 +4,15 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"slices"
 
 	"github.com/gchumillas/prism/ui"
 )
 
 type App struct {
 	ui.Context
-	screen   *image.RGBA
-	children []ui.Renderer
+	*ui.VStack
+	bg     *ui.Rectangle
+	screen *image.RGBA
 }
 
 func NewApp() *App {
@@ -21,43 +21,32 @@ func NewApp() *App {
 	ctx.FontSize = 10
 	app := &App{
 		Context: ctx,
+		VStack:  ui.NewVStack(ctx),
+		bg:      ui.NewRectangle(ctx, width, height, color.White),
 		screen:  image.NewRGBA(image.Rect(0, 0, width, height)),
 	}
-	app.Add(ui.NewRectangle(app.Context, width, height, color.White))
 	return app
+}
+
+func (app *App) Render() []image.Rectangle {
+	p := image.Pt(0, 0)
+	return append(app.bg.Render(p), app.VStack.Render(p)...)
 }
 
 func (app *App) Screen() *image.RGBA {
 	return app.screen
 }
 
-func (app *App) Add(child ui.Renderer) {
-	app.children = append(app.children, child)
-}
-
-func (app *App) Remove(child ui.Renderer) {
-	app.children = slices.DeleteFunc(app.children, func(c ui.Renderer) bool {
-		return c == child
-	})
-}
-
-func (app *App) render() (dirtyRegs []image.Rectangle) {
-	for _, c := range app.children {
-		dirtyRegs = append(dirtyRegs, c.Render()...)
-	}
-	return ui.MergeRegions(dirtyRegs)
-}
-
 func (app *App) Refresh() {
 	img := app.Canvas()
-	dirtyRegs := app.render()
+	dirtyRegs := app.Render()
 	for _, r := range dirtyRegs {
 		draw.Draw(app.screen, r, img, r.Min, draw.Src)
 	}
 }
 
 func (app *App) RefreshRect(r image.Rectangle) {
-	app.render()
+	app.Render()
 	img := app.Canvas()
 	draw.Draw(app.screen, r, img, r.Min, draw.Src)
 }

@@ -10,7 +10,6 @@ import (
 )
 
 type Label struct {
-	Position image.Point
 	canvas   *gg.Context
 	text     string
 	fontSize float64
@@ -43,10 +42,6 @@ func NewLabel(c Context, text string) *Label {
 	return l
 }
 
-func (l *Label) SetPosition(val image.Point) {
-	l.Position = val
-}
-
 func (l *Label) Height() int {
 	return l.descent + l.ascent
 }
@@ -56,14 +51,14 @@ func (l *Label) Width() int {
 	return bounds.Max.X.Ceil()
 }
 
-func (l *Label) Render() []image.Rectangle {
+func (l *Label) Render(pos image.Point) []image.Rectangle {
 	l.canvas.SetFontFace(l.face)
 	l.canvas.SetColor(color.Black)
-	l.canvas.DrawString(l.text, float64(l.Position.X), float64(l.Position.Y+l.ascent))
+	l.canvas.DrawString(l.text, float64(pos.X), float64(pos.Y+l.ascent))
 
 	size := image.Point{l.Width(), l.Height()}
 	return []image.Rectangle{{
-		Min: l.Position,
-		Max: l.Position.Add(size),
+		Min: pos,
+		Max: pos.Add(size),
 	}}
 }

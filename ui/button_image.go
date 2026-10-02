@@ -11,12 +11,11 @@ import (
 var imgBtnPad = image.Pt(5, 5)
 
 type ImageButton struct {
-	Position image.Point
-	Padding  image.Point
-	canvas   *gg.Context
-	hitbox   image.Rectangle
-	vstack   *VStack
-	img      *Image
+	Padding image.Point
+	canvas  *gg.Context
+	hitbox  image.Rectangle
+	vstack  *VStack
+	img     *Image
 }
 
 func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
@@ -30,22 +29,16 @@ func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	return ib, nil
 }
 
-func (ib *ImageButton) SetPosition(val image.Point) {
-	ib.Position = val
-}
-
 func (ib *ImageButton) Height() int {
 	return ib.img.Height() + 2*imgBtnPad.Y
 }
 
-func (ib *ImageButton) Render() []image.Rectangle {
+func (ib *ImageButton) Render(pos image.Point) []image.Rectangle {
 	ib.vstack.Padding = ib.Padding
-	ib.vstack.Position = ib.Position
 	size := ib.img.Size().Add(imgBtnPad.Mul(2))
-
 	ib.hitbox = image.Rectangle{
-		Min: ib.Position,
-		Max: ib.Position.Add(size),
+		Min: pos,
+		Max: pos.Add(size),
 	}
 
 	lineWidth := 4
@@ -57,7 +50,7 @@ func (ib *ImageButton) Render() []image.Rectangle {
 	ib.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return append(ib.vstack.Render(), image.Rectangle{
+	return append(ib.vstack.Render(pos), image.Rectangle{
 		Min: ib.hitbox.Min.Sub(margin),
 		Max: ib.hitbox.Max.Add(margin),
 	})

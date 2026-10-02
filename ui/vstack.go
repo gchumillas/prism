@@ -7,20 +7,29 @@ import (
 
 type VStackChild interface {
 	Renderer
-	SetPosition(image.Point)
 	Height() int
 }
 
 type VStack struct {
-	Position image.Point
-	Padding  image.Point
-	Gap      int
+	Padding image.Point
+	Gap     int
 
 	children []VStackChild
 }
 
 func NewVStack(c Context) *VStack {
 	return &VStack{}
+}
+
+func (vs *VStack) Height() int {
+	height := vs.Padding.Y
+	for i, child := range vs.children {
+		if i > 0 {
+			height += vs.Gap
+		}
+		height += child.Height()
+	}
+	return height
 }
 
 func (vs *VStack) Children() []VStackChild {
@@ -37,14 +46,13 @@ func (vs *VStack) Remove(child VStackChild) {
 	})
 }
 
-func (vs *VStack) Render() (dirtyRegs []image.Rectangle) {
-	height := vs.Position.Y + vs.Padding.Y
+func (vs *VStack) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+	y := pos.Y + vs.Padding.Y
 	for i, child := range vs.children {
 		if i > 0 {
-			height += vs.Gap + vs.children[i-1].Height()
+			y += vs.Gap + vs.children[i-1].Height()
 		}
-		child.SetPosition(image.Pt(vs.Position.X+vs.Padding.X, height))
-		dirtyRegs = append(dirtyRegs, child.Render()...)
+		dirtyRegs = append(dirtyRegs, child.Render(image.Pt(pos.X+vs.Padding.X, y))...)
 	}
 	return
 }
