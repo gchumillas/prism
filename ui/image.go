@@ -21,8 +21,8 @@ func LoadImage(c Context, r io.Reader) (i *Image, err error) {
 	return
 }
 
-func (lb *Image) SetPosition(val image.Point) {
-	lb.Position = val
+func (i *Image) SetPosition(val image.Point) {
+	i.Position = val
 }
 
 func (i *Image) Size() image.Point {
