@@ -47,6 +47,6 @@ func NewContextFromRGBA(img *image.RGBA) Context {
 	}
 }
 
-func (c Context) Image() image.Image {
+func (c Context) Canvas() image.Image {
 	return c.canvas.Image()
 }

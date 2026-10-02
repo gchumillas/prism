@@ -44,7 +44,7 @@ func (app *Storybook) Remove(child ui.Renderer) {
 }
 
 func (sb *Storybook) Render() {
-	r := sb.ctx.Image().Bounds()
+	r := sb.ctx.Canvas().Bounds()
 	ui.NewRectangle(sb.ctx, r.Dx(), r.Dy(), color.White)
 	for _, e := range sb.children {
 		e.Render()
@@ -53,7 +53,7 @@ func (sb *Storybook) Render() {
 
 func (sb *Storybook) refresh() error {
 	sb.Render()
-	b := sb.ctx.Image().Bounds()
+	b := sb.ctx.Canvas().Bounds()
 	s := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
 	return sb.Screen.Refresh([]app.Region{s})
 }

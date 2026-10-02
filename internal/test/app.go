@@ -49,7 +49,7 @@ func (app *App) render() (dirtyRegs []image.Rectangle) {
 }
 
 func (app *App) Refresh() {
-	img := app.Image()
+	img := app.Canvas()
 	dirtyRegs := app.render()
 	for _, r := range dirtyRegs {
 		draw.Draw(app.screen, r, img, r.Min, draw.Src)
@@ -58,6 +58,6 @@ func (app *App) Refresh() {
 
 func (app *App) RefreshRect(r image.Rectangle) {
 	app.render()
-	img := app.Image()
+	img := app.Canvas()
 	draw.Draw(app.screen, r, img, r.Min, draw.Src)
 }
