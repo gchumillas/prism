@@ -22,8 +22,8 @@ func NewRectangle(c Context, width, height int, fillColor color.Color) *Rectangl
 	return s
 }
 
-func (r *Rectangle) Height() int {
-	return r.size.Y
+func (r *Rectangle) Size() image.Point {
+	return r.size
 }
 
 func (r *Rectangle) Render(pos image.Point) (dirtyRegs []image.Rectangle) {

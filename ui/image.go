@@ -25,10 +25,6 @@ func (i *Image) Size() image.Point {
 	return image.Pt(b.Dx(), b.Dy())
 }
 
-func (i *Image) Height() int {
-	return i.Size().Y
-}
-
 func (i *Image) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	i.canvas.DrawImage(i.img, pos.X, pos.Y)
 	b := i.img.Bounds()
