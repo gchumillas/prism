@@ -23,8 +23,9 @@ func NewRectangle(c Context, width, height int, fillColor color.Color) *Rectangl
 	return s
 }
 
-func (lb *Rectangle) SetX(val int) { lb.Position.X = val }
-func (lb *Rectangle) SetY(val int) { lb.Position.Y = val }
+func (r *Rectangle) SetPosition(val image.Point) {
+	r.Position = val
+}
 
 func (r *Rectangle) Height() int {
 	return r.size.Y

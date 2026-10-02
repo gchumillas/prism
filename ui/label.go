@@ -43,8 +43,9 @@ func NewLabel(c Context, text string) *Label {
 	return l
 }
 
-func (l *Label) SetX(val int) { l.Position.X = val }
-func (l *Label) SetY(val int) { l.Position.Y = val }
+func (l *Label) SetPosition(val image.Point) {
+	l.Position = val
+}
 
 func (l *Label) Height() int {
 	return l.descent + l.ascent

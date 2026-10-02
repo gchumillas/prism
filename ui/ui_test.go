@@ -330,6 +330,15 @@ func TestImageButton(t *testing.T) {
 	})
 }
 
+type CustomWidget struct{ Label ui.Label }
+
+func NewCustomWidget(c ui.Context, text string) *CustomWidget {
+	return &CustomWidget{Label: *ui.NewLabel(c, text)}
+}
+func (cw *CustomWidget) Render() []image.Rectangle   { return cw.Label.Render() }
+func (cw *CustomWidget) SetPosition(val image.Point) { cw.Label.Position = val }
+func (cw *CustomWidget) Height() int                 { return cw.Label.Height() }
+
 func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
@@ -375,5 +384,12 @@ func TestVStack(t *testing.T) {
 		require.Contains(t, vs.Children(), lbBtn)
 		vs.Remove(lbBtn)
 		require.NotContains(t, vs.Children(), lbBtn)
+	})
+
+	t.Run("can create stackable widgets", func(t *testing.T) {
+		app := test.NewApp()
+		cw := NewCustomWidget(app.Context, "custom ui")
+		vs := ui.NewVStack(app.Context)
+		vs.Add(cw)
 	})
 }
