@@ -156,7 +156,7 @@ func TestImage(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
 		penBuff := bytes.NewBuffer(penPNG)
-		img, err := app.ImageFromReader(penBuff)
+		img, err := app.LoadImage(penBuff)
 		img.Position.X = 30
 		img.Position.Y = 30
 		require.NoError(t, err)
@@ -173,7 +173,7 @@ func TestImage(t *testing.T) {
 		app := test.NewApp()
 
 		penBuff := bytes.NewBuffer(penPNG)
-		img, err := app.ImageFromReader(penBuff)
+		img, err := app.LoadImage(penBuff)
 		img.Position.X = 10
 		img.Position.Y = 20
 		require.NoError(t, err)
@@ -271,7 +271,7 @@ func TestImageButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		app := test.NewApp()
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.ImageButtonFromReader(penBuff)
+		btn, err := app.LoadImageButton(penBuff)
 		require.NoError(t, err)
 		btn.Position.X = 100
 		btn.Position.Y = 50
@@ -288,7 +288,7 @@ func TestImageButton(t *testing.T) {
 		app := test.NewApp()
 
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.ImageButtonFromReader(penBuff)
+		btn, err := app.LoadImageButton(penBuff)
 		require.NoError(t, err)
 		btn.Position.X = 100
 		btn.Position.Y = 50
@@ -311,7 +311,7 @@ func TestImageButton(t *testing.T) {
 		app := test.NewApp()
 
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.ImageButtonFromReader(penBuff)
+		btn, err := app.LoadImageButton(penBuff)
 		require.NoError(t, err)
 		btn.Position.X = 100
 		btn.Position.Y = 50
@@ -324,7 +324,7 @@ func TestImageButton(t *testing.T) {
 	t.Run("Contains without rendering", func(t *testing.T) {
 		app := test.NewApp()
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := app.ImageButtonFromReader(penBuff)
+		btn, err := app.LoadImageButton(penBuff)
 		require.NoError(t, err)
 		require.Panics(t, func() { btn.Contains(0, 0) })
 	})
@@ -353,7 +353,7 @@ func TestVStack(t *testing.T) {
 
 		// can stack images
 		penBuff := bytes.NewBuffer(penPNG)
-		imgBtn, err := app.ImageButtonFromReader(penBuff)
+		imgBtn, err := app.LoadImageButton(penBuff)
 		require.NoError(t, err)
 		vs := app.VStack()
 		vs.Add(imgBtn)
