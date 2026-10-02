@@ -21,7 +21,7 @@ type VStack struct {
 	children []VStackChild
 }
 
-func (c Context) VStack() *VStack {
+func NewVStack(c Context) *VStack {
 	return &VStack{}
 }
 

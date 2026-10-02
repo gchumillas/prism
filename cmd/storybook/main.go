@@ -12,7 +12,7 @@ import (
 )
 
 type Storybook struct {
-	ui.Context
+	ctx      ui.Context
 	children []ui.Renderer
 	// physical devices
 	Touch  app.TapDispatcher
@@ -20,7 +20,7 @@ type Storybook struct {
 }
 
 func (sb *Storybook) Run() error {
-	btn := sb.LabelButton("Click me!")
+	btn := ui.NewLabelButton(sb.ctx, "Click me!")
 	btn.Position.X = 100
 	btn.Position.Y = 200
 	sb.Add(btn)
@@ -44,8 +44,8 @@ func (app *Storybook) Remove(child ui.Renderer) {
 }
 
 func (sb *Storybook) Render() {
-	r := sb.Image().Bounds()
-	sb.Rectangle(r.Dx(), r.Dy(), color.White)
+	r := sb.ctx.Image().Bounds()
+	ui.NewRectangle(sb.ctx, r.Dx(), r.Dy(), color.White)
 	for _, e := range sb.children {
 		e.Render()
 	}
@@ -53,7 +53,7 @@ func (sb *Storybook) Render() {
 
 func (sb *Storybook) refresh() error {
 	sb.Render()
-	b := sb.Image().Bounds()
+	b := sb.ctx.Image().Bounds()
 	s := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
 	return sb.Screen.Refresh([]app.Region{s})
 }
@@ -68,9 +68,9 @@ func main() {
 	ctx := ui.NewContextFromRGBA(env.Canvas)
 	ctx.FontSize = env.FontSize
 	sb := &Storybook{
-		Context: ctx,
-		Touch:   env.Touch,
-		Screen:  env.Screen,
+		ctx:    ctx,
+		Touch:  env.Touch,
+		Screen: env.Screen,
 	}
 
 	if err := sb.Run(); err != nil {

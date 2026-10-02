@@ -20,7 +20,7 @@ type Label struct {
 	ascent  int
 }
 
-func (c Context) Label(text string) *Label {
+func NewLabel(c Context, text string) *Label {
 	l := &Label{
 		canvas:   c.canvas,
 		fontSize: c.FontSize,

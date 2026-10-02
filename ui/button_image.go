@@ -19,12 +19,11 @@ type ImageButton struct {
 	img      *Image
 }
 
-// TODO: rename to LoadImageButton(io.Reader)
-func (c Context) ImageButtonFromReader(r io.Reader) (_ *ImageButton, err error) {
+func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	ib := &ImageButton{canvas: c.canvas}
-	ib.vstack = c.VStack()
+	ib.vstack = NewVStack(c)
 	ib.Padding = imgBtnPad
-	if ib.img, err = c.ImageFromReader(r); err != nil {
+	if ib.img, err = LoadImage(c, r); err != nil {
 		return
 	}
 	ib.vstack.Add(ib.img)
