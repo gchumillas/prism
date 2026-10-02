@@ -348,7 +348,7 @@ func TestVStack(t *testing.T) {
 		test.RectHasSomeColors(t, app.Screen(), 90, 40, 200, 125)    // something here
 	})
 
-	t.Run("can stack widgets", func(t *testing.T) {
+	t.Run("can add widgets", func(t *testing.T) {
 		app := test.NewApp()
 
 		// can stack images
@@ -365,5 +365,15 @@ func TestVStack(t *testing.T) {
 		// can stack rectangles
 		r := app.Rectangle(50, 100, color.White)
 		vs.Add(r)
+	})
+
+	t.Run("can remove widgets", func(t *testing.T) {
+		app := test.NewApp()
+		lbBtn := app.LabelButton("Click me!")
+		vs := app.VStack()
+		vs.Add(lbBtn)
+		require.Contains(t, vs.Children(), lbBtn)
+		vs.Remove(lbBtn)
+		require.NotContains(t, vs.Children(), lbBtn)
 	})
 }
