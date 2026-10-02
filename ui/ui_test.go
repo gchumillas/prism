@@ -250,16 +250,16 @@ func TestLabelButton(t *testing.T) {
 		app.Add(btn)
 
 		app.Refresh()
-		require.False(t, btn.Contains(0, 0))   // outside
-		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
-		require.True(t, btn.Contains(110, 60)) // inside
+		require.False(t, btn.Contains(image.Pt(0, 0)))   // outside
+		require.True(t, btn.Contains(image.Pt(100, 50))) // inside (left-top corner)
+		require.True(t, btn.Contains(image.Pt(110, 60))) // inside
 	})
 
 	t.Run("Contains without rendering", func(t *testing.T) {
 		app := test.NewApp()
 		btn := ui.NewLabelButton(app.Context, "Click me!")
 		app.Add(btn)
-		require.Panics(t, func() { btn.Contains(0, 0) })
+		require.Panics(t, func() { btn.Contains(image.Pt(0, 0)) })
 	})
 }
 
@@ -310,9 +310,9 @@ func TestImageButton(t *testing.T) {
 		require.NoError(t, err)
 		app.Add(btn)
 		app.Refresh()
-		require.False(t, btn.Contains(0, 0))   // outside
-		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
-		require.True(t, btn.Contains(110, 60)) // inside
+		require.False(t, btn.Contains(image.Pt(0, 0)))   // outside
+		require.True(t, btn.Contains(image.Pt(100, 50))) // inside (left-top corner)
+		require.True(t, btn.Contains(image.Pt(110, 60))) // inside
 	})
 
 	t.Run("Contains without rendering", func(t *testing.T) {
@@ -321,7 +321,7 @@ func TestImageButton(t *testing.T) {
 		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
 		app.Add(btn)
-		require.Panics(t, func() { btn.Contains(0, 0) })
+		require.Panics(t, func() { btn.Contains(image.Pt(0, 0)) })
 	})
 }
 
