@@ -19,6 +19,28 @@ import (
 //go:embed "testdata/pen24.png"
 var penPNG []byte
 
+const (
+	appWidth  = 640
+	appHeight = 480
+)
+
+type App struct {
+	*ui.VStack
+	bg *ui.Rectangle
+}
+
+func NewApp(ctx ui.Context, w, h int) *App {
+	return &App{
+		VStack: ui.NewVStack(ctx),
+		bg:     ui.NewRectangle(ctx, w, h, color.White),
+	}
+}
+
+func (s *App) Render() {
+	s.bg.Render(image.Pt(0, 0))
+	s.VStack.Render(image.Pt(0, 0))
+}
+
 func TestMergeRegions(t *testing.T) {
 	mirrorHor := func(rs []image.Rectangle) {
 		for i, r := range rs {
@@ -136,42 +158,52 @@ func TestMergeRegions(t *testing.T) {
 
 func TestRectangle(t *testing.T) {
 	t.Run("Render", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
-		fillColor := color.Gray{Y: 50}
-		r := ui.NewRectangle(app.Context, 50, 100, fillColor)
-		app.Add(r)
 
-		app.Refresh()
-		test.HlineIsColor(t, app.Screen(), 0, 100, 90, color.White)     // nothing here
-		test.VlineIsColor(t, app.Screen(), 125, 0, 40, color.White)     // nothing here
-		test.RectIsColor(t, app.Screen(), 0, 0, 90, 40, color.White)    // nothing here
-		test.RectIsColor(t, app.Screen(), 110, 60, 145, 145, fillColor) // something here
+		fillColor := color.Gray{Y: 50}
+		r := ui.NewRectangle(ctx, 50, 100, fillColor)
+		app.Add(r)
+		app.Render()
+
+		s.Refresh()
+		test.HlineIsColor(t, s.Display, 0, 100, 90, color.White)     // nothing here
+		test.VlineIsColor(t, s.Display, 125, 0, 40, color.White)     // nothing here
+		test.RectIsColor(t, s.Display, 0, 0, 90, 40, color.White)    // nothing here
+		test.RectIsColor(t, s.Display, 110, 60, 145, 145, fillColor) // something here
 	})
 }
 
 func TestImage(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(30, 30)
+
 		penBuff := bytes.NewBuffer(penPNG)
-		img, err := ui.LoadImage(app.Context, penBuff)
+		img, err := ui.LoadImage(ctx, penBuff)
 		require.NoError(t, err)
 		app.Add(img)
+		app.Render()
 
-		app.Refresh()
-		test.HlineIsColor(t, app.Screen(), 0, 40, 20, color.White)   // nothing here
-		test.VlineIsColor(t, app.Screen(), 40, 0, 20, color.White)   // nothing here
-		test.RectIsColor(t, app.Screen(), 0, 0, 20, 20, color.White) // nothing here
-		test.RectHasSomeColors(t, app.Screen(), 30, 30, 54, 54)      // something here
+		s.Refresh()
+		test.HlineIsColor(t, s.Display, 0, 40, 20, color.White)   // nothing here
+		test.VlineIsColor(t, s.Display, 40, 0, 20, color.White)   // nothing here
+		test.RectIsColor(t, s.Display, 0, 0, 20, 20, color.White) // nothing here
+		test.RectHasSomeColors(t, s.Display, 30, 30, 54, 54)      // something here
 	})
 
 	t.Run("Render", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(10, 20)
 
 		penBuff := bytes.NewBuffer(penPNG)
-		img, err := ui.LoadImage(app.Context, penBuff)
+		img, err := ui.LoadImage(ctx, penBuff)
 		require.NoError(t, err)
 		app.Add(img)
 
@@ -180,85 +212,97 @@ func TestImage(t *testing.T) {
 		require.NotEmpty(t, regs)
 		r := regs[0]
 		require.Equal(t, image.Rect(10, 20, 34, 44), r)
-		app.Refresh()
 
 		// check the element is there
-		test.RectHasSomeColors(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+		app.Render()
+		s.Refresh()
+		test.RectHasSomeColors(t, s.Display, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
 
 		// remove the element and refresh only "dirty region"
 		app.Remove(img)
-		app.RefreshRect(r)
+		app.Render()
+		s.RefreshRecs([]image.Rectangle{r})
 
 		// check the element is NOT there
-		test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
+		test.RectIsColor(t, s.Display, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
 	})
 }
 
 func TestLabelButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
-		btn := ui.NewLabelButton(app.Context, "Click me!")
-		app.Add(btn)
 
-		app.Refresh()
-		test.HlineIsColor(t, app.Screen(), 0, 200, 90, color.White)  // nothing here
-		test.VlineIsColor(t, app.Screen(), 200, 0, 40, color.White)  // nothing here
-		test.RectIsColor(t, app.Screen(), 0, 0, 90, 40, color.White) // nothing here
-		test.RectHasSomeColors(t, app.Screen(), 100, 50, 200, 100)   // something here
+		btn := ui.NewLabelButton(ctx, "Click me!")
+		app.Add(btn)
+		app.Render()
+
+		s.Refresh()
+		test.HlineIsColor(t, s.Display, 0, 200, 90, color.White)  // nothing here
+		test.VlineIsColor(t, s.Display, 200, 0, 40, color.White)  // nothing here
+		test.RectIsColor(t, s.Display, 0, 0, 90, 40, color.White) // nothing here
+		test.RectHasSomeColors(t, s.Display, 100, 50, 200, 100)   // something here
 	})
 
 	t.Run("Render", func(t *testing.T) {
-		app := test.NewApp()
-		btn := ui.NewLabelButton(app.Context, "Click me!")
-		app.Add(btn)
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 
-		app.Refresh()
-		screen := app.Screen()
-		test.VlineIsColor(t, screen, 100, 5, 10, color.White) // top padding
-		test.HlineIsColor(t, screen, 10, 35, 10, color.White) // left padding
-		test.RectHasSomeColors(t, screen, 35, 20, 170, 50)    // text
-		test.DotHasSomeColors(t, screen, 0, 0, 5)             // left-top corner
-		test.DotHasSomeColors(t, screen, 205, 0, 5)           // right-top corner
-		test.DotHasSomeColors(t, screen, 205, 75, 5)          // right-bottom corner
-		test.DotHasSomeColors(t, screen, 0, 75, 5)            // left-bottom corner
+		btn := ui.NewLabelButton(ctx, "Click me!")
+		app.Add(btn)
+		app.Render()
+
+		s.Refresh()
+		test.VlineIsColor(t, s.Display, 100, 5, 10, color.White) // top padding
+		test.HlineIsColor(t, s.Display, 10, 35, 10, color.White) // left padding
+		test.RectHasSomeColors(t, s.Display, 35, 20, 170, 50)    // text
+		test.DotHasSomeColors(t, s.Display, 0, 0, 5)             // left-top corner
+		test.DotHasSomeColors(t, s.Display, 205, 0, 5)           // right-top corner
+		test.DotHasSomeColors(t, s.Display, 205, 75, 5)          // right-bottom corner
+		test.DotHasSomeColors(t, s.Display, 0, 75, 5)            // left-bottom corner
 	})
 
 	t.Run("Render result", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
-		btn := ui.NewLabelButton(app.Context, "Click me!")
+
+		btn := ui.NewLabelButton(ctx, "Click me!")
 		app.Add(btn)
 		regs := btn.Render(app.Padding)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 
 		// the widget is there
-		app.Refresh()
-		test.RectHasSomeColors(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+		app.Render()
+		s.Refresh()
+		test.RectHasSomeColors(t, s.Display, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
 
 		// the widget is NOT there
 		app.Remove(btn)
-		app.RefreshRect(r)
-		test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
+		app.Render()
+		s.RefreshRecs([]image.Rectangle{r})
+		test.RectIsColor(t, s.Display, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
 	})
 
 	t.Run("Contains", func(t *testing.T) {
-		app := test.NewApp()
-		app.Padding = image.Pt(100, 50)
-		btn := ui.NewLabelButton(app.Context, "Click me!")
-		app.Add(btn)
+		ctx := ui.NewContext(appWidth, appHeight)
 
-		app.Refresh()
+		btn := ui.NewLabelButton(ctx, "Click me!")
+		btn.Render(image.Pt(100, 50))
+
 		require.False(t, btn.Contains(image.Pt(0, 0)))   // outside
 		require.True(t, btn.Contains(image.Pt(100, 50))) // inside (left-top corner)
 		require.True(t, btn.Contains(image.Pt(110, 60))) // inside
 	})
 
 	t.Run("Contains without rendering", func(t *testing.T) {
-		app := test.NewApp()
-		btn := ui.NewLabelButton(app.Context, "Click me!")
-		app.Add(btn)
+		ctx := ui.NewContext(appWidth, appHeight)
+		btn := ui.NewLabelButton(ctx, "Click me!")
 		require.PanicsWithError(t, ui.ErrEmptyHitbox.Error(), func() {
 			btn.Contains(image.Pt(0, 0))
 		})
@@ -267,26 +311,32 @@ func TestLabelButton(t *testing.T) {
 
 func TestImageButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
+
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(app.Context, penBuff)
+		btn, err := ui.LoadImageButton(ctx, penBuff)
 		require.NoError(t, err)
 		app.Add(btn)
+		app.Render()
 
-		app.Refresh()
-		test.HlineIsColor(t, app.Screen(), 0, 65, 90, color.White)   // nothing here
-		test.VlineIsColor(t, app.Screen(), 115, 0, 40, color.White)  // nothing here
-		test.RectIsColor(t, app.Screen(), 0, 0, 90, 45, color.White) // nothing here
-		test.RectHasSomeColors(t, app.Screen(), 90, 40, 140, 90)     // something here
+		s.Refresh()
+		test.HlineIsColor(t, s.Display, 0, 65, 90, color.White)   // nothing here
+		test.VlineIsColor(t, s.Display, 115, 0, 40, color.White)  // nothing here
+		test.RectIsColor(t, s.Display, 0, 0, 90, 45, color.White) // nothing here
+		test.RectHasSomeColors(t, s.Display, 90, 40, 140, 90)     // something here
 	})
 
 	t.Run("Render", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
 
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(app.Context, penBuff)
+		btn, err := ui.LoadImageButton(ctx, penBuff)
 		require.NoError(t, err)
 		app.Add(btn)
 		regs := btn.Render(app.Padding)
@@ -294,35 +344,35 @@ func TestImageButton(t *testing.T) {
 		r := regs[0]
 
 		// the widget is there
-		app.Refresh()
-		test.RectHasSomeColors(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+		app.Render()
+		s.Refresh()
+		test.RectHasSomeColors(t, s.Display, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
 
 		// the widget is NOT there
 		app.Remove(btn)
-		app.RefreshRect(r)
-		test.RectIsColor(t, app.Screen(), r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
+		app.Render()
+		s.RefreshRecs([]image.Rectangle{r})
+		test.RectIsColor(t, s.Display, r.Min.X, r.Min.Y, r.Max.X, r.Max.Y, color.White)
 	})
 
 	t.Run("Contains", func(t *testing.T) {
-		app := test.NewApp()
-		app.Padding = image.Pt(100, 50)
+		ctx := ui.NewContext(appWidth, appHeight)
 
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(app.Context, penBuff)
+		btn, err := ui.LoadImageButton(ctx, penBuff)
 		require.NoError(t, err)
-		app.Add(btn)
-		app.Refresh()
+		btn.Render(image.Pt(100, 50))
+
 		require.False(t, btn.Contains(image.Pt(0, 0)))   // outside
 		require.True(t, btn.Contains(image.Pt(100, 50))) // inside (left-top corner)
 		require.True(t, btn.Contains(image.Pt(110, 60))) // inside
 	})
 
 	t.Run("Contains without rendering", func(t *testing.T) {
-		app := test.NewApp()
+		ctx := ui.NewContext(appWidth, appHeight)
 		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(app.Context, penBuff)
+		btn, err := ui.LoadImageButton(ctx, penBuff)
 		require.NoError(t, err)
-		app.Add(btn)
 		require.PanicsWithError(t, ui.ErrEmptyHitbox.Error(), func() {
 			btn.Contains(image.Pt(0, 0))
 		})
@@ -339,44 +389,49 @@ func (cw *CustomWidget) Size() image.Point                        { return cw.La
 
 func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
-		app := test.NewApp()
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
-		vs := ui.NewVStack(app.Context)
+
+		vs := ui.NewVStack(ctx)
 		for i := range 2 {
-			vs.Add(ui.NewLabel(app.Context, fmt.Sprintf("Item %d", i)))
+			vs.Add(ui.NewLabel(ctx, fmt.Sprintf("Item %d", i)))
 		}
 		app.Add(vs)
+		app.Render()
 
-		app.Refresh()
-		test.HlineIsColor(t, app.Screen(), 0, 65, 90, color.White)   // nothing here
-		test.VlineIsColor(t, app.Screen(), 115, 0, 40, color.White)  // nothing here
-		test.RectIsColor(t, app.Screen(), 0, 0, 90, 45, color.White) // nothing here
-		test.RectHasSomeColors(t, app.Screen(), 90, 40, 200, 125)    // something here
+		s.Refresh()
+		test.HlineIsColor(t, s.Display, 0, 65, 90, color.White)   // nothing here
+		test.VlineIsColor(t, s.Display, 115, 0, 40, color.White)  // nothing here
+		test.RectIsColor(t, s.Display, 0, 0, 90, 45, color.White) // nothing here
+		test.RectHasSomeColors(t, s.Display, 90, 40, 200, 125)    // something here
 	})
 
 	t.Run("can add widgets", func(t *testing.T) {
-		app := test.NewApp()
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
 
 		// can stack images
 		penBuff := bytes.NewBuffer(penPNG)
-		imgBtn, err := ui.LoadImageButton(app.Context, penBuff)
+		imgBtn, err := ui.LoadImageButton(ctx, penBuff)
 		require.NoError(t, err)
-		vs := ui.NewVStack(app.Context)
 		vs.Add(imgBtn)
 
 		// can stack buttons
-		lbBtn := ui.NewLabelButton(app.Context, "Click me!")
+		lbBtn := ui.NewLabelButton(ctx, "Click me!")
 		vs.Add(lbBtn)
 
 		// can stack rectangles
-		r := ui.NewRectangle(app.Context, 50, 100, color.White)
+		r := ui.NewRectangle(ctx, 50, 100, color.White)
 		vs.Add(r)
 	})
 
 	t.Run("can remove widgets", func(t *testing.T) {
-		app := test.NewApp()
-		lbBtn := ui.NewLabelButton(app.Context, "Click me!")
-		vs := ui.NewVStack(app.Context)
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
+
+		lbBtn := ui.NewLabelButton(ctx, "Click me!")
 		vs.Add(lbBtn)
 		require.Contains(t, vs.Children(), lbBtn)
 		vs.Remove(lbBtn)
@@ -384,9 +439,9 @@ func TestVStack(t *testing.T) {
 	})
 
 	t.Run("can create stackable widgets", func(t *testing.T) {
-		app := test.NewApp()
-		cw := NewCustomWidget(app.Context, "custom ui")
-		vs := ui.NewVStack(app.Context)
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
+		cw := NewCustomWidget(ctx, "custom ui")
 		vs.Add(cw)
 	})
 }
