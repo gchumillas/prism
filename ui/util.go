@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"bytes"
+	"encoding/json"
 	"image"
 	"slices"
 )
@@ -80,4 +82,16 @@ func MergeRegions(regs []image.Rectangle) []image.Rectangle {
 		}
 	}
 	return result
+}
+
+// used by "Organizers", like VStack, to determine if a node must be rendered
+func serializeNode(x, y int, node Renderer) []byte {
+	var b bytes.Buffer
+	if err := json.NewEncoder(&b).Encode(struct {
+		X, Y int
+		N    Renderer
+	}{X: x, Y: y, N: node}); err != nil {
+		panic(err)
+	}
+	return b.Bytes()
 }

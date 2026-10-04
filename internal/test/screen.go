@@ -3,7 +3,6 @@ package test
 import (
 	"image"
 	"image/draw"
-	"time"
 )
 
 type Screen struct {
@@ -24,9 +23,8 @@ func (s *Screen) Refresh() {
 	s.RefreshRecs([]image.Rectangle{r})
 }
 
-func (s *Screen) RefreshRecs(recs []image.Rectangle) (total time.Duration) {
+func (s *Screen) RefreshRecs(recs []image.Rectangle) {
 	for _, r := range recs {
 		draw.Draw(s.Display, r, s.Canvas, r.Min, draw.Src)
 	}
-	return
 }

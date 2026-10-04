@@ -445,3 +445,156 @@ func TestVStack(t *testing.T) {
 		vs.Add(cw)
 	})
 }
+
+type Shape struct {
+	Color    int
+	Height   int
+	rendered bool
+}
+
+func NewShape(w, h, color int) *Shape {
+	return &Shape{Color: color, Height: h}
+}
+
+func (s *Shape) Size() image.Point {
+	return image.Pt(0, s.Height)
+}
+
+func (s *Shape) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	s.rendered = true
+	r := image.Rect(0, 0, 0, s.Height)
+	return []image.Rectangle{r}
+}
+
+func TestVStack_Render(t *testing.T) {
+	h0, h1 := 50, 100 // heights
+
+	t.Run("render all nodes", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+
+		vs := ui.NewVStack(ctx)
+		var shapes []*Shape
+		for i := range 3 {
+			shape := NewShape(200, h0, i)
+			shapes = append(shapes, shape)
+			vs.Add(shape)
+		}
+
+		// all shapes are rendered
+		vs.Render(0, 0)
+		for _, shape := range shapes {
+			require.True(t, shape.rendered)
+			shape.rendered = false
+		}
+	})
+
+	t.Run("render only affected node", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+
+		vs := ui.NewVStack(ctx)
+		var shapes []*Shape
+		for i := range 3 {
+			shape := NewShape(200, h0, i)
+			shapes = append(shapes, shape)
+			vs.Add(shape)
+		}
+
+		vs.Render(0, 0)
+		for _, shape := range shapes {
+			shape.rendered = false
+		}
+
+		for i, shape := range shapes {
+			shape.Color = -1
+			vs.Render(0, 0)
+			for j, sh := range shapes {
+				require.True(t, j == i && sh.rendered || !sh.rendered)
+				sh.rendered = false
+			}
+		}
+	})
+
+	t.Run("render affected node and below", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+
+		vs := ui.NewVStack(ctx)
+		var shapes []*Shape
+		for i := range 3 {
+			shape := NewShape(200, h0, i)
+			shapes = append(shapes, shape)
+			vs.Add(shape)
+		}
+
+		vs.Render(0, 0)
+		for _, shape := range shapes {
+			shape.rendered = false
+		}
+
+		for i, shape := range shapes {
+			shape.Height = h1
+			vs.Render(0, 0)
+			for j, sh := range shapes {
+				require.True(t, j >= i && sh.rendered || !sh.rendered)
+				sh.rendered = false
+			}
+		}
+	})
+
+	t.Run("render nodes below deleted", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+
+		vs := ui.NewVStack(ctx)
+		var shapes []*Shape
+		for i := range 3 {
+			shape := NewShape(200, h0, i)
+			shapes = append(shapes, shape)
+			vs.Add(shape)
+		}
+
+		vs.Render(0, 0)
+		for _, shape := range shapes {
+			shape.rendered = false
+		}
+
+		for len(shapes) > 0 {
+			vs.Remove(shapes[0])
+			shapes = shapes[1:]
+			vs.Render(0, 0)
+			for _, sh := range shapes {
+				require.True(t, sh.rendered)
+				sh.rendered = false
+			}
+		}
+	})
+
+	t.Run("render on change position", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+
+		vs := ui.NewVStack(ctx)
+		var shapes []*Shape
+		for i := range 3 {
+			shape := NewShape(200, h0, i)
+			shapes = append(shapes, shape)
+			vs.Add(shape)
+		}
+
+		vs.Render(0, 0)
+		for _, shape := range shapes {
+			shape.rendered = false
+		}
+
+		// position changed and therefore all children must be rendered
+		vs.Render(100, 100)
+		for _, shape := range shapes {
+			require.True(t, shape.rendered)
+			shape.rendered = false
+		}
+
+		// position remains and therefore all children must be rendered
+		vs.Render(100, 100)
+		for _, shape := range shapes {
+			require.True(t, !shape.rendered)
+			shape.rendered = false
+		}
+	})
+}

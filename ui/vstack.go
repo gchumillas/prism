@@ -1,19 +1,24 @@
 package ui
 
 import (
+	"bytes"
 	"image"
 	"slices"
 )
 
 type VStack struct {
-	Padding image.Point
-	Gap     int
-
+	Padding  image.Point
+	Gap      int
 	children []Widget
+
+	prevPos         image.Point
+	prevChildStates map[int][]byte
 }
 
 func NewVStack(c Context) *VStack {
-	return &VStack{}
+	return &VStack{
+		prevChildStates: map[int][]byte{},
+	}
 }
 
 func (vs *VStack) Size() image.Point {
@@ -45,12 +50,18 @@ func (vs *VStack) Remove(child Widget) {
 
 func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	h := pos.Y + vs.Padding.Y
+	y0 := pos.Y + vs.Padding.Y
 	for i, child := range vs.children {
 		if i > 0 {
-			h += vs.Gap + vs.children[i-1].Size().Y
+			y0 += vs.Gap + vs.children[i-1].Size().Y
 		}
-		dirtyRegs = append(dirtyRegs, child.Render(pos.X+vs.Padding.X, h)...)
+		state := serializeNode(x, y0, child)
+		prevState, ok := vs.prevChildStates[i]
+		if vs.prevPos != pos || !ok || !bytes.Equal(prevState, state) {
+			dirtyRegs = append(dirtyRegs, child.Render(pos.X+vs.Padding.X, y0)...)
+		}
+		vs.prevChildStates[i] = state
 	}
+	vs.prevPos = pos
 	return
 }
