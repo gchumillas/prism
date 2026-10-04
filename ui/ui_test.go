@@ -259,7 +259,9 @@ func TestLabelButton(t *testing.T) {
 		app := test.NewApp()
 		btn := ui.NewLabelButton(app.Context, "Click me!")
 		app.Add(btn)
-		require.Panics(t, func() { btn.Contains(image.Pt(0, 0)) })
+		require.PanicsWithError(t, ui.ErrEmptyHitbox.Error(), func() {
+			btn.Contains(image.Pt(0, 0))
+		})
 	})
 }
 
@@ -321,7 +323,9 @@ func TestImageButton(t *testing.T) {
 		btn, err := ui.LoadImageButton(app.Context, penBuff)
 		require.NoError(t, err)
 		app.Add(btn)
-		require.Panics(t, func() { btn.Contains(image.Pt(0, 0)) })
+		require.PanicsWithError(t, ui.ErrEmptyHitbox.Error(), func() {
+			btn.Contains(image.Pt(0, 0))
+		})
 	})
 }
 
