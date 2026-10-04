@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image"
 	"image/color"
 	"os"
 	"slices"
@@ -46,7 +45,7 @@ func (sb *Storybook) Render() {
 	r := sb.ctx.Canvas().Bounds()
 	ui.NewRectangle(sb.ctx, r.Dx(), r.Dy(), color.White)
 	for _, e := range sb.children {
-		e.Render(image.Pt(100, 200))
+		e.Render(100, 200)
 	}
 }
 

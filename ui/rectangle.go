@@ -26,7 +26,8 @@ func (r *Rectangle) Size() image.Point {
 	return r.size
 }
 
-func (r *Rectangle) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
 	rec := image.Rectangle{Min: pos, Max: pos.Add(r.size)}
 	r.canvas.DrawRectangle(
 		float64(rec.Min.X), float64(rec.Min.Y),

@@ -46,7 +46,8 @@ func (t *Text) Size() image.Point {
 	return image.Pt(t.width, lineh*len(lines))
 }
 
-func (t *Text) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
 		DPI:     defaultDPI,
@@ -60,14 +61,14 @@ func (t *Text) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	ascent := m.Ascent.Ceil()
 	lineh := m.Height.Ceil()
 
-	y := ascent
+	h := ascent
 	lines := splitIntoLines(face, t.text, t.width)
 	for _, line := range lines {
 		t.canvas.SetFontFace(face)
 		t.canvas.SetColor(color.Black)
 		// TODO: add ui.Color option
-		t.canvas.DrawString(line, float64(pos.X), float64(pos.Y+y))
-		y += lineh
+		t.canvas.DrawString(line, float64(pos.X), float64(pos.Y+h))
+		h += lineh
 	}
 
 	return []image.Rectangle{{

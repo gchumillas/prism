@@ -25,7 +25,8 @@ func (i *Image) Size() image.Point {
 	return image.Pt(b.Dx(), b.Dy())
 }
 
-func (i *Image) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+func (i *Image) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
 	i.canvas.DrawImage(i.img, pos.X, pos.Y)
 	b := i.img.Bounds()
 	size := b.Max.Sub(b.Min)

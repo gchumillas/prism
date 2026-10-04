@@ -47,7 +47,8 @@ func (l *Label) Size() image.Point {
 	return image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
 }
 
-func (l *Label) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
 	l.canvas.SetFontFace(l.face)
 	l.canvas.SetColor(color.Black)
 	l.canvas.DrawString(l.text, float64(pos.X), float64(pos.Y+l.ascent))

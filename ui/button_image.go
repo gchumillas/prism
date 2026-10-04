@@ -33,7 +33,8 @@ func (ib *ImageButton) Size() image.Point {
 	return ib.img.Size().Add(imgBtnPad.Mul(2))
 }
 
-func (ib *ImageButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
 	ib.vstack.Padding = ib.Padding
 	size := ib.img.Size().Add(imgBtnPad.Mul(2))
 	ib.hitbox = image.Rectangle{
@@ -50,7 +51,7 @@ func (ib *ImageButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	ib.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return append(ib.vstack.Render(pos), image.Rectangle{
+	return append(ib.vstack.Render(x, y), image.Rectangle{
 		Min: ib.hitbox.Min.Sub(margin),
 		Max: ib.hitbox.Max.Add(margin),
 	})

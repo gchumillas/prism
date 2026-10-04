@@ -43,13 +43,14 @@ func (vs *VStack) Remove(child Widget) {
 	})
 }
 
-func (vs *VStack) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
-	y := pos.Y + vs.Padding.Y
+func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
+	h := pos.Y + vs.Padding.Y
 	for i, child := range vs.children {
 		if i > 0 {
-			y += vs.Gap + vs.children[i-1].Size().Y
+			h += vs.Gap + vs.children[i-1].Size().Y
 		}
-		dirtyRegs = append(dirtyRegs, child.Render(image.Pt(pos.X+vs.Padding.X, y))...)
+		dirtyRegs = append(dirtyRegs, child.Render(pos.X+vs.Padding.X, h)...)
 	}
 	return
 }

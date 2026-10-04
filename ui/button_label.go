@@ -30,7 +30,8 @@ func (lb *LabelButton) Size() image.Point {
 	return lb.label.Size().Add(labelBtnPad.Mul(2))
 }
 
-func (lb *LabelButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
+func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
 	lb.vstack.Padding = lb.Padding
 	size := lb.label.Size().Add(labelBtnPad.Mul(2))
 	lb.hitbox = image.Rectangle{
@@ -47,7 +48,7 @@ func (lb *LabelButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	lb.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return append(lb.vstack.Render(pos), image.Rectangle{
+	return append(lb.vstack.Render(x, y), image.Rectangle{
 		Min: lb.hitbox.Min.Sub(margin),
 		Max: lb.hitbox.Max.Add(margin),
 	})

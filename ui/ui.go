@@ -26,7 +26,7 @@ var uiFont = func() *opentype.Font {
 var ErrEmptyHitbox = errors.New("empty hitbox")
 
 type Renderer interface {
-	Render(pos image.Point) (dirtyRegs []image.Rectangle)
+	Render(x, y int) (dirtyRegs []image.Rectangle)
 }
 
 type Widget interface {

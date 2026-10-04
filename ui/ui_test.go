@@ -37,8 +37,8 @@ func NewApp(ctx ui.Context, w, h int) *App {
 }
 
 func (s *App) Render() {
-	s.bg.Render(image.Pt(0, 0))
-	s.VStack.Render(image.Pt(0, 0))
+	s.bg.Render(0, 0)
+	s.VStack.Render(0, 0)
 }
 
 func TestMergeRegions(t *testing.T) {
@@ -208,7 +208,7 @@ func TestImage(t *testing.T) {
 		app.Add(img)
 
 		// draw the image and preserve the "dirty region"
-		regs := img.Render(app.Padding)
+		regs := img.Render(app.Padding.X, app.Padding.Y)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 		require.Equal(t, image.Rect(10, 20, 34, 44), r)
@@ -273,7 +273,7 @@ func TestLabelButton(t *testing.T) {
 
 		btn := ui.NewLabelButton(ctx, "Click me!")
 		app.Add(btn)
-		regs := btn.Render(app.Padding)
+		regs := btn.Render(app.Padding.X, app.Padding.Y)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 
@@ -293,7 +293,7 @@ func TestLabelButton(t *testing.T) {
 		ctx := ui.NewContext(appWidth, appHeight)
 
 		btn := ui.NewLabelButton(ctx, "Click me!")
-		btn.Render(image.Pt(100, 50))
+		btn.Render(100, 50)
 
 		require.False(t, btn.Contains(0, 0))   // outside
 		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
@@ -339,7 +339,7 @@ func TestImageButton(t *testing.T) {
 		btn, err := ui.LoadImageButton(ctx, penBuff)
 		require.NoError(t, err)
 		app.Add(btn)
-		regs := btn.Render(app.Padding)
+		regs := btn.Render(app.Padding.X, app.Padding.Y)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 
@@ -361,7 +361,7 @@ func TestImageButton(t *testing.T) {
 		penBuff := bytes.NewBuffer(penPNG)
 		btn, err := ui.LoadImageButton(ctx, penBuff)
 		require.NoError(t, err)
-		btn.Render(image.Pt(100, 50))
+		btn.Render(100, 50)
 
 		require.False(t, btn.Contains(0, 0))   // outside
 		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
@@ -384,8 +384,8 @@ type CustomWidget struct{ Label ui.Label }
 func NewCustomWidget(c ui.Context, text string) *CustomWidget {
 	return &CustomWidget{Label: *ui.NewLabel(c, text)}
 }
-func (cw *CustomWidget) Render(pos image.Point) []image.Rectangle { return cw.Label.Render(pos) }
-func (cw *CustomWidget) Size() image.Point                        { return cw.Label.Size() }
+func (cw *CustomWidget) Render(x, y int) []image.Rectangle { return cw.Label.Render(x, y) }
+func (cw *CustomWidget) Size() image.Point                 { return cw.Label.Size() }
 
 func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
