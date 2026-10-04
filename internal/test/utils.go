@@ -14,7 +14,7 @@ import (
 
 const testDir = "testdata"
 
-func TakeSnapshot(t *testing.T, img image.Image) {
+func TakeSnapshot(t testing.TB, img image.Image) {
 	name := filepath.Join(testDir, t.Name()) + ".png"
 	dir := strings.TrimSuffix(name, filepath.Base(name))
 	err := os.MkdirAll(dir, 0o755)
@@ -26,7 +26,7 @@ func TakeSnapshot(t *testing.T, img image.Image) {
 	require.NoError(t, err)
 }
 
-func rectIsValid(t *testing.T, x0, y0, x1, y1 int) bool {
+func rectIsValid(t testing.TB, x0, y0, x1, y1 int) bool {
 	t.Helper()
 	if x0 > x1 || y0 > y1 {
 		t.Errorf("Invalid rectangle")
@@ -35,7 +35,7 @@ func rectIsValid(t *testing.T, x0, y0, x1, y1 int) bool {
 	return true
 }
 
-func RectIsColor(t *testing.T, img image.Image, x0, y0, x1, y1 int, c color.Color) bool {
+func RectIsColor(t testing.TB, img image.Image, x0, y0, x1, y1 int, c color.Color) bool {
 	t.Helper()
 	if !rectIsValid(t, x0, y0, x1, y1) {
 		return false
@@ -55,7 +55,7 @@ func RectIsColor(t *testing.T, img image.Image, x0, y0, x1, y1 int, c color.Colo
 	return true
 }
 
-func RectHasSomeColors(t *testing.T, img image.Image, x0, y0, x1, y1 int) {
+func RectHasSomeColors(t testing.TB, img image.Image, x0, y0, x1, y1 int) {
 	t.Helper()
 	if !rectIsValid(t, x0, y0, x1, y1) {
 		return
@@ -74,17 +74,17 @@ func RectHasSomeColors(t *testing.T, img image.Image, x0, y0, x1, y1 int) {
 	t.Error("Want some colors, got a single color")
 }
 
-func HlineIsColor(t *testing.T, img image.Image, x0, y0, width int, c color.Color) {
+func HlineIsColor(t testing.TB, img image.Image, x0, y0, width int, c color.Color) {
 	t.Helper()
 	RectIsColor(t, img, x0, y0, x0+width-1, y0, c)
 }
 
-func VlineIsColor(t *testing.T, img image.Image, x0, y0, height int, c color.Color) {
+func VlineIsColor(t testing.TB, img image.Image, x0, y0, height int, c color.Color) {
 	t.Helper()
 	RectIsColor(t, img, x0, y0, x0, y0+height-1, c)
 }
 
-func DotHasSomeColors(t *testing.T, img image.Image, x, y, size int) {
+func DotHasSomeColors(t testing.TB, img image.Image, x, y, size int) {
 	t.Helper()
 	RectHasSomeColors(t, img, x-size, y-size, x+size, y+size)
 }
