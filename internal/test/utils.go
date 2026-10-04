@@ -47,7 +47,7 @@ func RectIsColor(t *testing.T, img image.Image, x0, y0, x1, y1 int, c color.Colo
 	for y := y0; y <= y1; y++ {
 		for x := x0; x <= x1; x++ {
 			if d := img.At(x, y); d != c {
-				t.Error("Want single color, got multiple")
+				t.Errorf("Want %v, got %v", c, d)
 				return false
 			}
 		}
