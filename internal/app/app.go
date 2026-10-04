@@ -1,7 +1,5 @@
 package app
 
-import "image"
-
 type Region struct {
 	X0, Y0, X1, Y1 int
 }
@@ -12,7 +10,7 @@ type Renderer interface {
 }
 
 type Tappable interface {
-	Contains(image.Point) bool
+	Contains(x, y int) bool
 }
 
 type TapDispatcher interface {

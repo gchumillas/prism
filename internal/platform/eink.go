@@ -115,8 +115,7 @@ func (td *TouchDispatcher) Listen() {
 		curPoint = ts.Points[0]
 		if curPoint.ID < 0 && prevPoint.ID > 0 {
 			for _, handler := range td.handlers {
-				p := image.Pt(int(prevPoint.X), int(screen.Height-prevPoint.Y))
-				if handler.btn.Contains(p) {
+				if handler.btn.Contains(int(prevPoint.X), int(screen.Height-prevPoint.Y)) {
 					handler.action()
 				}
 			}

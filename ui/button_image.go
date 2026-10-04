@@ -56,9 +56,9 @@ func (ib *ImageButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	})
 }
 
-func (ib *ImageButton) Contains(p image.Point) bool {
+func (ib *ImageButton) Contains(x, y int) bool {
 	if ib.hitbox.Empty() {
 		panic(ErrEmptyHitbox)
 	}
-	return p.In(ib.hitbox)
+	return image.Pt(x, y).In(ib.hitbox)
 }

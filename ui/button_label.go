@@ -53,9 +53,9 @@ func (lb *LabelButton) Render(pos image.Point) (dirtyRegs []image.Rectangle) {
 	})
 }
 
-func (lb *LabelButton) Contains(p image.Point) bool {
+func (lb *LabelButton) Contains(x, y int) bool {
 	if lb.hitbox.Empty() {
 		panic(ErrEmptyHitbox)
 	}
-	return p.In(lb.hitbox)
+	return image.Pt(x, y).In(lb.hitbox)
 }
