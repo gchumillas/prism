@@ -84,6 +84,14 @@ func VlineIsColor(t testing.TB, img image.Image, x0, y0, height int, c color.Col
 	RectIsColor(t, img, x0, y0, x0, y0+height-1, c)
 }
 
+func RectBorderIsColor(t testing.TB, img image.Image, x0, y0, x1, y1 int, c color.Color) {
+	t.Helper()
+	HlineIsColor(t, img, x0, y0, x1-x0, c)
+	HlineIsColor(t, img, x0, y1, x1-x0, c)
+	VlineIsColor(t, img, x0, y0, y1-y0, c)
+	VlineIsColor(t, img, x0, y1, y1-y0, c)
+}
+
 func DotHasSomeColors(t testing.TB, img image.Image, x, y, size int) {
 	t.Helper()
 	RectHasSomeColors(t, img, x-size, y-size, x+size, y+size)

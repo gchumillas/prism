@@ -169,10 +169,8 @@ func TestRectangle(t *testing.T) {
 		app.Render()
 
 		s.Refresh()
-		test.HlineIsColor(t, s.Display, 0, 100, 90, color.White)     // nothing here
-		test.VlineIsColor(t, s.Display, 125, 0, 40, color.White)     // nothing here
-		test.RectIsColor(t, s.Display, 0, 0, 90, 40, color.White)    // nothing here
-		test.RectIsColor(t, s.Display, 110, 60, 145, 145, fillColor) // something here
+		test.RectBorderIsColor(t, s.Display, 95, 45, 155, 155, color.White)
+		test.RectIsColor(t, s.Display, 110, 60, 145, 145, fillColor)
 	})
 }
 
@@ -190,10 +188,8 @@ func TestImage(t *testing.T) {
 		app.Render()
 
 		s.Refresh()
-		test.HlineIsColor(t, s.Display, 0, 40, 20, color.White)   // nothing here
-		test.VlineIsColor(t, s.Display, 40, 0, 20, color.White)   // nothing here
-		test.RectIsColor(t, s.Display, 0, 0, 20, 20, color.White) // nothing here
-		test.RectHasSomeColors(t, s.Display, 30, 30, 54, 54)      // something here
+		test.RectBorderIsColor(t, s.Display, 25, 25, 55, 55, color.White)
+		test.RectHasSomeColors(t, s.Display, 30, 30, 50, 50)
 	})
 
 	t.Run("Render", func(t *testing.T) {
@@ -240,10 +236,12 @@ func TestLabelButton(t *testing.T) {
 		app.Render()
 
 		s.Refresh()
-		test.HlineIsColor(t, s.Display, 0, 200, 90, color.White)  // nothing here
-		test.VlineIsColor(t, s.Display, 200, 0, 40, color.White)  // nothing here
-		test.RectIsColor(t, s.Display, 0, 0, 90, 40, color.White) // nothing here
-		test.RectHasSomeColors(t, s.Display, 100, 50, 200, 100)   // something here
+		test.RectBorderIsColor(t, s.Display, 90, 40, 315, 135, color.White)
+		test.DotHasSomeColors(t, s.Display, 100, 50, 5)         // top-left corner
+		test.DotHasSomeColors(t, s.Display, 307, 50, 5)         // top-right corner
+		test.DotHasSomeColors(t, s.Display, 100, 125, 5)        // bottom-left corner
+		test.DotHasSomeColors(t, s.Display, 305, 125, 5)        // bottom-right corner
+		test.RectHasSomeColors(t, s.Display, 130, 70, 275, 100) // label
 	})
 
 	t.Run("Render", func(t *testing.T) {
@@ -323,10 +321,12 @@ func TestImageButton(t *testing.T) {
 		app.Render()
 
 		s.Refresh()
-		test.HlineIsColor(t, s.Display, 0, 65, 90, color.White)   // nothing here
-		test.VlineIsColor(t, s.Display, 115, 0, 40, color.White)  // nothing here
-		test.RectIsColor(t, s.Display, 0, 0, 90, 45, color.White) // nothing here
-		test.RectHasSomeColors(t, s.Display, 90, 40, 140, 90)     // something here
+		test.RectBorderIsColor(t, s.Display, 95, 45, 140, 90, color.White)
+		test.DotHasSomeColors(t, s.Display, 100, 50, 10)       // top-left corner
+		test.DotHasSomeColors(t, s.Display, 135, 50, 10)       // top-right corner
+		test.DotHasSomeColors(t, s.Display, 100, 85, 10)       // bottom-left corner
+		test.DotHasSomeColors(t, s.Display, 135, 85, 10)       // bottom-right corner
+		test.RectHasSomeColors(t, s.Display, 105, 55, 125, 75) // icon
 	})
 
 	t.Run("Render", func(t *testing.T) {
