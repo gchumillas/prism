@@ -13,16 +13,13 @@ type LabelButton struct {
 	Padding image.Point
 	canvas  *gg.Context
 	hitbox  image.Rectangle
-	vstack  *VStack
 	label   *Label
 }
 
 func NewLabelButton(c Context, text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
-	lb.vstack = NewVStack(c)
 	lb.Padding = labelBtnPad
 	lb.label = NewLabel(c, text)
-	lb.vstack.Add(lb.label)
 	return lb
 }
 
@@ -32,7 +29,6 @@ func (lb *LabelButton) Size() image.Point {
 
 func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	lb.vstack.Padding = lb.Padding
 	size := lb.label.Size().Add(labelBtnPad.Mul(2))
 	lb.hitbox = image.Rectangle{
 		Min: pos,
@@ -48,10 +44,15 @@ func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	lb.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return append(lb.vstack.Render(x, y), image.Rectangle{
+	dirtyReg := image.Rectangle{
 		Min: lb.hitbox.Min.Sub(margin),
 		Max: lb.hitbox.Max.Add(margin),
-	})
+	}
+
+	return append(
+		lb.label.Render(x+lb.Padding.X, y+lb.Padding.Y),
+		dirtyReg,
+	)
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {

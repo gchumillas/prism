@@ -14,18 +14,15 @@ type ImageButton struct {
 	Padding image.Point
 	canvas  *gg.Context
 	hitbox  image.Rectangle
-	vstack  *VStack
 	img     *Image
 }
 
 func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	ib := &ImageButton{canvas: c.canvas}
-	ib.vstack = NewVStack(c)
 	ib.Padding = imgBtnPad
 	if ib.img, err = LoadImage(c, r); err != nil {
 		return
 	}
-	ib.vstack.Add(ib.img)
 	return ib, nil
 }
 
@@ -35,7 +32,6 @@ func (ib *ImageButton) Size() image.Point {
 
 func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	ib.vstack.Padding = ib.Padding
 	size := ib.img.Size().Add(imgBtnPad.Mul(2))
 	ib.hitbox = image.Rectangle{
 		Min: pos,
@@ -51,10 +47,15 @@ func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	ib.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	return append(ib.vstack.Render(x, y), image.Rectangle{
+	dirtyReg := image.Rectangle{
 		Min: ib.hitbox.Min.Sub(margin),
 		Max: ib.hitbox.Max.Add(margin),
-	})
+	}
+
+	return append(
+		ib.img.Render(x+ib.Padding.X, y+ib.Padding.Y),
+		dirtyReg,
+	)
 }
 
 func (ib *ImageButton) Contains(x, y int) bool {
