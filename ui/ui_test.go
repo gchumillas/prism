@@ -389,6 +389,7 @@ func NewCustomWidget(c ui.Context, text string) *CustomWidget {
 }
 func (cw *CustomWidget) Render(x, y int) []image.Rectangle { return cw.Label.Render(x, y) }
 func (cw *CustomWidget) Size() image.Point                 { return cw.Label.Size() }
+func (cw *CustomWidget) State() map[string]any             { return cw.Label.State() }
 
 func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {

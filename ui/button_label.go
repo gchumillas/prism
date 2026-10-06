@@ -3,6 +3,7 @@ package ui
 import (
 	"image"
 	"image/color"
+	"maps"
 
 	"github.com/fogleman/gg"
 )
@@ -24,12 +25,18 @@ func NewLabelButton(c Context, text string) *LabelButton {
 }
 
 func (lb *LabelButton) Size() image.Point {
-	return lb.label.Size().Add(labelBtnPad.Mul(2))
+	return lb.label.Size().Add(lb.Padding.Mul(2))
+}
+
+func (lb *LabelButton) State() map[string]any {
+	dst := map[string]any{"padding": lb.Padding}
+	maps.Copy(dst, lb.label.State())
+	return dst
 }
 
 func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	size := lb.label.Size().Add(labelBtnPad.Mul(2))
+	size := lb.label.Size().Add(lb.Padding.Mul(2))
 	lb.hitbox = image.Rectangle{
 		Min: pos,
 		Max: pos.Add(size),

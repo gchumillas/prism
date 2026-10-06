@@ -32,6 +32,8 @@ type Renderer interface {
 type Widget interface {
 	Renderer
 	Size() image.Point
+	// TODO: replace with Version() uint64
+	State() map[string]any
 }
 
 type Context struct {

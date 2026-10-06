@@ -47,6 +47,10 @@ func (l *Label) Size() image.Point {
 	return image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
 }
 
+func (l *Label) State() map[string]any {
+	return map[string]any{"text": l.text}
+}
+
 func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	l.canvas.SetFontFace(l.face)

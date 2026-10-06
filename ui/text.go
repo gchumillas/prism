@@ -46,6 +46,10 @@ func (t *Text) Size() image.Point {
 	return image.Pt(t.width, lineh*len(lines))
 }
 
+func (r *Text) State() map[string]any {
+	return nil
+}
+
 func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
