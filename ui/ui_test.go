@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"os"
 	"slices"
 	"testing"
 
@@ -12,12 +13,8 @@ import (
 	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 
-	_ "embed"
 	_ "image/png"
 )
-
-//go:embed "testdata/pen24.png"
-var penPNG []byte
 
 const (
 	appWidth  = 640
@@ -181,8 +178,9 @@ func TestImage(t *testing.T) {
 		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(30, 30)
 
-		penBuff := bytes.NewBuffer(penPNG)
-		img, err := ui.LoadImage(ctx, penBuff)
+		dat, err := os.ReadFile("testdata/icon1.png")
+		require.NoError(t, err)
+		img, err := ui.LoadImage(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		app.Add(img)
 		app.Render()
@@ -198,8 +196,9 @@ func TestImage(t *testing.T) {
 		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(10, 20)
 
-		penBuff := bytes.NewBuffer(penPNG)
-		img, err := ui.LoadImage(ctx, penBuff)
+		dat, err := os.ReadFile("testdata/icon2.png")
+		require.NoError(t, err)
+		img, err := ui.LoadImage(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		app.Add(img)
 
@@ -314,8 +313,9 @@ func TestImageButton(t *testing.T) {
 		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
 
-		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(ctx, penBuff)
+		dat, err := os.ReadFile("testdata/icon3.png")
+		require.NoError(t, err)
+		btn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		app.Add(btn)
 		app.Render()
@@ -335,8 +335,9 @@ func TestImageButton(t *testing.T) {
 		app := NewApp(ctx, appWidth, appHeight)
 		app.Padding = image.Pt(100, 50)
 
-		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(ctx, penBuff)
+		dat, err := os.ReadFile("testdata/icon1.png")
+		require.NoError(t, err)
+		btn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		app.Add(btn)
 		regs := btn.Render(app.Padding.X, app.Padding.Y)
@@ -358,8 +359,9 @@ func TestImageButton(t *testing.T) {
 	t.Run("Contains", func(t *testing.T) {
 		ctx := ui.NewContext(appWidth, appHeight)
 
-		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(ctx, penBuff)
+		dat, err := os.ReadFile("testdata/icon1.png")
+		require.NoError(t, err)
+		btn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		btn.Render(100, 50)
 
@@ -370,8 +372,9 @@ func TestImageButton(t *testing.T) {
 
 	t.Run("Contains without rendering", func(t *testing.T) {
 		ctx := ui.NewContext(appWidth, appHeight)
-		penBuff := bytes.NewBuffer(penPNG)
-		btn, err := ui.LoadImageButton(ctx, penBuff)
+		dat, err := os.ReadFile("testdata/icon1.png")
+		require.NoError(t, err)
+		btn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		require.PanicsWithError(t, ui.ErrEmptyHitbox.Error(), func() {
 			btn.Contains(0, 0)
@@ -413,8 +416,9 @@ func TestVStack(t *testing.T) {
 		vs := ui.NewVStack(ctx)
 
 		// can stack images
-		penBuff := bytes.NewBuffer(penPNG)
-		imgBtn, err := ui.LoadImageButton(ctx, penBuff)
+		dat, err := os.ReadFile("testdata/icon1.png")
+		require.NoError(t, err)
+		imgBtn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		vs.Add(imgBtn)
 

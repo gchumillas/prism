@@ -8,5 +8,6 @@
 **/testdata/Test*.png
 
 # misc
+.DS_Store
 /test.*
 /personal
