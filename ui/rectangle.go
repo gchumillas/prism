@@ -26,6 +26,11 @@ func (r *Rectangle) Size() image.Point {
 	return r.size
 }
 
+func (r *Rectangle) State() map[string]any {
+	red, green, blue, alpha := r.fillColor.RGBA()
+	return map[string]any{"fillColor": [4]uint32{red, green, blue, alpha}}
+}
+
 func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	rec := image.Rectangle{Min: pos, Max: pos.Add(r.size)}

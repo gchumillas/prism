@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"io"
+	"maps"
 
 	"github.com/fogleman/gg"
 )
@@ -27,12 +28,18 @@ func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 }
 
 func (ib *ImageButton) Size() image.Point {
-	return ib.img.Size().Add(imgBtnPad.Mul(2))
+	return ib.img.Size().Add(ib.Padding.Mul(2))
+}
+
+func (ib *ImageButton) State() map[string]any {
+	dst := map[string]any{"padding": ib.Padding}
+	maps.Copy(dst, ib.img.State())
+	return dst
 }
 
 func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	size := ib.img.Size().Add(imgBtnPad.Mul(2))
+	size := ib.img.Size().Add(ib.Padding.Mul(2))
 	ib.hitbox = image.Rectangle{
 		Min: pos,
 		Max: pos.Add(size),
