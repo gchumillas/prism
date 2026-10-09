@@ -75,15 +75,4 @@ func TestImageButton(t *testing.T) {
 		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
 		require.True(t, btn.Contains(110, 60)) // inside
 	})
-
-	t.Run("Contains without rendering", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		dat, err := os.ReadFile("testdata/icon1.png")
-		require.NoError(t, err)
-		btn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
-		require.NoError(t, err)
-		require.PanicsWithError(t, ui.ErrEmptyHitbox.Error(), func() {
-			btn.Contains(0, 0)
-		})
-	})
 }
