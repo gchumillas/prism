@@ -1,6 +1,7 @@
 package ui_test
 
 import (
+	"image"
 	"image/color"
 	"testing"
 
@@ -10,6 +11,20 @@ import (
 )
 
 func TestRectangle_Render(t *testing.T) {
+	s := test.NewScreen(640, 480)
+	ctx := ui.NewContextFromRGBA(s.Canvas)
+	app := NewApp(ctx, appWidth, appHeight)
+	app.Padding = image.Pt(100, 50)
+
+	fillColor := color.Gray{Y: 50}
+	r := ui.NewRectangle(ctx, 50, 100, fillColor)
+	app.Add(r)
+	app.Render()
+
+	s.Refresh()
+	test.RectBorderIsColor(t, s.Display, 95, 45, 155, 155, color.White)
+	test.RectIsColor(t, s.Display, 110, 60, 145, 145, fillColor)
+
 	t.Run("change fill color", func(t *testing.T) {
 		ctx := ui.NewContext(320, 240)
 		rec := ui.NewRectangle(ctx, 100, 50, color.White)
