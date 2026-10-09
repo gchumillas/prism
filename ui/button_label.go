@@ -11,60 +11,59 @@ import (
 var labelBtnPad = image.Point{38, 19}
 
 type LabelButton struct {
-	Padding image.Point
-	canvas  *gg.Context
-	hitbox  image.Rectangle
-	label   *Label
+	canvas *gg.Context
+	label  *Label
+	pos    image.Point
+	size   image.Point
 }
 
 func NewLabelButton(c Context, text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
-	lb.Padding = labelBtnPad
 	lb.label = NewLabel(c, text)
+	lb.size = lb.label.Size().Add(labelBtnPad.Mul(2))
 	return lb
 }
 
 func (lb *LabelButton) Size() image.Point {
-	return lb.label.Size().Add(lb.Padding.Mul(2))
+	return lb.label.Size().Add(labelBtnPad.Mul(2))
 }
 
 func (lb *LabelButton) State() map[string]any {
-	dst := map[string]any{"padding": lb.Padding}
+	dst := map[string]any{"padding": labelBtnPad}
 	maps.Copy(dst, lb.label.State())
 	return dst
 }
 
 func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
-	pos := image.Pt(x, y)
-	size := lb.label.Size().Add(lb.Padding.Mul(2))
-	lb.hitbox = image.Rectangle{
-		Min: pos,
-		Max: pos.Add(size),
-	}
-
+	lb.pos = image.Pt(x, y)
+	hb := lb.hitbox()
 	lineWidth := 4
 	lb.canvas.SetLineWidth(float64(lineWidth))
 	lb.canvas.DrawRectangle(
-		float64(lb.hitbox.Min.X), float64(lb.hitbox.Min.Y),
-		float64(lb.hitbox.Dx()), float64(lb.hitbox.Dy()))
+		float64(hb.Min.X), float64(hb.Min.Y),
+		float64(hb.Dx()), float64(hb.Dy()))
 	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
 	dirtyReg := image.Rectangle{
-		Min: lb.hitbox.Min.Sub(margin),
-		Max: lb.hitbox.Max.Add(margin),
+		Min: hb.Min.Sub(margin),
+		Max: hb.Max.Add(margin),
 	}
 
 	return append(
-		lb.label.Render(x+lb.Padding.X, y+lb.Padding.Y),
+		lb.label.Render(x+labelBtnPad.X, y+labelBtnPad.Y),
 		dirtyReg,
 	)
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {
-	if lb.hitbox.Empty() {
-		panic(ErrEmptyHitbox)
+	return image.Pt(x, y).In(lb.hitbox())
+}
+
+func (lb *LabelButton) hitbox() image.Rectangle {
+	return image.Rectangle{
+		Min: lb.pos,
+		Max: lb.pos.Add(lb.size),
 	}
-	return image.Pt(x, y).In(lb.hitbox)
 }
