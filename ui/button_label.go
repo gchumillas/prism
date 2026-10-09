@@ -29,7 +29,7 @@ func (lb *LabelButton) Size() image.Point {
 }
 
 func (lb *LabelButton) State() map[string]any {
-	dst := map[string]any{"padding": labelBtnPad}
+	dst := map[string]any{"pos": lb.pos}
 	maps.Copy(dst, lb.label.State())
 	return dst
 }

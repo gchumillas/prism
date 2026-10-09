@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"os"
 	"testing"
 
@@ -45,6 +46,39 @@ func (s *Spy[T]) State() map[string]any { return s.Target.State() }
 func (s *Spy[T]) Render(x, y int) []image.Rectangle {
 	s.rendered = true
 	return s.Target.Render(x, y)
+}
+
+type Rect struct {
+	canvas draw.Image
+	image.Rectangle
+	color color.Color
+}
+
+func NewRect(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect {
+	return &Rect{
+		canvas:    canvas,
+		Rectangle: image.Rect(x0, y0, x1, y1),
+		color:     c,
+	}
+}
+
+func (r *Rect) Size() image.Point {
+	return r.Rectangle.Size()
+}
+
+func (r *Rect) State() map[string]any {
+	return map[string]any{
+		"x0": r.Min.X, "y0": r.Min.Y, "x1": r.Max.X, "y1": r.Max.Y,
+		"color": r.color,
+	}
+}
+
+func (r *Rect) Render(x, y int) []image.Rectangle {
+	pos := image.Pt(x, y)
+	size := r.Rectangle.Size()
+	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(size)}
+	draw.Draw(r.canvas, r.Rectangle, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
+	return []image.Rectangle{r.Rectangle}
 }
 
 func TestVStack(t *testing.T) {
@@ -109,6 +143,19 @@ func TestVStack(t *testing.T) {
 
 func TestVStack_Render(t *testing.T) {
 	appWidth, appHeight := 320, 240
+
+	intersectArea := func(r image.Rectangle, regs []image.Rectangle) int {
+		area := 0
+		for _, reg := range regs {
+			s := reg.Intersect(r)
+			area += s.Dx() * s.Dy()
+		}
+		return area
+	}
+
+	isRectInside := func(r image.Rectangle, regs []image.Rectangle) bool {
+		return intersectArea(r, regs) == r.Dx()*r.Dy()
+	}
 
 	t.Run("render all widgets", func(t *testing.T) {
 		ctx := ui.NewContext(appWidth, appHeight)
@@ -303,5 +350,64 @@ func TestVStack_Render(t *testing.T) {
 		vs.Remove(btn1)
 		vs.Render(0, 0)
 		require.False(t, btn2.Contains(p.X, p.Y))
+	})
+
+	t.Run("remove from list of different widgets", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
+		var shapes []*ui.Rectangle
+		for i := range uint8(2) {
+			r := ui.NewRectangle(ctx, 100, 50, color.Gray{Y: i})
+			shapes = append(shapes, r)
+			vs.Add(r)
+		}
+		vs.Render(0, 0)
+
+		sh0 := shapes[0]
+		vs.Remove(sh0)
+		regs := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 100)}, regs)
+	})
+
+	t.Run("remove from list of identical widgets", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
+		var shapes []*ui.Rectangle
+		for range uint8(3) {
+			r := ui.NewRectangle(ctx, 100, 50, color.White)
+			shapes = append(shapes, r)
+			vs.Add(r)
+		}
+		vs.Render(0, 0)
+
+		sh0 := shapes[0]
+		vs.Remove(sh0)
+		regs := vs.Render(0, 0)
+		// only returns the region of the last rectangle
+		// since the first rectangle is identical to the second and the third,
+		// there is no need to repaint those regions
+		require.Equal(t, []image.Rectangle{image.Rect(0, 100, 100, 150)}, regs)
+	})
+
+	t.Run("render different widget sizes", func(t *testing.T) {
+		canvas := image.NewRGBA(image.Rect(0, 0, appWidth, appHeight))
+		ctx := ui.NewContextFromRGBA(canvas)
+		recs := []*Rect{
+			NewRect(canvas, 0, 0, 100, 50, color.Gray{Y: 25}),  // landscape
+			NewRect(canvas, 0, 50, 50, 100, color.Gray{Y: 50}), // square
+		}
+		vs := ui.NewVStack(ctx)
+		for _, rec := range recs {
+			vs.Add(rec)
+		}
+		vs.Render(0, 0)
+
+		r0 := recs[0].Rectangle
+		r1 := recs[1].Rectangle
+		vs.Remove(recs[0])
+		regs := vs.Render(0, 0)
+		require.True(t, isRectInside(r0, regs))
+		require.True(t, isRectInside(recs[1].Rectangle, regs))
+		require.True(t, isRectInside(r1, regs))
 	})
 }
