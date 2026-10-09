@@ -74,9 +74,9 @@ func TestVStack_Render(t *testing.T) {
 		ctx := ui.NewContext(appWidth, appHeight)
 
 		vs := ui.NewVStack(ctx)
-		var shapes []*Spy[*ui.LabelButton]
+		var shapes []*Spy[*ui.Rectangle]
 		for i := range 3 {
-			shape := NewSpy(ui.NewLabelButton(ctx, fmt.Sprintf("Button %d", i)))
+			shape := NewSpy(ui.NewRectangle(ctx, 100, 50, color.Gray{Y: uint8(i)}))
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -87,7 +87,7 @@ func TestVStack_Render(t *testing.T) {
 		}
 
 		for i, shape := range shapes {
-			shape.Target.Padding.X += 50
+			shape.Target.Width += 50
 			vs.Render(0, 0)
 			for j, sh := range shapes {
 				require.Equal(t, j == i, sh.TakeRendered())
@@ -99,9 +99,9 @@ func TestVStack_Render(t *testing.T) {
 		ctx := ui.NewContext(appWidth, appHeight)
 
 		vs := ui.NewVStack(ctx)
-		var shapes []*Spy[*ui.LabelButton]
+		var shapes []*Spy[*ui.Rectangle]
 		for i := range 3 {
-			shape := NewSpy(ui.NewLabelButton(ctx, fmt.Sprintf("Button %d", i)))
+			shape := NewSpy(ui.NewRectangle(ctx, 100, 50, color.Gray{Y: uint8(i)}))
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -112,7 +112,7 @@ func TestVStack_Render(t *testing.T) {
 		}
 
 		for i, shape := range shapes {
-			shape.Target.Padding.Y += 50
+			shape.Target.Height += 50
 			vs.Render(0, 0)
 			for j, sh := range shapes {
 				require.Equal(t, j >= i, sh.TakeRendered())
@@ -186,13 +186,13 @@ func TestVStack_Render(t *testing.T) {
 		vs2 := ui.NewVStack(ctx)
 		vs1.Add(vs2)
 
-		sh := NewSpy(ui.NewLabelButton(ctx, "Button 1"))
+		sh := NewSpy(ui.NewRectangle(ctx, 100, 50, color.White))
 		vs2.Add(sh)
 
 		vs1.Render(0, 0)
 		require.True(t, sh.TakeRendered())
 
-		sh.Target.Padding.X += 50
+		sh.Target.Width += 50
 		vs1.Render(0, 0)
 		require.True(t, sh.TakeRendered())
 	})
@@ -204,7 +204,7 @@ func TestVStack_Render(t *testing.T) {
 		vs2 := ui.NewVStack(ctx)
 		vs1.Add(vs2)
 
-		sh := NewSpy(ui.NewLabelButton(ctx, "Button 1"))
+		sh := NewSpy(ui.NewRectangle(ctx, 100, 50, color.White))
 		vs2.Add(sh)
 
 		vs1.Render(0, 0)
@@ -216,7 +216,7 @@ func TestVStack_Render(t *testing.T) {
 		sh.TakeRendered()
 
 		// a nested change must still be detected by the outer stack
-		sh.Target.Padding.X += 50
+		sh.Target.Width += 50
 		vs1.Render(0, 0)
 		require.True(t, sh.TakeRendered())
 	})
