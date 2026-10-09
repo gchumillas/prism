@@ -12,62 +12,61 @@ import (
 var imgBtnPad = image.Pt(5, 5)
 
 type ImageButton struct {
-	Padding image.Point
-	canvas  *gg.Context
-	hitbox  image.Rectangle
-	img     *Image
+	canvas *gg.Context
+	img    *Image
+	pos    image.Point
+	size   image.Point
 }
 
 func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	ib := &ImageButton{canvas: c.canvas}
-	ib.Padding = imgBtnPad
 	if ib.img, err = LoadImage(c, r); err != nil {
 		return
 	}
+	ib.size = ib.img.Size().Add(imgBtnPad.Mul(2))
 	return ib, nil
 }
 
 func (ib *ImageButton) Size() image.Point {
-	return ib.img.Size().Add(ib.Padding.Mul(2))
+	return ib.size
 }
 
 func (ib *ImageButton) State() map[string]any {
-	dst := map[string]any{"padding": ib.Padding}
+	dst := map[string]any{"padding": imgBtnPad}
 	maps.Copy(dst, ib.img.State())
 	return dst
 }
 
 func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
-	pos := image.Pt(x, y)
-	size := ib.img.Size().Add(ib.Padding.Mul(2))
-	ib.hitbox = image.Rectangle{
-		Min: pos,
-		Max: pos.Add(size),
-	}
-
+	ib.pos = image.Pt(x, y)
+	hb := ib.hitbox()
 	lineWidth := 4
 	ib.canvas.SetLineWidth(float64(lineWidth))
 	ib.canvas.SetColor(color.Black)
 	ib.canvas.DrawRectangle(
-		float64(ib.hitbox.Min.X), float64(ib.hitbox.Min.Y),
-		float64(ib.hitbox.Dx()), float64(ib.hitbox.Dy()))
+		float64(hb.Min.X), float64(hb.Min.Y),
+		float64(hb.Dx()), float64(hb.Dy()))
 	ib.canvas.Stroke()
 
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
 	dirtyReg := image.Rectangle{
-		Min: ib.hitbox.Min.Sub(margin),
-		Max: ib.hitbox.Max.Add(margin),
+		Min: hb.Min.Sub(margin),
+		Max: hb.Max.Add(margin),
 	}
 
 	return append(
-		ib.img.Render(x+ib.Padding.X, y+ib.Padding.Y),
+		ib.img.Render(x+imgBtnPad.X, y+imgBtnPad.Y),
 		dirtyReg,
 	)
 }
 
 func (ib *ImageButton) Contains(x, y int) bool {
-	if ib.hitbox.Empty() {
-		panic(ErrEmptyHitbox)
+	return image.Pt(x, y).In(ib.hitbox())
+}
+
+func (ib *ImageButton) hitbox() image.Rectangle {
+	return image.Rectangle{
+		Min: ib.pos,
+		Max: ib.pos.Add(ib.size),
 	}
-	return image.Pt(x, y).In(ib.hitbox)
 }

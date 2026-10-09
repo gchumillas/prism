@@ -25,7 +25,7 @@ func NewLabelButton(c Context, text string) *LabelButton {
 }
 
 func (lb *LabelButton) Size() image.Point {
-	return lb.label.Size().Add(labelBtnPad.Mul(2))
+	return lb.size
 }
 
 func (lb *LabelButton) State() map[string]any {

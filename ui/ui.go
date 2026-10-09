@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"errors"
 	"image"
 
 	"github.com/fogleman/gg"
@@ -22,8 +21,6 @@ var uiFont = func() *opentype.Font {
 	}
 	return f
 }()
-
-var ErrEmptyHitbox = errors.New("empty hitbox")
 
 type Renderer interface {
 	Render(x, y int) (dirtyRegs []image.Rectangle)
