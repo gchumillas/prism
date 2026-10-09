@@ -9,7 +9,8 @@ import (
 )
 
 type childState struct {
-	y     int
+	pos   image.Point
+	regs  []image.Rectangle
 	state map[string]any
 }
 
@@ -19,7 +20,6 @@ type VStack struct {
 
 	children []Widget
 
-	prevPos         image.Point
 	prevChildStates []childState
 }
 
@@ -59,42 +59,46 @@ func (vs *VStack) Children() []Widget {
 	return vs.children
 }
 
+// TODO: the same child can be added more than once
 func (vs *VStack) Add(child Widget) {
 	vs.children = append(vs.children, child)
 }
 
-// TODO: This changes Remove from deleting every matching occurrence (the previous
-// slices.DeleteFunc behavior) to deleting only the first. Since Add permits the
-// same widget more than once, Remove(widget) now unexpectedly leaves duplicates
-// behind; delete all matches while keeping the cache aligned.
 func (vs *VStack) Remove(child Widget) {
-	if i := slices.Index(vs.children, child); i > -1 {
-		vs.children = append(vs.children[:i], vs.children[i+1:]...)
-		if i < len(vs.prevChildStates) {
-			vs.prevChildStates = append(vs.prevChildStates[:i], vs.prevChildStates[i+1:]...)
-		}
-	}
+	vs.children = slices.DeleteFunc(vs.children, func(c Widget) bool {
+		return c == child
+	})
 }
 
 func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	h := pos.Y + vs.Padding.Y
+	childPos := image.Pt(pos.X+vs.Padding.X, pos.Y+vs.Padding.Y)
 	for i, child := range vs.children {
 		if i > 0 {
-			h += vs.Gap + vs.children[i-1].Size().Y
+			childPos.Y += vs.Gap + vs.children[i-1].Size().Y
 		}
-		state := child.State()
-		prev, ok := childState{}, i < len(vs.prevChildStates)
-		if ok {
-			prev = vs.prevChildStates[i]
-			vs.prevChildStates[i] = childState{y: h, state: state}
+
+		if i < len(vs.prevChildStates) {
+			prev := vs.prevChildStates[i]
+			if prev.pos == childPos && maps.Equal(prev.state, child.State()) {
+				continue
+			}
+		}
+
+		regs := child.Render(childPos.X, childPos.Y)
+		dirtyRegs = append(dirtyRegs, regs...)
+		cs := childState{pos: childPos, regs: regs, state: child.State()}
+		if i < len(vs.prevChildStates) {
+			dirtyRegs = append(dirtyRegs, vs.prevChildStates[i].regs...)
+			vs.prevChildStates[i] = cs
 		} else {
-			vs.prevChildStates = append(vs.prevChildStates, childState{y: h, state: state})
-		}
-		if vs.prevPos != pos || !ok || prev.y != h || !maps.Equal(prev.state, state) {
-			dirtyRegs = append(dirtyRegs, child.Render(pos.X+vs.Padding.X, h)...)
+			vs.prevChildStates = append(vs.prevChildStates, cs)
 		}
 	}
-	vs.prevPos = pos
+	for _, cs := range vs.prevChildStates[len(vs.children):] {
+		dirtyRegs = append(dirtyRegs, cs.regs...)
+	}
+	vs.prevChildStates = vs.prevChildStates[:len(vs.children)]
+	dirtyRegs = MergeRegions(dirtyRegs)
 	return
 }

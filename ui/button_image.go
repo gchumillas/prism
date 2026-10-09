@@ -32,7 +32,7 @@ func (ib *ImageButton) Size() image.Point {
 }
 
 func (ib *ImageButton) State() map[string]any {
-	dst := map[string]any{"padding": imgBtnPad}
+	dst := map[string]any{"pos": ib.pos}
 	maps.Copy(dst, ib.img.State())
 	return dst
 }
