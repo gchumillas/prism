@@ -8,12 +8,22 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gchumillas/prism/internal/test"
 	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 
 	_ "embed"
 	_ "image/png"
 )
+
+type CustomWidget struct{ Label ui.Label }
+
+func NewCustomWidget(c ui.Context, text string) *CustomWidget {
+	return &CustomWidget{Label: *ui.NewLabel(c, text)}
+}
+func (cw *CustomWidget) Render(x, y int) []image.Rectangle { return cw.Label.Render(x, y) }
+func (cw *CustomWidget) Size() image.Point                 { return cw.Label.Size() }
+func (cw *CustomWidget) State() map[string]any             { return cw.Label.State() }
 
 type Spy[T ui.Widget] struct {
 	Target   T
@@ -30,17 +40,71 @@ func (s *Spy[T]) TakeRendered() bool {
 	return r
 }
 
-func (s *Spy[T]) Size() image.Point {
-	return s.Target.Size()
-}
-
-func (s *Spy[T]) State() map[string]any {
-	return s.Target.State()
-}
-
+func (s *Spy[T]) Size() image.Point     { return s.Target.Size() }
+func (s *Spy[T]) State() map[string]any { return s.Target.State() }
 func (s *Spy[T]) Render(x, y int) []image.Rectangle {
 	s.rendered = true
 	return s.Target.Render(x, y)
+}
+
+func TestVStack(t *testing.T) {
+	t.Run("X Y options", func(t *testing.T) {
+		s := test.NewScreen(appWidth, appHeight)
+		ctx := ui.NewContextFromRGBA(s.Canvas)
+		app := NewApp(ctx, appWidth, appHeight)
+		app.Padding = image.Pt(100, 50)
+
+		vs := ui.NewVStack(ctx)
+		for i := range 2 {
+			vs.Add(ui.NewLabel(ctx, fmt.Sprintf("Item %d", i)))
+		}
+		app.Add(vs)
+		app.Render()
+
+		s.Refresh()
+		test.HlineIsColor(t, s.Display, 0, 65, 90, color.White)   // nothing here
+		test.VlineIsColor(t, s.Display, 115, 0, 40, color.White)  // nothing here
+		test.RectIsColor(t, s.Display, 0, 0, 90, 45, color.White) // nothing here
+		test.RectHasSomeColors(t, s.Display, 90, 40, 200, 125)    // something here
+	})
+
+	t.Run("can add widgets", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
+
+		// can stack images
+		dat, err := os.ReadFile("testdata/icon1.png")
+		require.NoError(t, err)
+		imgBtn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
+		require.NoError(t, err)
+		vs.Add(imgBtn)
+
+		// can stack buttons
+		lbBtn := ui.NewLabelButton(ctx, "Click me!")
+		vs.Add(lbBtn)
+
+		// can stack rectangles
+		r := ui.NewRectangle(ctx, 50, 100, color.White)
+		vs.Add(r)
+	})
+
+	t.Run("can remove widgets", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
+
+		lbBtn := ui.NewLabelButton(ctx, "Click me!")
+		vs.Add(lbBtn)
+		require.Contains(t, vs.Children(), lbBtn)
+		vs.Remove(lbBtn)
+		require.NotContains(t, vs.Children(), lbBtn)
+	})
+
+	t.Run("can create stackable widgets", func(t *testing.T) {
+		ctx := ui.NewContext(appWidth, appHeight)
+		vs := ui.NewVStack(ctx)
+		cw := NewCustomWidget(ctx, "custom ui")
+		vs.Add(cw)
+	})
 }
 
 func TestVStack_Render(t *testing.T) {
