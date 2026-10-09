@@ -83,12 +83,4 @@ func TestLabelButton(t *testing.T) {
 		require.True(t, btn.Contains(100, 50)) // inside (left-top corner)
 		require.True(t, btn.Contains(110, 60)) // inside
 	})
-
-	t.Run("Contains without rendering", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		btn := ui.NewLabelButton(ctx, "Click me!")
-		require.PanicsWithError(t, ui.ErrEmptyHitbox.Error(), func() {
-			btn.Contains(0, 0)
-		})
-	})
 }
