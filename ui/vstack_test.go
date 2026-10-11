@@ -24,7 +24,7 @@ func NewCustomWidget(c ui.Context, text string) *CustomWidget {
 }
 func (cw *CustomWidget) Render(x, y int) []image.Rectangle { return cw.Label.Render(x, y) }
 func (cw *CustomWidget) Size() image.Point                 { return cw.Label.Size() }
-func (cw *CustomWidget) State() map[string]any             { return cw.Label.State() }
+func (cw *CustomWidget) Footprint() map[string]any         { return cw.Label.Footprint() }
 
 type Spy[T ui.Widget] struct {
 	Target   T
@@ -41,8 +41,8 @@ func (s *Spy[T]) TakeRendered() bool {
 	return r
 }
 
-func (s *Spy[T]) Size() image.Point     { return s.Target.Size() }
-func (s *Spy[T]) State() map[string]any { return s.Target.State() }
+func (s *Spy[T]) Size() image.Point         { return s.Target.Size() }
+func (s *Spy[T]) Footprint() map[string]any { return s.Target.Footprint() }
 func (s *Spy[T]) Render(x, y int) []image.Rectangle {
 	s.rendered = true
 	return s.Target.Render(x, y)
@@ -66,7 +66,7 @@ func (r *Rect) Size() image.Point {
 	return r.Rectangle.Size()
 }
 
-func (r *Rect) State() map[string]any {
+func (r *Rect) Footprint() map[string]any {
 	return map[string]any{"width": r.Dx(), "height": r.Dy(), "color": r.color}
 }
 

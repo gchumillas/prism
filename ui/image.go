@@ -29,7 +29,7 @@ func (i *Image) Size() image.Point {
 	return image.Pt(b.Dx(), b.Dy())
 }
 
-func (i *Image) State() map[string]any {
+func (i *Image) Footprint() map[string]any {
 	return map[string]any{"id": i.id}
 }
 

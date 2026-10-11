@@ -31,9 +31,9 @@ func (ib *ImageButton) Size() image.Point {
 	return ib.size
 }
 
-func (ib *ImageButton) State() map[string]any {
+func (ib *ImageButton) Footprint() map[string]any {
 	dst := map[string]any{"pos": ib.pos}
-	maps.Copy(dst, ib.img.State())
+	maps.Copy(dst, ib.img.Footprint())
 	return dst
 }
 
