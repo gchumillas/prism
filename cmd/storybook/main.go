@@ -13,7 +13,7 @@ import (
 
 type Storybook struct {
 	ctx      ui.Context
-	children []ui.Renderer
+	children []ui.Widget
 	// physical devices
 	Touch  app.TapDispatcher
 	Screen app.Renderer
@@ -31,12 +31,12 @@ func (sb *Storybook) Run() error {
 	return sb.refresh()
 }
 
-func (sb *Storybook) Add(child ui.Renderer) {
+func (sb *Storybook) Add(child ui.Widget) {
 	sb.children = append(sb.children, child)
 }
 
-func (app *Storybook) Remove(child ui.Renderer) {
-	app.children = slices.DeleteFunc(app.children, func(c ui.Renderer) bool {
+func (app *Storybook) Remove(child ui.Widget) {
+	app.children = slices.DeleteFunc(app.children, func(c ui.Widget) bool {
 		return c == child
 	})
 }
