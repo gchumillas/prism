@@ -16,8 +16,7 @@ func TestImage(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		s := test.NewScreen(appWidth, appHeight)
 		ctx := ui.NewContextFromRGBA(s.Canvas)
-		app := NewApp(ctx, appWidth, appHeight)
-		app.Padding = image.Pt(30, 30)
+		app := NewApp(ctx, appWidth, appHeight, WithPadding(image.Pt(30, 30)))
 
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
@@ -32,10 +31,10 @@ func TestImage(t *testing.T) {
 	})
 
 	t.Run("Render", func(t *testing.T) {
+		padding := image.Pt(10, 20)
 		s := test.NewScreen(appWidth, appHeight)
 		ctx := ui.NewContextFromRGBA(s.Canvas)
-		app := NewApp(ctx, appWidth, appHeight)
-		app.Padding = image.Pt(10, 20)
+		app := NewApp(ctx, appWidth, appHeight, WithPadding(padding))
 
 		dat, err := os.ReadFile("testdata/icon2.png")
 		require.NoError(t, err)
@@ -44,7 +43,7 @@ func TestImage(t *testing.T) {
 		app.Add(img)
 
 		// draw the image and preserve the "dirty region"
-		regs := img.Render(app.Padding.X, app.Padding.Y)
+		regs := img.Render(padding.X, padding.Y)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 		require.Equal(t, image.Rect(10, 20, 34, 44), r)

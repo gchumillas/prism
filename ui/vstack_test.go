@@ -90,8 +90,7 @@ func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		s := test.NewScreen(appWidth, appHeight)
 		ctx := ui.NewContextFromRGBA(s.Canvas)
-		app := NewApp(ctx, appWidth, appHeight)
-		app.Padding = image.Pt(100, 50)
+		app := NewApp(ctx, appWidth, appHeight, WithPadding(image.Pt(100, 50)))
 
 		vs := ui.NewVStack(ctx)
 		for i := range 2 {
@@ -423,8 +422,7 @@ func TestVStack_Render(t *testing.T) {
 			NewRect(canvas, 0, 0, 100, 50, color.White),
 			NewRect1(canvas, 0, 50, 100, 100, color.White),
 		}
-		vs := ui.NewVStack(ctx)
-		vs.Gap = 10
+		vs := ui.NewVStack(ctx, ui.WithGap(10))
 		for _, rec := range recs {
 			vs.Add(rec)
 		}

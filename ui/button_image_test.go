@@ -16,8 +16,7 @@ func TestImageButton(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		s := test.NewScreen(appWidth, appHeight)
 		ctx := ui.NewContextFromRGBA(s.Canvas)
-		app := NewApp(ctx, appWidth, appHeight)
-		app.Padding = image.Pt(100, 50)
+		app := NewApp(ctx, appWidth, appHeight, WithPadding(image.Pt(100, 50)))
 
 		dat, err := os.ReadFile("testdata/icon3.png")
 		require.NoError(t, err)
@@ -36,17 +35,17 @@ func TestImageButton(t *testing.T) {
 	})
 
 	t.Run("Render", func(t *testing.T) {
+		padding := image.Pt(100, 50)
 		s := test.NewScreen(appWidth, appHeight)
 		ctx := ui.NewContextFromRGBA(s.Canvas)
-		app := NewApp(ctx, appWidth, appHeight)
-		app.Padding = image.Pt(100, 50)
+		app := NewApp(ctx, appWidth, appHeight, WithPadding(padding))
 
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
 		btn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
 		require.NoError(t, err)
 		app.Add(btn)
-		regs := btn.Render(app.Padding.X, app.Padding.Y)
+		regs := btn.Render(padding.X, padding.Y)
 		require.NotEmpty(t, regs)
 		r := regs[0]
 

@@ -22,9 +22,34 @@ type App struct {
 	bg *ui.Rectangle
 }
 
-func NewApp(ctx ui.Context, w, h int) *App {
+type (
+	AppConfig struct {
+		padding image.Point
+		gap     int
+	}
+
+	AppOption func(*AppConfig)
+)
+
+func WithPadding(val image.Point) AppOption {
+	return func(cfg *AppConfig) {
+		cfg.padding = val
+	}
+}
+
+func WithGap(val int) AppOption {
+	return func(cfg *AppConfig) {
+		cfg.gap = val
+	}
+}
+
+func NewApp(ctx ui.Context, w, h int, opts ...AppOption) *App {
+	cfg := &AppConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
 	return &App{
-		VStack: ui.NewVStack(ctx),
+		VStack: ui.NewVStack(ctx, ui.WithPadding(cfg.padding), ui.WithGap(cfg.gap)),
 		bg:     ui.NewRectangle(ctx, w, h, color.White),
 	}
 }

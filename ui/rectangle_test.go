@@ -13,8 +13,7 @@ import (
 func TestRectangle_Render(t *testing.T) {
 	s := test.NewScreen(640, 480)
 	ctx := ui.NewContextFromRGBA(s.Canvas)
-	app := NewApp(ctx, appWidth, appHeight)
-	app.Padding = image.Pt(100, 50)
+	app := NewApp(ctx, appWidth, appHeight, WithPadding(image.Pt(100, 50)))
 
 	fillColor := color.Gray{Y: 50}
 	r := ui.NewRectangle(ctx, 50, 100, fillColor)
