@@ -16,30 +16,39 @@ type childState struct {
 	footprint map[string]any
 }
 
+type stackOption interface {
+	applyStack(*VStack)
+}
+
+func (val WithPadding) applyStack(vs *VStack) { vs.padding = image.Point(val) }
+func (val WithGap) applyStack(vs *VStack)     { vs.gap = int(val) }
+
 type VStack struct {
-	Padding image.Point
-	Gap     int
-
-	children []Widget
-
+	padding         image.Point
+	gap             int
+	children        []Widget
 	prevChildStates []childState
 }
 
-func NewVStack(c Context) *VStack {
-	return &VStack{}
+func NewVStack(c Context, opts ...stackOption) *VStack {
+	vs := &VStack{}
+	for _, opt := range opts {
+		opt.applyStack(vs)
+	}
+	return vs
 }
 
 func (vs *VStack) Size() image.Point {
-	width, height := 0, vs.Padding.Y
+	width, height := 0, vs.padding.Y
 	for i, child := range vs.children {
 		if i > 0 {
-			height += vs.Gap
+			height += vs.gap
 		}
 		size := child.Size()
 		width = max(width, size.X)
 		height += size.Y
 	}
-	return image.Pt(width+vs.Padding.X, height)
+	return image.Pt(width+vs.padding.X, height)
 }
 
 func (vs *VStack) Footprint() map[string]any {
@@ -63,7 +72,7 @@ func (vs *VStack) Footprint() map[string]any {
 		panic(err)
 	}
 
-	return map[string]any{"gap": vs.Gap, "padding": vs.Padding, "children": buff.String()}
+	return map[string]any{"gap": vs.gap, "padding": vs.padding, "children": buff.String()}
 }
 
 func (vs *VStack) Children() []Widget {
@@ -83,10 +92,10 @@ func (vs *VStack) Remove(child Widget) {
 
 func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	childPos := image.Pt(pos.X+vs.Padding.X, pos.Y+vs.Padding.Y)
+	childPos := image.Pt(pos.X+vs.padding.X, pos.Y+vs.padding.Y)
 	for i, child := range vs.children {
 		if i > 0 {
-			childPos.Y += vs.Gap + vs.children[i-1].Size().Y
+			childPos.Y += vs.gap + vs.children[i-1].Size().Y
 		}
 
 		if i < len(vs.prevChildStates) {
