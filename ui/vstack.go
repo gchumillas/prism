@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"image"
 	"maps"
+	"reflect"
 	"slices"
 )
 
 type childState struct {
 	pos       image.Point
 	regs      []image.Rectangle
+	typ       reflect.Type
 	footprint map[string]any
 }
 
@@ -41,9 +43,18 @@ func (vs *VStack) Size() image.Point {
 }
 
 func (vs *VStack) Footprint() map[string]any {
-	var childStates []map[string]any
+	var childStates []struct {
+		Typ       int
+		Footprint map[string]any
+	}
 	for _, child := range vs.children {
-		childStates = append(childStates, child.Footprint())
+		childStates = append(childStates, struct {
+			Typ       int
+			Footprint map[string]any
+		}{
+			Typ:       typeID(reflect.TypeOf(child)),
+			Footprint: child.Footprint(),
+		})
 	}
 
 	// TODO: this is a temporary solution. We will study how to avoid using the `json` library in a separate PR.
@@ -80,14 +91,14 @@ func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
 
 		if i < len(vs.prevChildStates) {
 			prev := vs.prevChildStates[i]
-			if prev.pos == childPos && maps.Equal(prev.footprint, child.Footprint()) {
+			if prev.pos == childPos && prev.typ == reflect.TypeOf(child) && maps.Equal(prev.footprint, child.Footprint()) {
 				continue
 			}
 		}
 
 		regs := child.Render(childPos.X, childPos.Y)
 		dirtyRegs = append(dirtyRegs, regs...)
-		cs := childState{pos: childPos, regs: regs, footprint: child.Footprint()}
+		cs := childState{pos: childPos, regs: regs, typ: reflect.TypeOf(child), footprint: child.Footprint()}
 		if i < len(vs.prevChildStates) {
 			dirtyRegs = append(dirtyRegs, vs.prevChildStates[i].regs...)
 			vs.prevChildStates[i] = cs

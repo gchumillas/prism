@@ -2,7 +2,9 @@ package ui
 
 import (
 	"image"
+	"reflect"
 	"slices"
+	"sync"
 )
 
 func MergeRegions(regs []image.Rectangle) []image.Rectangle {
@@ -80,4 +82,22 @@ func MergeRegions(regs []image.Rectangle) []image.Rectangle {
 		}
 	}
 	return result
+}
+
+var (
+	typeIDsMu sync.Mutex
+	typeIDs   = map[reflect.Type]int{}
+)
+
+// typeID returns a process-unique identifier for t.
+// Identity is based on reflect.Type equality, so it is collision-free.
+func typeID(t reflect.Type) int {
+	typeIDsMu.Lock()
+	defer typeIDsMu.Unlock()
+	id, ok := typeIDs[t]
+	if !ok {
+		id = len(typeIDs) + 1
+		typeIDs[t] = id
+	}
+	return id
 }
