@@ -46,7 +46,7 @@ func (t *Text) Size() image.Point {
 	return image.Pt(t.width, lineh*len(lines))
 }
 
-func (r *Text) State() map[string]any {
+func (r *Text) Footprint() map[string]any {
 	return nil
 }
 

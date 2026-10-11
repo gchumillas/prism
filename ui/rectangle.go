@@ -28,7 +28,7 @@ func (r *Rectangle) Size() image.Point {
 	return image.Pt(r.Width, r.Height)
 }
 
-func (r *Rectangle) State() map[string]any {
+func (r *Rectangle) Footprint() map[string]any {
 	red, green, blue, alpha := r.FillColor.RGBA()
 	return map[string]any{"width": r.Width, "height": r.Height, "fillColor": [4]uint32{red, green, blue, alpha}}
 }

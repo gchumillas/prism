@@ -47,7 +47,7 @@ func (l *Label) Size() image.Point {
 	return image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
 }
 
-func (l *Label) State() map[string]any {
+func (l *Label) Footprint() map[string]any {
 	return map[string]any{"text": l.text}
 }
 

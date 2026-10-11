@@ -28,9 +28,9 @@ func (lb *LabelButton) Size() image.Point {
 	return lb.size
 }
 
-func (lb *LabelButton) State() map[string]any {
+func (lb *LabelButton) Footprint() map[string]any {
 	dst := map[string]any{"pos": lb.pos}
-	maps.Copy(dst, lb.label.State())
+	maps.Copy(dst, lb.label.Footprint())
 	return dst
 }
 
