@@ -78,6 +78,14 @@ func (r *Rect) Render(x, y int) []image.Rectangle {
 	return []image.Rectangle{r.Rectangle}
 }
 
+type Rect1 struct {
+	*Rect
+}
+
+func NewRect1(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect1 {
+	return &Rect1{Rect: NewRect(canvas, x0, y0, x1, y1, c)}
+}
+
 func TestVStack(t *testing.T) {
 	t.Run("X Y options", func(t *testing.T) {
 		s := test.NewScreen(appWidth, appHeight)
@@ -406,5 +414,51 @@ func TestVStack_Render(t *testing.T) {
 		require.True(t, isRectInside(r0, regs))
 		require.True(t, isRectInside(recs[1].Rectangle, regs))
 		require.True(t, isRectInside(r1, regs))
+	})
+
+	t.Run("different widget with the same footprint", func(t *testing.T) {
+		canvas := image.NewRGBA(image.Rect(0, 0, appWidth, appHeight))
+		ctx := ui.NewContextFromRGBA(canvas)
+		recs := []ui.Widget{
+			NewRect(canvas, 0, 0, 100, 50, color.White),
+			NewRect1(canvas, 0, 50, 100, 100, color.White),
+		}
+		vs := ui.NewVStack(ctx)
+		vs.Gap = 10
+		for _, rec := range recs {
+			vs.Add(rec)
+		}
+		regs := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 50),
+			image.Rect(0, 60, 100, 110),
+		}, regs)
+
+		vs.Remove(recs[0])
+		regs = vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 50),   // must be repainted, since Rect1 and Rect are of different types
+			image.Rect(0, 60, 100, 110), // and the abandoned region must also be repainted
+		}, regs)
+	})
+
+	t.Run("nested vstack child replaced by different type", func(t *testing.T) {
+		canvas := image.NewRGBA(image.Rect(0, 0, appWidth, appHeight))
+		ctx := ui.NewContext(appWidth, appHeight)
+
+		vs1 := ui.NewVStack(ctx)
+		vs2 := NewSpy(ui.NewVStack(ctx))
+		vs1.Add(vs2)
+
+		sh := NewRect(canvas, 0, 0, 100, 50, color.Black)
+		vs2.Target.Add(sh)
+		vs1.Render(0, 0)
+		require.True(t, vs2.TakeRendered())
+
+		// replace child with another one with identical footprint and different type
+		vs2.Target.Remove(sh)
+		vs2.Target.Add(NewRect1(canvas, 0, 0, 100, 50, color.Black))
+		vs1.Render(0, 0)
+		require.True(t, vs2.TakeRendered())
 	})
 }
