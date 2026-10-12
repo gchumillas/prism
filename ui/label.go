@@ -47,8 +47,8 @@ func (l *Label) Size() image.Point {
 	return image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
 }
 
-func (l *Label) Footprint() map[string]any {
-	return map[string]any{"text": l.text}
+func (l *Label) Footprint() []any {
+	return []any{l.text}
 }
 
 func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle) {

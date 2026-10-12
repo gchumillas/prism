@@ -28,9 +28,9 @@ func (r *Rectangle) Size() image.Point {
 	return image.Pt(r.Width, r.Height)
 }
 
-func (r *Rectangle) Footprint() map[string]any {
+func (r *Rectangle) Footprint() []any {
 	red, green, blue, alpha := r.FillColor.RGBA()
-	return map[string]any{"width": r.Width, "height": r.Height, "fillColor": [4]uint32{red, green, blue, alpha}}
+	return []any{r.Width, r.Height, [4]uint32{red, green, blue, alpha}}
 }
 
 func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {

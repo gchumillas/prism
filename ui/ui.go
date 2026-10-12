@@ -25,7 +25,7 @@ var uiFont = func() *opentype.Font {
 type Widget interface {
 	Render(x, y int) (dirtyRegs []image.Rectangle)
 	Size() image.Point
-	Footprint() map[string]any
+	Footprint() []any
 }
 
 type Context struct {
