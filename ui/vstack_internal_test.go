@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"maps"
 	"slices"
 	"testing"
 
@@ -32,7 +31,7 @@ func TestVStack_Render(t *testing.T) {
 			// all shapes, except the removed one, are in prevChildStates
 			for i := range shapes {
 				found := slices.ContainsFunc(vs.prevChildStates, func(prev childState) bool {
-					return maps.Equal(prev.footprint, shapes[i].Footprint())
+					return slices.Equal(prev.footprint, shapes[i].Footprint())
 				})
 				if i == n {
 					require.False(t, found, "removed shape should be purged")

@@ -4,7 +4,6 @@ import (
 	"image"
 	"image/color"
 	"io"
-	"maps"
 
 	"github.com/fogleman/gg"
 )
@@ -31,10 +30,8 @@ func (ib *ImageButton) Size() image.Point {
 	return ib.size
 }
 
-func (ib *ImageButton) Footprint() map[string]any {
-	dst := map[string]any{"pos": ib.pos}
-	maps.Copy(dst, ib.img.Footprint())
-	return dst
+func (ib *ImageButton) Footprint() []any {
+	return append([]any{ib.pos}, ib.img.Footprint()...)
 }
 
 func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {

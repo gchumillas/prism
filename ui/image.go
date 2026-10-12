@@ -29,8 +29,8 @@ func (i *Image) Size() image.Point {
 	return image.Pt(b.Dx(), b.Dy())
 }
 
-func (i *Image) Footprint() map[string]any {
-	return map[string]any{"id": i.id}
+func (i *Image) Footprint() []any {
+	return []any{i.id}
 }
 
 func (i *Image) Render(x, y int) (dirtyRegs []image.Rectangle) {

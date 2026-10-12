@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"image"
-	"maps"
 	"reflect"
 	"slices"
 )
@@ -13,7 +12,7 @@ type childState struct {
 	pos       image.Point
 	regs      []image.Rectangle
 	typ       reflect.Type
-	footprint map[string]any
+	footprint []any
 }
 
 type stackOption interface {
@@ -51,15 +50,15 @@ func (vs *VStack) Size() image.Point {
 	return image.Pt(width+vs.padding.X, height)
 }
 
-func (vs *VStack) Footprint() map[string]any {
+func (vs *VStack) Footprint() []any {
 	var childStates []struct {
 		Typ       int
-		Footprint map[string]any
+		Footprint []any
 	}
 	for _, child := range vs.children {
 		childStates = append(childStates, struct {
 			Typ       int
-			Footprint map[string]any
+			Footprint []any
 		}{
 			Typ:       typeID(reflect.TypeOf(child)),
 			Footprint: child.Footprint(),
@@ -72,7 +71,7 @@ func (vs *VStack) Footprint() map[string]any {
 		panic(err)
 	}
 
-	return map[string]any{"children": buff.String()}
+	return []any{buff.String()}
 }
 
 func (vs *VStack) Children() []Widget {
@@ -100,7 +99,7 @@ func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
 
 		if i < len(vs.prevChildStates) {
 			prev := vs.prevChildStates[i]
-			if prev.pos == childPos && prev.typ == reflect.TypeOf(child) && maps.Equal(prev.footprint, child.Footprint()) {
+			if prev.pos == childPos && prev.typ == reflect.TypeOf(child) && slices.Equal(prev.footprint, child.Footprint()) {
 				continue
 			}
 		}

@@ -3,7 +3,6 @@ package ui
 import (
 	"image"
 	"image/color"
-	"maps"
 
 	"github.com/fogleman/gg"
 )
@@ -28,10 +27,8 @@ func (lb *LabelButton) Size() image.Point {
 	return lb.size
 }
 
-func (lb *LabelButton) Footprint() map[string]any {
-	dst := map[string]any{"pos": lb.pos}
-	maps.Copy(dst, lb.label.Footprint())
-	return dst
+func (lb *LabelButton) Footprint() []any {
+	return append([]any{lb.pos}, lb.label.Footprint()...)
 }
 
 func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
