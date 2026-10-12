@@ -72,7 +72,7 @@ func (vs *VStack) Footprint() map[string]any {
 		panic(err)
 	}
 
-	return map[string]any{"gap": vs.gap, "padding": vs.padding, "children": buff.String()}
+	return map[string]any{"children": buff.String()}
 }
 
 func (vs *VStack) Children() []Widget {
