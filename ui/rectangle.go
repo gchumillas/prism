@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"hash/maphash"
 	"image"
 	"image/color"
 
@@ -28,9 +29,18 @@ func (r *Rectangle) Size() image.Point {
 	return image.Pt(r.Width, r.Height)
 }
 
-func (r *Rectangle) Footprint() []any {
+func (r *Rectangle) Footprint() []uint64 {
 	red, green, blue, alpha := r.FillColor.RGBA()
-	return []any{r.Width, r.Height, [4]uint32{red, green, blue, alpha}}
+
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, r.Width)
+	maphash.WriteComparable(&h, r.Height)
+	maphash.WriteComparable(&h, red)
+	maphash.WriteComparable(&h, green)
+	maphash.WriteComparable(&h, blue)
+	maphash.WriteComparable(&h, alpha)
+	return []uint64{h.Sum64()}
 }
 
 func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"hash/maphash"
 	"image"
 
 	"github.com/fogleman/gg"
@@ -22,10 +23,12 @@ var uiFont = func() *opentype.Font {
 	return f
 }()
 
+var seed = maphash.MakeSeed()
+
 type Widget interface {
 	Render(x, y int) (dirtyRegs []image.Rectangle)
 	Size() image.Point
-	Footprint() []any
+	Footprint() []uint64
 }
 
 type Context struct {

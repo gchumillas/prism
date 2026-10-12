@@ -3,6 +3,7 @@ package ui_test
 import (
 	"bytes"
 	"fmt"
+	"hash/maphash"
 	"image"
 	"image/color"
 	"image/draw"
@@ -24,7 +25,7 @@ func NewCustomWidget(c ui.Context, text string) *CustomWidget {
 }
 func (cw *CustomWidget) Render(x, y int) []image.Rectangle { return cw.Label.Render(x, y) }
 func (cw *CustomWidget) Size() image.Point                 { return cw.Label.Size() }
-func (cw *CustomWidget) Footprint() []any                  { return cw.Label.Footprint() }
+func (cw *CustomWidget) Footprint() []uint64               { return cw.Label.Footprint() }
 
 type Spy[T ui.Widget] struct {
 	Target   T
@@ -41,8 +42,8 @@ func (s *Spy[T]) TakeRendered() bool {
 	return r
 }
 
-func (s *Spy[T]) Size() image.Point { return s.Target.Size() }
-func (s *Spy[T]) Footprint() []any  { return s.Target.Footprint() }
+func (s *Spy[T]) Size() image.Point   { return s.Target.Size() }
+func (s *Spy[T]) Footprint() []uint64 { return s.Target.Footprint() }
 func (s *Spy[T]) Render(x, y int) []image.Rectangle {
 	s.rendered = true
 	return s.Target.Render(x, y)
@@ -66,8 +67,13 @@ func (r *Rect) Size() image.Point {
 	return r.Rectangle.Size()
 }
 
-func (r *Rect) Footprint() []any {
-	return []any{r.Dx(), r.Dy(), r.color}
+func (r *Rect) Footprint() []uint64 {
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, r.Dx())
+	maphash.WriteComparable(&h, r.Dy())
+	maphash.WriteComparable(&h, r.color)
+	return []uint64{h.Sum64()}
 }
 
 func (r *Rect) Render(x, y int) []image.Rectangle {

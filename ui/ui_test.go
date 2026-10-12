@@ -1,6 +1,7 @@
 package ui_test
 
 import (
+	"hash/maphash"
 	"image"
 	"image/color"
 	"slices"
@@ -16,6 +17,8 @@ const (
 	appWidth  = 640
 	appHeight = 480
 )
+
+var seed = maphash.MakeSeed()
 
 type App struct {
 	*ui.VStack
