@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"bytes"
-	"encoding/json"
 	"image"
 	"reflect"
 	"slices"
@@ -12,7 +10,7 @@ type childState struct {
 	pos       image.Point
 	regs      []image.Rectangle
 	typ       reflect.Type
-	footprint []any
+	footprint []uint64
 }
 
 type stackOption interface {
@@ -50,28 +48,15 @@ func (vs *VStack) Size() image.Point {
 	return image.Pt(width+vs.padding.X, height)
 }
 
-func (vs *VStack) Footprint() []any {
-	var childStates []struct {
-		Typ       int
-		Footprint []any
-	}
+func (vs *VStack) Footprint() []uint64 {
+	var result []uint64
 	for _, child := range vs.children {
-		childStates = append(childStates, struct {
-			Typ       int
-			Footprint []any
-		}{
-			Typ:       typeID(reflect.TypeOf(child)),
-			Footprint: child.Footprint(),
-		})
+		typ := typeID(reflect.TypeOf(child))
+		footprint := child.Footprint()
+		result = append(result, uint64(typ), uint64(len(footprint)))
+		result = append(result, footprint...)
 	}
-
-	// TODO: this is a temporary solution. We will study how to avoid using the `json` library in a separate PR.
-	var buff bytes.Buffer
-	if err := json.NewEncoder(&buff).Encode(childStates); err != nil {
-		panic(err)
-	}
-
-	return []any{buff.String()}
+	return result
 }
 
 func (vs *VStack) Children() []Widget {

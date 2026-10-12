@@ -46,7 +46,7 @@ func (t *Text) Size() image.Point {
 	return image.Pt(t.width, lineh*len(lines))
 }
 
-func (r *Text) Footprint() []any {
+func (r *Text) Footprint() []uint64 {
 	return nil
 }
 

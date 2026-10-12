@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"hash/maphash"
 	"image"
 	"image/color"
 	"io"
@@ -30,8 +31,11 @@ func (ib *ImageButton) Size() image.Point {
 	return ib.size
 }
 
-func (ib *ImageButton) Footprint() []any {
-	return append([]any{ib.pos}, ib.img.Footprint()...)
+func (ib *ImageButton) Footprint() []uint64 {
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, ib.pos)
+	return append([]uint64{h.Sum64()}, ib.img.Footprint()...)
 }
 
 func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
