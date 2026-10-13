@@ -63,15 +63,21 @@ func (vs *VStack) Children() []Widget {
 	return vs.children
 }
 
-// TODO: the same child can be added more than once
-func (vs *VStack) Add(child Widget) {
+func (vs *VStack) Add(child Widget) bool {
+	if slices.Contains(vs.children, child) {
+		return false
+	}
 	vs.children = append(vs.children, child)
+	return true
 }
 
-func (vs *VStack) Remove(child Widget) {
-	vs.children = slices.DeleteFunc(vs.children, func(c Widget) bool {
-		return c == child
-	})
+func (vs *VStack) Remove(child Widget) bool {
+	i := slices.Index(vs.children, child)
+	if i < 0 {
+		return false
+	}
+	vs.children = append(vs.children[:i], vs.children[i+1:]...)
+	return true
 }
 
 func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {

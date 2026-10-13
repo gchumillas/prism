@@ -68,6 +68,26 @@ func TestVStack(t *testing.T) {
 }
 
 func TestVStack_Add(t *testing.T) {
+	setup := func() (*ui.VStack, *Rect) {
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
+		return vs, r
+	}
+
+	t.Run("once", func(t *testing.T) {
+		vs, r := setup()
+		require.True(t, vs.Add(r))
+		require.ElementsMatch(t, []ui.Widget{r}, vs.Children())
+	})
+
+	t.Run("twice", func(t *testing.T) {
+		vs, r := setup()
+		vs.Add(r)
+		require.False(t, vs.Add(r))
+		require.ElementsMatch(t, []ui.Widget{r}, vs.Children())
+	})
+
 	t.Run("custom widget", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
@@ -78,13 +98,28 @@ func TestVStack_Add(t *testing.T) {
 }
 
 func TestVStack_Remove(t *testing.T) {
-	env := NewEnv()
-	vs := ui.NewVStack(env.ctx)
-	r := NewRect(env.canvas, 0, 0, 100, 50, color.White)
-	vs.Add(r)
-	require.Contains(t, vs.Children(), r)
-	vs.Remove(r)
-	require.NotContains(t, vs.Children(), r)
+	setup := func() (*ui.VStack, *Rect) {
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		r := NewRect(env.canvas, 0, 0, 100, 50, color.White)
+		vs.Add(r)
+		require.Contains(t, vs.Children(), r)
+		return vs, r
+	}
+
+	t.Run("once", func(t *testing.T) {
+		vs, r := setup()
+		require.True(t, vs.Remove(r))
+		require.NotContains(t, vs.Children(), r)
+	})
+
+	// intentamos borrar el elemento anterior dos veces
+	t.Run("twice", func(t *testing.T) {
+		vs, r := setup()
+		vs.Remove(r)
+		require.False(t, vs.Remove(r))
+		require.NotContains(t, vs.Children(), r)
+	})
 }
 
 func TestVStack_Render(t *testing.T) {
