@@ -4,175 +4,65 @@ import (
 	"hash/maphash"
 	"image"
 	"image/color"
-	"slices"
-	"testing"
+	"image/draw"
 
 	"github.com/gchumillas/prism/ui"
-	"github.com/stretchr/testify/require"
 
 	_ "image/png"
 )
 
-const (
-	appWidth  = 640
-	appHeight = 480
-)
+// ---- common variables and constants ----
 
 var seed = maphash.MakeSeed()
 
-type App struct {
-	*ui.VStack
-	bg *ui.Rectangle
+// ---- Env ----
+
+type Env struct {
+	canvas *image.RGBA
+	ctx    ui.Context
 }
 
-type (
-	AppConfig struct {
-		padding image.Point
-		gap     int
-	}
-
-	AppOption func(*AppConfig)
-)
-
-func WithPadding(val image.Point) AppOption {
-	return func(cfg *AppConfig) {
-		cfg.padding = val
-	}
+func NewEnv() *Env {
+	canvas := image.NewRGBA(image.Rect(0, 0, 640, 480))
+	ctx := ui.NewContextFromRGBA(canvas)
+	return &Env{canvas: canvas, ctx: ctx}
 }
 
-func WithGap(val int) AppOption {
-	return func(cfg *AppConfig) {
-		cfg.gap = val
+// ---- Rect ----
+
+func NewRect(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect {
+	return &Rect{
+		canvas:    canvas,
+		Rectangle: image.Rect(x0, y0, x1, y1),
+		color:     c,
 	}
 }
 
-func NewApp(ctx ui.Context, w, h int, opts ...AppOption) *App {
-	cfg := &AppConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	return &App{
-		VStack: ui.NewVStack(ctx, ui.WithPadding(cfg.padding), ui.WithGap(cfg.gap)),
-		bg:     ui.NewRectangle(ctx, w, h, color.White),
-	}
+func (r *Rect) Size() image.Point {
+	return r.Rectangle.Size()
 }
 
-func (s *App) Render() {
-	s.bg.Render(0, 0)
-	s.VStack.Render(0, 0)
+func (r *Rect) Footprint() []uint64 {
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, r.Dx())
+	maphash.WriteComparable(&h, r.Dy())
+	maphash.WriteComparable(&h, r.color)
+	return []uint64{h.Sum64()}
 }
 
-func TestMergeRegions(t *testing.T) {
-	mirrorHor := func(rs []image.Rectangle) {
-		for i, r := range rs {
-			rs[i] = image.Rectangle{
-				Min: image.Pt(-r.Min.X, r.Min.Y),
-				Max: image.Pt(-r.Max.X, r.Max.Y),
-			}.Canon()
-		}
-	}
+func (r *Rect) Render(x, y int) []image.Rectangle {
+	pos := image.Pt(x, y)
+	size := r.Rectangle.Size()
+	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(size)}
+	draw.Draw(r.canvas, r.Rectangle, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
+	return []image.Rectangle{r.Rectangle}
+}
 
-	mirrorVer := func(rs []image.Rectangle) {
-		for i, r := range rs {
-			rs[i] = image.Rectangle{
-				Min: image.Pt(r.Min.X, -r.Min.Y),
-				Max: image.Pt(r.Max.X, -r.Max.Y),
-			}.Canon()
-		}
-	}
+type Rect1 struct {
+	*Rect
+}
 
-	movements := []func([]image.Rectangle){func(r []image.Rectangle) {}, mirrorHor, mirrorVer, mirrorHor}
-
-	t.Run("disjoint rectangles", func(t *testing.T) {
-		tests := [][]image.Rectangle{
-			{image.Rect(-2, -2, 2, 2), image.Rect(3, 3, 5, 5)},
-			{image.Rect(-2, -2, 2, 2), image.Rect(3, 1, 5, 3)},
-			{image.Rect(-2, -2, 2, 2), image.Rect(3, -1, 5, 1)},
-			{image.Rect(-2, -2, 2, 2), image.Rect(3, -3, 5, 3)},
-		}
-		for _, test := range tests {
-			for _, m := range movements {
-				m(test)
-				output := ui.MergeRegions(test)
-				require.ElementsMatch(t, test, output)
-			}
-		}
-	})
-
-	t.Run("intersecting rectangles", func(t *testing.T) {
-		tests := []struct {
-			input    []image.Rectangle
-			expected []image.Rectangle
-		}{
-			{
-				input:    []image.Rectangle{image.Rect(-2, -2, 2, 2), image.Rect(1, 1, 3, 3)},
-				expected: []image.Rectangle{image.Rect(-2, -2, 2, 1), image.Rect(-2, 1, 3, 2), image.Rect(1, 2, 3, 3)},
-			},
-			{
-				input:    []image.Rectangle{image.Rect(-2, -2, 2, 2), image.Rect(-1, -1, 3, 1)},
-				expected: []image.Rectangle{image.Rect(-2, -2, 2, -1), image.Rect(-2, -1, 3, 1), image.Rect(-2, 1, 2, 2)},
-			},
-		}
-		for _, test := range tests {
-			for _, m := range movements {
-				m(test.input)
-				m(test.expected)
-				output := ui.MergeRegions(test.input)
-				require.ElementsMatch(t, test.expected, output)
-			}
-		}
-	})
-
-	t.Run("nested rectangles", func(t *testing.T) {
-		input := []image.Rectangle{image.Rect(-2, -2, 2, 2), image.Rect(-1, -1, 1, 1)}
-		expected := []image.Rectangle{image.Rect(-2, -2, 2, 2)}
-
-		for range 2 {
-			output := ui.MergeRegions(input)
-			require.Equal(t, expected, output)
-			slices.Reverse(input)
-			slices.Reverse(expected)
-		}
-	})
-
-	t.Run("edge cases", func(t *testing.T) {
-		tests := []struct {
-			input    []image.Rectangle
-			expected []image.Rectangle
-		}{
-			{
-				input:    []image.Rectangle{image.Rect(-1, -1, 1, 1), image.Rect(1, -1, 3, 1)},
-				expected: []image.Rectangle{image.Rect(-1, -1, 3, 1)},
-			},
-			{
-				input:    []image.Rectangle{image.Rect(-1, -1, 1, 1), image.Rect(1, 1, 3, 3)},
-				expected: []image.Rectangle{image.Rect(-1, -1, 1, 1), image.Rect(1, 1, 3, 3)},
-			},
-		}
-		for _, test := range tests {
-			output := ui.MergeRegions(test.input)
-			require.ElementsMatch(t, test.expected, output)
-		}
-	})
-
-	t.Run("combined", func(t *testing.T) {
-		input := []image.Rectangle{
-			image.Rect(-2, -2, 2, 2),
-			image.Rect(1, 0, 4, 4),
-			image.Rect(2, 1, 3, 2),
-			image.Rect(3, 3, 5, 5),
-			image.Rect(0, 4, 1, 5),
-		}
-		expected := []image.Rectangle{
-			image.Rect(-2, -2, 2, 0),
-			image.Rect(-2, 0, 4, 2),
-			image.Rect(1, 2, 4, 3),
-			image.Rect(1, 3, 5, 4),
-			image.Rect(0, 4, 1, 5),
-			image.Rect(3, 4, 5, 5),
-		}
-
-		output := ui.MergeRegions(input)
-		require.ElementsMatch(t, expected, output)
-	})
+func NewRect1(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect1 {
+	return &Rect1{Rect: NewRect(canvas, x0, y0, x1, y1, c)}
 }

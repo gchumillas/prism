@@ -3,14 +3,12 @@ package ui_test
 import (
 	"bytes"
 	"fmt"
-	"hash/maphash"
 	"image"
 	"image/color"
 	"image/draw"
 	"os"
 	"testing"
 
-	"github.com/gchumillas/prism/internal/test"
 	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 
@@ -55,105 +53,29 @@ type Rect struct {
 	color color.Color
 }
 
-func NewRect(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect {
-	return &Rect{
-		canvas:    canvas,
-		Rectangle: image.Rect(x0, y0, x1, y1),
-		color:     c,
-	}
-}
-
-func (r *Rect) Size() image.Point {
-	return r.Rectangle.Size()
-}
-
-func (r *Rect) Footprint() []uint64 {
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, r.Dx())
-	maphash.WriteComparable(&h, r.Dy())
-	maphash.WriteComparable(&h, r.color)
-	return []uint64{h.Sum64()}
-}
-
-func (r *Rect) Render(x, y int) []image.Rectangle {
-	pos := image.Pt(x, y)
-	size := r.Rectangle.Size()
-	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(size)}
-	draw.Draw(r.canvas, r.Rectangle, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
-	return []image.Rectangle{r.Rectangle}
-}
-
-type Rect1 struct {
-	*Rect
-}
-
-func NewRect1(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect1 {
-	return &Rect1{Rect: NewRect(canvas, x0, y0, x1, y1, c)}
-}
-
 func TestVStack(t *testing.T) {
-	t.Run("X Y options", func(t *testing.T) {
-		s := test.NewScreen(appWidth, appHeight)
-		ctx := ui.NewContextFromRGBA(s.Canvas)
-		app := NewApp(ctx, appWidth, appHeight, WithPadding(image.Pt(100, 50)))
-
-		vs := ui.NewVStack(ctx)
-		for i := range 2 {
-			vs.Add(ui.NewLabel(ctx, fmt.Sprintf("Item %d", i)))
-		}
-		app.Add(vs)
-		app.Render()
-
-		s.Refresh()
-		test.HlineIsColor(t, s.Display, 0, 65, 90, color.White)   // nothing here
-		test.VlineIsColor(t, s.Display, 115, 0, 40, color.White)  // nothing here
-		test.RectIsColor(t, s.Display, 0, 0, 90, 45, color.White) // nothing here
-		test.RectHasSomeColors(t, s.Display, 90, 40, 200, 125)    // something here
-	})
-
-	t.Run("can add widgets", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		vs := ui.NewVStack(ctx)
-
-		// can stack images
-		dat, err := os.ReadFile("testdata/icon1.png")
-		require.NoError(t, err)
-		imgBtn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
-		require.NoError(t, err)
-		vs.Add(imgBtn)
-
-		// can stack buttons
-		lbBtn := ui.NewLabelButton(ctx, "Click me!")
-		vs.Add(lbBtn)
-
-		// can stack rectangles
-		r := ui.NewRectangle(ctx, 50, 100, color.White)
-		vs.Add(r)
-	})
-
+	// TODO: here we are testing VStack.Remove
 	t.Run("can remove widgets", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		vs := ui.NewVStack(ctx)
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
 
-		lbBtn := ui.NewLabelButton(ctx, "Click me!")
+		lbBtn := ui.NewLabelButton(env.ctx, "Click me!")
 		vs.Add(lbBtn)
 		require.Contains(t, vs.Children(), lbBtn)
 		vs.Remove(lbBtn)
 		require.NotContains(t, vs.Children(), lbBtn)
 	})
 
+	// TODO: we can create stackable custom widgets
 	t.Run("can create stackable widgets", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		vs := ui.NewVStack(ctx)
-		cw := NewCustomWidget(ctx, "custom ui")
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		cw := NewCustomWidget(env.ctx, "custom ui")
 		vs.Add(cw)
 	})
 }
 
 func TestVStack_Render(t *testing.T) {
-	appWidth, appHeight := 320, 240
-
 	intersectArea := func(r image.Rectangle, regs []image.Rectangle) int {
 		area := 0
 		for _, reg := range regs {
@@ -168,12 +90,12 @@ func TestVStack_Render(t *testing.T) {
 	}
 
 	t.Run("render all widgets", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs := ui.NewVStack(ctx)
-		var shapes []*Spy[*ui.Rectangle]
+		vs := ui.NewVStack(env.ctx)
+		var shapes []*Spy[*Rect]
 		for i := range 3 {
-			shape := NewSpy(ui.NewRectangle(ctx, 100, 50, color.Gray{Y: uint8(i)}))
+			shape := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)}))
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -192,12 +114,12 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("render only affected widget", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs := ui.NewVStack(ctx)
-		var shapes []*Spy[*ui.Rectangle]
+		vs := ui.NewVStack(env.ctx)
+		var shapes []*Spy[*Rect]
 		for i := range 3 {
-			shape := NewSpy(ui.NewRectangle(ctx, 100, 50, color.Gray{Y: uint8(i)}))
+			shape := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)}))
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -208,7 +130,7 @@ func TestVStack_Render(t *testing.T) {
 		}
 
 		for i, shape := range shapes {
-			shape.Target.Width += 50
+			shape.Target.Max.X += 50
 			vs.Render(0, 0)
 			for j, sh := range shapes {
 				require.Equal(t, j == i, sh.TakeRendered())
@@ -217,12 +139,12 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("render affected widget and below", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs := ui.NewVStack(ctx)
-		var shapes []*Spy[*ui.Rectangle]
+		vs := ui.NewVStack(env.ctx)
+		var shapes []*Spy[*Rect]
 		for i := range 3 {
-			shape := NewSpy(ui.NewRectangle(ctx, 100, 50, color.Gray{Y: uint8(i)}))
+			shape := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)}))
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -233,7 +155,7 @@ func TestVStack_Render(t *testing.T) {
 		}
 
 		for i, shape := range shapes {
-			shape.Target.Height += 50
+			shape.Target.Max.Y += 50
 			vs.Render(0, 0)
 			for j, sh := range shapes {
 				require.Equal(t, j >= i, sh.TakeRendered())
@@ -242,14 +164,14 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("render widgets below deleted", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs := ui.NewVStack(ctx)
+		vs := ui.NewVStack(env.ctx)
 		var shapes []*Spy[*ui.ImageButton]
 		for i := range 3 {
 			dat, err := os.ReadFile(fmt.Sprintf("testdata/icon%d.png", i+1))
 			require.NoError(t, err)
-			btn, err := ui.LoadImageButton(ctx, bytes.NewReader(dat))
+			btn, err := ui.LoadImageButton(env.ctx, bytes.NewReader(dat))
 			require.NoError(t, err)
 			shape := NewSpy(btn)
 			shapes = append(shapes, shape)
@@ -272,12 +194,12 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("render on change position", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs := ui.NewVStack(ctx)
+		vs := ui.NewVStack(env.ctx)
 		var shapes []*Spy[*ui.LabelButton]
 		for i := range 3 {
-			shape := NewSpy(ui.NewLabelButton(ctx, fmt.Sprintf("Button %d", i)))
+			shape := NewSpy(ui.NewLabelButton(env.ctx, fmt.Sprintf("Button %d", i)))
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -301,31 +223,31 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("nested", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs1 := ui.NewVStack(ctx)
-		vs2 := ui.NewVStack(ctx)
+		vs1 := ui.NewVStack(env.ctx)
+		vs2 := ui.NewVStack(env.ctx)
 		vs1.Add(vs2)
 
-		sh := NewSpy(ui.NewRectangle(ctx, 100, 50, color.White))
+		sh := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs2.Add(sh)
 
 		vs1.Render(0, 0)
 		require.True(t, sh.TakeRendered())
 
-		sh.Target.Width += 50
+		sh.Target.Max.X += 50
 		vs1.Render(0, 0)
 		require.True(t, sh.TakeRendered())
 	})
 
 	t.Run("nested change after steady state", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs1 := ui.NewVStack(ctx)
-		vs2 := ui.NewVStack(ctx)
+		vs1 := ui.NewVStack(env.ctx)
+		vs2 := ui.NewVStack(env.ctx)
 		vs1.Add(vs2)
 
-		sh := NewSpy(ui.NewRectangle(ctx, 100, 50, color.White))
+		sh := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs2.Add(sh)
 
 		vs1.Render(0, 0)
@@ -337,16 +259,16 @@ func TestVStack_Render(t *testing.T) {
 		sh.TakeRendered()
 
 		// a nested change must still be detected by the outer stack
-		sh.Target.Width += 50
+		sh.Target.Max.X += 50
 		vs1.Render(0, 0)
 		require.True(t, sh.TakeRendered())
 	})
 
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		vs := ui.NewVStack(ctx)
-		btn1 := ui.NewLabelButton(ctx, "Button")
-		btn2 := ui.NewLabelButton(ctx, "Button")
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		btn1 := ui.NewLabelButton(env.ctx, "Button")
+		btn2 := ui.NewLabelButton(env.ctx, "Button")
 		vs.Add(btn1)
 		vs.Add(btn2)
 
@@ -363,11 +285,11 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("remove from list of different widgets", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		vs := ui.NewVStack(ctx)
-		var shapes []*ui.Rectangle
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		var shapes []*Rect
 		for i := range uint8(2) {
-			r := ui.NewRectangle(ctx, 100, 50, color.Gray{Y: i})
+			r := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: i})
 			shapes = append(shapes, r)
 			vs.Add(r)
 		}
@@ -380,11 +302,11 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("remove from list of identical widgets", func(t *testing.T) {
-		ctx := ui.NewContext(appWidth, appHeight)
-		vs := ui.NewVStack(ctx)
-		var shapes []*ui.Rectangle
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		var shapes []*Rect
 		for range uint8(3) {
-			r := ui.NewRectangle(ctx, 100, 50, color.White)
+			r := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 			shapes = append(shapes, r)
 			vs.Add(r)
 		}
@@ -400,13 +322,12 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("render different widget sizes", func(t *testing.T) {
-		canvas := image.NewRGBA(image.Rect(0, 0, appWidth, appHeight))
-		ctx := ui.NewContextFromRGBA(canvas)
+		env := NewEnv()
 		recs := []*Rect{
-			NewRect(canvas, 0, 0, 100, 50, color.Gray{Y: 25}),  // landscape
-			NewRect(canvas, 0, 50, 50, 100, color.Gray{Y: 50}), // square
+			NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: 25}),  // landscape
+			NewRect(env.canvas, 0, 50, 50, 100, color.Gray{Y: 50}), // square
 		}
-		vs := ui.NewVStack(ctx)
+		vs := ui.NewVStack(env.ctx)
 		for _, rec := range recs {
 			vs.Add(rec)
 		}
@@ -422,13 +343,12 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("different widget with the same footprint", func(t *testing.T) {
-		canvas := image.NewRGBA(image.Rect(0, 0, appWidth, appHeight))
-		ctx := ui.NewContextFromRGBA(canvas)
+		env := NewEnv()
 		recs := []ui.Widget{
-			NewRect(canvas, 0, 0, 100, 50, color.White),
-			NewRect1(canvas, 0, 50, 100, 100, color.White),
+			NewRect(env.canvas, 0, 0, 100, 50, color.White),
+			NewRect1(env.canvas, 0, 50, 100, 100, color.White),
 		}
-		vs := ui.NewVStack(ctx, ui.WithGap(10))
+		vs := ui.NewVStack(env.ctx, ui.WithGap(10))
 		for _, rec := range recs {
 			vs.Add(rec)
 		}
@@ -447,21 +367,20 @@ func TestVStack_Render(t *testing.T) {
 	})
 
 	t.Run("nested vstack child replaced by different type", func(t *testing.T) {
-		canvas := image.NewRGBA(image.Rect(0, 0, appWidth, appHeight))
-		ctx := ui.NewContext(appWidth, appHeight)
+		env := NewEnv()
 
-		vs1 := ui.NewVStack(ctx)
-		vs2 := NewSpy(ui.NewVStack(ctx))
+		vs1 := ui.NewVStack(env.ctx)
+		vs2 := NewSpy(ui.NewVStack(env.ctx))
 		vs1.Add(vs2)
 
-		sh := NewRect(canvas, 0, 0, 100, 50, color.Black)
+		sh := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs2.Target.Add(sh)
 		vs1.Render(0, 0)
 		require.True(t, vs2.TakeRendered())
 
 		// replace child with another one with identical footprint and different type
 		vs2.Target.Remove(sh)
-		vs2.Target.Add(NewRect1(canvas, 0, 0, 100, 50, color.Black))
+		vs2.Target.Add(NewRect1(env.canvas, 0, 0, 100, 50, color.Black))
 		vs1.Render(0, 0)
 		require.True(t, vs2.TakeRendered())
 	})
