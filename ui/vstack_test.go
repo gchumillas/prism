@@ -1,12 +1,8 @@
 package ui_test
 
 import (
-	"bytes"
-	"fmt"
 	"image"
 	"image/color"
-	"image/draw"
-	"os"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
@@ -24,34 +20,6 @@ func NewCustomWidget(c ui.Context, text string) *CustomWidget {
 func (cw *CustomWidget) Render(x, y int) []image.Rectangle { return cw.Label.Render(x, y) }
 func (cw *CustomWidget) Size() image.Point                 { return cw.Label.Size() }
 func (cw *CustomWidget) Footprint() []uint64               { return cw.Label.Footprint() }
-
-type Spy[T ui.Widget] struct {
-	Target   T
-	rendered bool
-}
-
-func NewSpy[T ui.Widget](target T) *Spy[T] {
-	return &Spy[T]{Target: target}
-}
-
-func (s *Spy[T]) TakeRendered() bool {
-	r := s.rendered
-	s.rendered = false
-	return r
-}
-
-func (s *Spy[T]) Size() image.Point   { return s.Target.Size() }
-func (s *Spy[T]) Footprint() []uint64 { return s.Target.Footprint() }
-func (s *Spy[T]) Render(x, y int) []image.Rectangle {
-	s.rendered = true
-	return s.Target.Render(x, y)
-}
-
-type Rect struct {
-	canvas draw.Image
-	image.Rectangle
-	color color.Color
-}
 
 func TestVStack(t *testing.T) {
 	// TODO: here we are testing VStack.Remove
@@ -105,133 +73,83 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack(env.ctx)
-		var shapes []*Spy[*Rect]
 		for i := range 3 {
-			shape := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)}))
-			shapes = append(shapes, shape)
+			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			vs.Add(shape)
 		}
 
 		// all shapes are rendered
-		vs.Render(0, 0)
-		for _, shape := range shapes {
-			require.True(t, shape.TakeRendered())
-		}
+		regs := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 150)}, regs)
 
 		// no shape is rendered
-		vs.Render(0, 0)
-		for _, shape := range shapes {
-			require.False(t, shape.TakeRendered())
-		}
+		regs = vs.Render(0, 0)
+		require.Empty(t, regs)
 	})
 
 	t.Run("render only affected widget", func(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack(env.ctx)
-		var shapes []*Spy[*Rect]
+		var shapes []*Rect
 		for i := range 3 {
-			shape := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)}))
+			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
 
 		vs.Render(0, 0)
-		for _, shape := range shapes {
-			shape.TakeRendered()
-		}
-
-		for i, shape := range shapes {
-			shape.Target.Max.X += 50
-			vs.Render(0, 0)
-			for j, sh := range shapes {
-				require.Equal(t, j == i, sh.TakeRendered())
-			}
-		}
+		shapes[1].Max.X += 50
+		regs := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 50, 150, 100)}, regs)
 	})
 
 	t.Run("render affected widget and below", func(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack(env.ctx)
-		var shapes []*Spy[*Rect]
+		var shapes []*Rect
 		for i := range 3 {
-			shape := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)}))
+			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
 
 		vs.Render(0, 0)
-		for _, shape := range shapes {
-			shape.TakeRendered()
-		}
-
-		for i, shape := range shapes {
-			shape.Target.Max.Y += 50
-			vs.Render(0, 0)
-			for j, sh := range shapes {
-				require.Equal(t, j >= i, sh.TakeRendered())
-			}
-		}
+		shapes[1].Max.Y += 50
+		regs := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 50, 100, 200)}, regs)
 	})
 
 	t.Run("render widgets below deleted", func(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack(env.ctx)
-		var shapes []*Spy[*ui.ImageButton]
+		var shapes []*Rect
 		for i := range 3 {
-			dat, err := os.ReadFile(fmt.Sprintf("testdata/icon%d.png", i+1))
-			require.NoError(t, err)
-			btn, err := ui.LoadImageButton(env.ctx, bytes.NewReader(dat))
-			require.NoError(t, err)
-			shape := NewSpy(btn)
+			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
 
 		vs.Render(0, 0)
-		for _, shape := range shapes {
-			shape.TakeRendered()
-		}
-
-		for len(shapes) > 0 {
-			vs.Remove(shapes[0])
-			shapes = shapes[1:]
-			vs.Render(0, 0)
-			for _, sh := range shapes {
-				require.True(t, sh.TakeRendered())
-			}
-		}
+		vs.Remove(shapes[0])
+		regs := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 150)}, regs)
 	})
 
 	t.Run("render on change position", func(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack(env.ctx)
-		var shapes []*Spy[*ui.LabelButton]
 		for i := range 3 {
-			shape := NewSpy(ui.NewLabelButton(env.ctx, fmt.Sprintf("Button %d", i)))
-			shapes = append(shapes, shape)
+			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			vs.Add(shape)
 		}
 
 		vs.Render(0, 0)
-		for _, shape := range shapes {
-			shape.TakeRendered()
-		}
-
-		// position changed and therefore all children must be rendered
-		vs.Render(100, 0)
-		for _, shape := range shapes {
-			require.True(t, shape.TakeRendered())
-		}
-
-		// position remains and therefore all children must not be rendered
-		vs.Render(100, 0)
-		for _, shape := range shapes {
-			require.False(t, shape.TakeRendered())
-		}
+		regs := vs.Render(100, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 200, 150)}, regs)
 	})
 
 	t.Run("nested", func(t *testing.T) {
@@ -241,15 +159,15 @@ func TestVStack_Render(t *testing.T) {
 		vs2 := ui.NewVStack(env.ctx)
 		vs1.Add(vs2)
 
-		sh := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
-		vs1.Render(0, 0)
-		require.True(t, sh.TakeRendered())
+		regs := vs1.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
-		sh.Target.Max.X += 50
-		vs1.Render(0, 0)
-		require.True(t, sh.TakeRendered())
+		sh.Max.X += 50
+		regs = vs1.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 150, 50)}, regs)
 	})
 
 	t.Run("nested change after steady state", func(t *testing.T) {
@@ -259,21 +177,20 @@ func TestVStack_Render(t *testing.T) {
 		vs2 := ui.NewVStack(env.ctx)
 		vs1.Add(vs2)
 
-		sh := NewSpy(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
-		vs1.Render(0, 0)
-		require.True(t, sh.TakeRendered())
+		regs := vs1.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
 		// render until no widget changes (steady state)
 		vs1.Render(0, 0)
 		vs1.Render(0, 0)
-		sh.TakeRendered()
 
 		// a nested change must still be detected by the outer stack
-		sh.Target.Max.X += 50
-		vs1.Render(0, 0)
-		require.True(t, sh.TakeRendered())
+		sh.Max.X += 50
+		regs = vs1.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 150, 50)}, regs)
 	})
 
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
@@ -382,18 +299,18 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.ctx)
-		vs2 := NewSpy(ui.NewVStack(env.ctx))
+		vs2 := ui.NewVStack(env.ctx)
 		vs1.Add(vs2)
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
-		vs2.Target.Add(sh)
-		vs1.Render(0, 0)
-		require.True(t, vs2.TakeRendered())
+		vs2.Add(sh)
+		regs := vs1.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
 		// replace child with another one with identical footprint and different type
-		vs2.Target.Remove(sh)
-		vs2.Target.Add(NewRect1(env.canvas, 0, 0, 100, 50, color.Black))
-		vs1.Render(0, 0)
-		require.True(t, vs2.TakeRendered())
+		vs2.Remove(sh)
+		vs2.Add(NewRect1(env.canvas, 0, 0, 100, 50, color.Black))
+		regs = vs1.Render(0, 0)
+		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 	})
 }

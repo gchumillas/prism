@@ -29,7 +29,7 @@ func TakeSnapshot(t testing.TB, img image.Image) {
 func rectIsValid(t testing.TB, x0, y0, x1, y1 int) bool {
 	t.Helper()
 	if x0 > x1 || y0 > y1 {
-		t.Errorf("Invalid rectangle")
+		t.Error("Invalid rectangle")
 		return false
 	}
 	return true

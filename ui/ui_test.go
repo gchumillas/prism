@@ -30,6 +30,12 @@ func NewEnv() *Env {
 
 // ---- Rect ----
 
+type Rect struct {
+	canvas draw.Image
+	image.Rectangle
+	color color.Color
+}
+
 func NewRect(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect {
 	return &Rect{
 		canvas:    canvas,
