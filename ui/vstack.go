@@ -63,7 +63,6 @@ func (vs *VStack) Children() []Widget {
 	return vs.children
 }
 
-// TODO: the same child can be added more than once
 func (vs *VStack) Add(child Widget) {
 	vs.children = append(vs.children, child)
 }
