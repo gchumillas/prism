@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"hash/maphash"
 	"image"
 	"image/color"
 
@@ -10,30 +9,26 @@ import (
 
 var labelBtnPad = image.Point{38, 19}
 
-type LabelButton struct {
+type labelButton struct {
 	canvas *gg.Context
 	label  *Label
-	pos    image.Point
 	size   image.Point
 }
 
-func NewLabelButton(c Context, text string) *LabelButton {
-	lb := &LabelButton{canvas: c.canvas}
+func newLabelButton(c Context, text string) *labelButton {
+	lb := &labelButton{canvas: c.canvas}
 	lb.label = NewLabel(c, text)
 	lb.size = lb.label.size().Add(labelBtnPad.Mul(2))
 	return lb
 }
 
-func (lb *LabelButton) Footprint() []uint64 {
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, lb.pos)
-	return append([]uint64{h.Sum64()}, lb.label.Footprint()...)
+func (lb *labelButton) Footprint() []uint64 {
+	return lb.label.Footprint()
 }
 
-func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	lb.pos = image.Pt(x, y)
-	hb := lb.hitbox()
+func (lb *labelButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	pos := image.Pt(x, y)
+	hb := image.Rectangle{Min: pos, Max: pos.Add(lb.size)}
 	lineWidth := 4
 	lb.canvas.SetLineWidth(float64(lineWidth))
 	lb.canvas.DrawRectangle(
@@ -52,15 +47,4 @@ func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image
 
 	dr, _ := lb.label.Render(x+labelBtnPad.X, y+labelBtnPad.Y)
 	return append(dr, dirtyReg), image.Pt(hb.Dx(), hb.Dy())
-}
-
-func (lb *LabelButton) Contains(x, y int) bool {
-	return image.Pt(x, y).In(lb.hitbox())
-}
-
-func (lb *LabelButton) hitbox() image.Rectangle {
-	return image.Rectangle{
-		Min: lb.pos,
-		Max: lb.pos.Add(lb.size),
-	}
 }

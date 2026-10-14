@@ -78,6 +78,12 @@ func (vs *VStack) AddImageButton(r io.Reader) (*Button, error) {
 	return btn.Button, nil
 }
 
+func (vs *VStack) AddLabelButton(text string) *Button {
+	btn := newClickableWidget(newLabelButton(vs.ctx, text))
+	vs.children = append(vs.children, btn)
+	return btn.Button
+}
+
 func (vs *VStack) RemoveButton(btn *Button) {
 	i := slices.IndexFunc(vs.children, func(x Widget) bool {
 		if v, ok := x.(*clickableWidget); ok {
