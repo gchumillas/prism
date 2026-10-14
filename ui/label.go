@@ -20,6 +20,7 @@ type Label struct {
 	ascent  int
 }
 
+// TODO: add optional color param
 func NewLabel(c Context, text string) *Label {
 	l := &Label{
 		canvas:   c.canvas,
@@ -43,7 +44,7 @@ func NewLabel(c Context, text string) *Label {
 	return l
 }
 
-func (l *Label) Size() image.Point {
+func (l *Label) size() image.Point {
 	bounds, _ := font.BoundString(l.face, l.text)
 	return image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
 }
@@ -55,15 +56,14 @@ func (l *Label) Footprint() []uint64 {
 	return []uint64{h.Sum64()}
 }
 
-func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
 	l.canvas.SetFontFace(l.face)
 	l.canvas.SetColor(color.Black)
 	l.canvas.DrawString(l.text, float64(pos.X), float64(pos.Y+l.ascent))
 
-	size := l.Size()
-	return []image.Rectangle{{
-		Min: pos,
-		Max: pos.Add(size),
-	}}
+	bounds, _ := font.BoundString(l.face, l.text)
+	size = image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
+
+	return []image.Rectangle{{Min: pos, Max: pos.Add(size)}}, size
 }

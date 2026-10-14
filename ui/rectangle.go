@@ -25,10 +25,6 @@ func NewRectangle(c Context, width, height int, fillColor color.Color) *Rectangl
 	return s
 }
 
-func (r *Rectangle) Size() image.Point {
-	return image.Pt(r.width, r.height)
-}
-
 func (r *Rectangle) Footprint() []uint64 {
 	red, green, blue, alpha := r.fillColor.RGBA()
 
@@ -43,9 +39,9 @@ func (r *Rectangle) Footprint() []uint64 {
 	return []uint64{h.Sum64()}
 }
 
-func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
-	size := image.Pt(r.width, r.height)
+	size = image.Pt(r.width, r.height)
 	rec := image.Rectangle{Min: pos, Max: pos.Add(size)}
 	r.canvas.DrawRectangle(
 		float64(rec.Min.X), float64(rec.Min.Y),
@@ -53,5 +49,5 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	)
 	r.canvas.SetColor(r.fillColor)
 	r.canvas.Fill()
-	return []image.Rectangle{rec}
+	return []image.Rectangle{rec}, size
 }

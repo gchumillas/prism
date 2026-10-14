@@ -17,9 +17,14 @@ type CustomWidget struct{ Label ui.Label }
 func NewCustomWidget(c ui.Context, text string) *CustomWidget {
 	return &CustomWidget{Label: *ui.NewLabel(c, text)}
 }
-func (cw *CustomWidget) Render(x, y int) []image.Rectangle { return cw.Label.Render(x, y) }
-func (cw *CustomWidget) Size() image.Point                 { return cw.Label.Size() }
-func (cw *CustomWidget) Footprint() []uint64               { return cw.Label.Footprint() }
+
+func (cw *CustomWidget) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	return cw.Label.Render(x, y)
+}
+
+func (cw *CustomWidget) Footprint() []uint64 {
+	return cw.Label.Footprint()
+}
 
 func TestVStack(t *testing.T) {
 	// TODO: here we are testing VStack.Remove
@@ -56,6 +61,15 @@ func TestVStack_Remove(t *testing.T) {
 }
 
 func TestVStack_Render(t *testing.T) {
+	t.Run("size", func(t *testing.T) {
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx, ui.WithGap(10))
+		vs.Add(NewRect(env.canvas, 0, 0, 100, 50, color.Black))
+		vs.Add(NewRect(env.canvas, 0, 0, 50, 50, color.White))
+		_, size := vs.Render(0, 0)
+		require.Equal(t, image.Pt(100, 110), size)
+	})
+
 	t.Run("render all widgets", func(t *testing.T) {
 		env := NewEnv()
 
@@ -66,11 +80,11 @@ func TestVStack_Render(t *testing.T) {
 		}
 
 		// all shapes are rendered
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 150)}, regs)
 
 		// no shape is rendered
-		regs = vs.Render(0, 0)
+		regs, _ = vs.Render(0, 0)
 		require.Empty(t, regs)
 	})
 
@@ -87,7 +101,7 @@ func TestVStack_Render(t *testing.T) {
 
 		vs.Render(0, 0)
 		shapes[1].Max.X += 50
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 50, 150, 100)}, regs)
 	})
 
@@ -104,7 +118,7 @@ func TestVStack_Render(t *testing.T) {
 
 		vs.Render(0, 0)
 		shapes[1].Max.Y += 50
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 50, 100, 200)}, regs)
 	})
 
@@ -121,7 +135,7 @@ func TestVStack_Render(t *testing.T) {
 
 		vs.Render(0, 0)
 		vs.Remove(shapes[0])
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 150)}, regs)
 	})
 
@@ -135,7 +149,7 @@ func TestVStack_Render(t *testing.T) {
 		}
 
 		vs.Render(0, 0)
-		regs := vs.Render(100, 0)
+		regs, _ := vs.Render(100, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 200, 150)}, regs)
 	})
 
@@ -149,11 +163,11 @@ func TestVStack_Render(t *testing.T) {
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
-		regs := vs1.Render(0, 0)
+		regs, _ := vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
 		sh.Max.X += 50
-		regs = vs1.Render(0, 0)
+		regs, _ = vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 150, 50)}, regs)
 	})
 
@@ -167,7 +181,7 @@ func TestVStack_Render(t *testing.T) {
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
-		regs := vs1.Render(0, 0)
+		regs, _ := vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
 		// render until no widget changes (steady state)
@@ -176,7 +190,7 @@ func TestVStack_Render(t *testing.T) {
 
 		// a nested change must still be detected by the outer stack
 		sh.Max.X += 50
-		regs = vs1.Render(0, 0)
+		regs, _ = vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 150, 50)}, regs)
 	})
 
@@ -213,7 +227,7 @@ func TestVStack_Render(t *testing.T) {
 
 		sh0 := shapes[0]
 		vs.Remove(sh0)
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 100)}, regs)
 	})
 
@@ -230,7 +244,7 @@ func TestVStack_Render(t *testing.T) {
 
 		sh0 := shapes[0]
 		vs.Remove(sh0)
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		// only returns the region of the last rectangle
 		// since the first rectangle is identical to the second and the third,
 		// there is no need to repaint those regions
@@ -249,7 +263,7 @@ func TestVStack_Render(t *testing.T) {
 		}
 		vs.Render(0, 0)
 		vs.Remove(recs[0])
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 100, 50),
 			image.Rect(0, 50, 50, 100),
@@ -266,14 +280,14 @@ func TestVStack_Render(t *testing.T) {
 		for _, rec := range recs {
 			vs.Add(rec)
 		}
-		regs := vs.Render(0, 0)
+		regs, _ := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 100, 50),
 			image.Rect(0, 60, 100, 110),
 		}, regs)
 
 		vs.Remove(recs[0])
-		regs = vs.Render(0, 0)
+		regs, _ = vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 100, 50),   // must be repainted, since Rect1 and Rect are of different types
 			image.Rect(0, 60, 100, 110), // and the abandoned region must also be repainted
@@ -289,13 +303,13 @@ func TestVStack_Render(t *testing.T) {
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs2.Add(sh)
-		regs := vs1.Render(0, 0)
+		regs, _ := vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
 		// replace child with another one with identical footprint and different type
 		vs2.Remove(sh)
 		vs2.Add(NewRect1(env.canvas, 0, 0, 100, 50, color.Black))
-		regs = vs1.Render(0, 0)
+		regs, _ = vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 	})
 }

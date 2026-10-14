@@ -1,6 +1,7 @@
 package ui_test
 
 import (
+	"image"
 	"image/color"
 	"slices"
 	"testing"
@@ -17,6 +18,15 @@ func TestRectangle(t *testing.T) {
 		r := ui.NewRectangle(env.ctx, 50, 100, color.White)
 		vs.Add(r)
 		require.Contains(t, vs.Children(), r)
+	})
+}
+
+func TestRectangle_Render(t *testing.T) {
+	t.Run("size", func(t *testing.T) {
+		env := NewEnv()
+		r := ui.NewRectangle(env.ctx, 100, 50, color.White)
+		_, size := r.Render(0, 0)
+		require.Equal(t, image.Pt(100, 50), size)
 	})
 }
 

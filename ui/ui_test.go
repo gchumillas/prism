@@ -44,10 +44,6 @@ func NewRect(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect {
 	}
 }
 
-func (r *Rect) Size() image.Point {
-	return r.Rectangle.Size()
-}
-
 func (r *Rect) Footprint() []uint64 {
 	var h maphash.Hash
 	h.SetSeed(seed)
@@ -57,12 +53,12 @@ func (r *Rect) Footprint() []uint64 {
 	return []uint64{h.Sum64()}
 }
 
-func (r *Rect) Render(x, y int) []image.Rectangle {
+func (r *Rect) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
-	size := r.Rectangle.Size()
+	size = r.Size()
 	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(size)}
 	draw.Draw(r.canvas, r.Rectangle, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
-	return []image.Rectangle{r.Rectangle}
+	return []image.Rectangle{r.Rectangle}, size
 }
 
 type Rect1 struct {

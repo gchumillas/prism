@@ -35,19 +35,6 @@ func NewVStack(c Context, opts ...stackOption) *VStack {
 	return vs
 }
 
-func (vs *VStack) Size() image.Point {
-	width, height := 0, vs.padding.Y
-	for i, child := range vs.children {
-		if i > 0 {
-			height += vs.gap
-		}
-		size := child.Size()
-		width = max(width, size.X)
-		height += size.Y
-	}
-	return image.Pt(width+vs.padding.X, height)
-}
-
 func (vs *VStack) Footprint() []uint64 {
 	var result []uint64
 	for _, child := range vs.children {
@@ -73,14 +60,19 @@ func (vs *VStack) Remove(child Widget) {
 	})
 }
 
-func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
 	childPos := image.Pt(pos.X+vs.padding.X, pos.Y+vs.padding.Y)
+	prevHeight := 0
 	for i, child := range vs.children {
 		if i > 0 {
-			childPos.Y += vs.gap + vs.children[i-1].Size().Y
+			childPos.Y += vs.gap + prevHeight
+			size.Y += vs.gap
 		}
-
+		regs, childSize := child.Render(childPos.X, childPos.Y)
+		prevHeight = childSize.Y
+		size.X = max(size.X, childSize.X)
+		size.Y += childSize.Y
 		if i < len(vs.prevChildStates) {
 			prev := vs.prevChildStates[i]
 			if prev.pos == childPos && prev.typ == reflect.TypeOf(child) && slices.Equal(prev.footprint, child.Footprint()) {
@@ -88,7 +80,6 @@ func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle) {
 			}
 		}
 
-		regs := child.Render(childPos.X, childPos.Y)
 		dirtyRegs = append(dirtyRegs, regs...)
 		cs := childState{pos: childPos, regs: regs, typ: reflect.TypeOf(child), footprint: child.Footprint()}
 		if i < len(vs.prevChildStates) {

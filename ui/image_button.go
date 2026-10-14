@@ -23,12 +23,8 @@ func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	if ib.img, err = LoadImage(c, r); err != nil {
 		return
 	}
-	ib.size = ib.img.Size().Add(imgBtnPad.Mul(2))
+	ib.size = ib.img.size().Add(imgBtnPad.Mul(2))
 	return ib, nil
-}
-
-func (ib *ImageButton) Size() image.Point {
-	return ib.size
 }
 
 func (ib *ImageButton) Footprint() []uint64 {
@@ -38,7 +34,7 @@ func (ib *ImageButton) Footprint() []uint64 {
 	return append([]uint64{h.Sum64()}, ib.img.Footprint()...)
 }
 
-func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	ib.pos = image.Pt(x, y)
 	hb := ib.hitbox()
 	lineWidth := 4
@@ -55,10 +51,8 @@ func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 		Max: hb.Max.Add(margin),
 	}
 
-	return append(
-		ib.img.Render(x+imgBtnPad.X, y+imgBtnPad.Y),
-		dirtyReg,
-	)
+	dr, _ := ib.img.Render(x+imgBtnPad.X, y+imgBtnPad.Y)
+	return append(dr, dirtyReg), image.Pt(hb.Dx(), hb.Dy())
 }
 
 func (ib *ImageButton) Contains(x, y int) bool {

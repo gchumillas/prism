@@ -1,6 +1,7 @@
 package ui_test
 
 import (
+	"image"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
@@ -8,6 +9,13 @@ import (
 )
 
 func TestLabelButton(t *testing.T) {
+	t.Run("size", func(t *testing.T) {
+		env := NewEnv()
+		lb := ui.NewLabel(env.ctx, "Hello, World!")
+		_, size := lb.Render(0, 0)
+		require.Equal(t, image.Pt(181, 37), size)
+	})
+
 	t.Run("Contains", func(t *testing.T) {
 		env := NewEnv()
 
