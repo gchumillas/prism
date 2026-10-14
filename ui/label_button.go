@@ -20,12 +20,8 @@ type LabelButton struct {
 func NewLabelButton(c Context, text string) *LabelButton {
 	lb := &LabelButton{canvas: c.canvas}
 	lb.label = NewLabel(c, text)
-	lb.size = lb.label.Size().Add(labelBtnPad.Mul(2))
+	lb.size = lb.label.size().Add(labelBtnPad.Mul(2))
 	return lb
-}
-
-func (lb *LabelButton) Size() image.Point {
-	return lb.size
 }
 
 func (lb *LabelButton) Footprint() []uint64 {
@@ -35,7 +31,7 @@ func (lb *LabelButton) Footprint() []uint64 {
 	return append([]uint64{h.Sum64()}, lb.label.Footprint()...)
 }
 
-func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	lb.pos = image.Pt(x, y)
 	hb := lb.hitbox()
 	lineWidth := 4
@@ -46,16 +42,16 @@ func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 
+	// addSafeMargin(r, margin)
 	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
+	// TODO: use an Outset(rect, margin) utility instead (affect others)
 	dirtyReg := image.Rectangle{
 		Min: hb.Min.Sub(margin),
 		Max: hb.Max.Add(margin),
 	}
 
-	return append(
-		lb.label.Render(x+labelBtnPad.X, y+labelBtnPad.Y),
-		dirtyReg,
-	)
+	dr, _ := lb.label.Render(x+labelBtnPad.X, y+labelBtnPad.Y)
+	return append(dr, dirtyReg), image.Pt(hb.Dx(), hb.Dy())
 }
 
 func (lb *LabelButton) Contains(x, y int) bool {

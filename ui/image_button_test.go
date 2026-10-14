@@ -2,6 +2,7 @@ package ui_test
 
 import (
 	"bytes"
+	"image"
 	"os"
 	"testing"
 
@@ -10,6 +11,16 @@ import (
 )
 
 func TestImageButton(t *testing.T) {
+	t.Run("size", func(t *testing.T) {
+		env := NewEnv()
+		dat, err := os.ReadFile("testdata/icon1.png")
+		require.NoError(t, err)
+		btn, err := ui.LoadImageButton(env.ctx, bytes.NewReader(dat))
+		require.NoError(t, err)
+		_, size := btn.Render(0, 0)
+		require.Equal(t, image.Pt(34, 34), size)
+	})
+
 	t.Run("Contains", func(t *testing.T) {
 		env := NewEnv()
 		dat, err := os.ReadFile("testdata/icon1.png")

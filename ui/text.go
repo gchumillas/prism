@@ -30,27 +30,11 @@ func NewText(c Context, text string, width int) *Text {
 	return t
 }
 
-func (t *Text) Size() image.Point {
-	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
-		Size:    t.fontSize,
-		DPI:     defaultDPI,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	m := face.Metrics()
-	lineh := m.Height.Ceil()
-	lines := splitIntoLines(face, t.text, t.width)
-	return image.Pt(t.width, lineh*len(lines))
-}
-
 func (r *Text) Footprint() []uint64 {
 	return nil
 }
 
-func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
@@ -78,7 +62,7 @@ func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	return []image.Rectangle{{
 		Min: pos,
 		Max: pos.Add(image.Pt(t.width, lineh*len(lines))),
-	}}
+	}}, image.Pt(t.width, lineh*len(lines))
 }
 
 func splitIntoLines(f font.Face, text string, width int) (lines []string) {

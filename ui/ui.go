@@ -26,8 +26,7 @@ var uiFont = func() *opentype.Font {
 var seed = maphash.MakeSeed()
 
 type Widget interface {
-	Render(x, y int) (dirtyRegs []image.Rectangle)
-	Size() image.Point
+	Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)
 	Footprint() []uint64
 }
 
