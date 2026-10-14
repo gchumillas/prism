@@ -32,11 +32,10 @@ func TestVStack(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
 
-		lbBtn := ui.NewLabelButton(env.ctx, "Click me!")
-		vs.Add(lbBtn)
-		require.Contains(t, vs.Children(), lbBtn)
-		vs.Remove(lbBtn)
-		require.NotContains(t, vs.Children(), lbBtn)
+		lbBtn := vs.AddLabelButton("Click me!")
+		require.Len(t, vs.Children(), 1)
+		vs.RemoveButton(lbBtn)
+		require.Empty(t, vs.Children())
 	})
 }
 
@@ -259,10 +258,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn1 := ui.NewLabelButton(env.ctx, "Button")
-		btn2 := ui.NewLabelButton(env.ctx, "Button")
-		vs.Add(btn1)
-		vs.Add(btn2)
+		btn1 := vs.AddLabelButton("Button")
+		btn2 := vs.AddLabelButton("Button")
 
 		// btn2 is clickable at position p
 		p := image.Pt(80, 115)
@@ -271,7 +268,7 @@ func TestVStack_Render(t *testing.T) {
 
 		// btn2 is no longer clickable at position p
 		// because removing btn1 shifts btn2 upward
-		vs.Remove(btn1)
+		vs.RemoveButton(btn1)
 		vs.Render(0, 0)
 		require.False(t, btn2.Contains(p.X, p.Y))
 	})

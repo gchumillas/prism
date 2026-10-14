@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"fmt"
+	"image/color"
 	"slices"
 	"testing"
 
@@ -16,9 +16,9 @@ func TestVStack_Render(t *testing.T) {
 
 		for n := range 3 {
 			vs := NewVStack(ctx)
-			var shapes []*LabelButton
+			var shapes []*Rectangle
 			for i := range 3 {
-				shape := NewLabelButton(ctx, fmt.Sprintf("Button %d", i))
+				shape := NewRectangle(ctx, 100, 50, color.Gray{Y: uint8(i)})
 				shapes = append(shapes, shape)
 				vs.Add(shape)
 			}

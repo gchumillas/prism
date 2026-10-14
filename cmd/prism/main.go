@@ -21,11 +21,12 @@ func (prism *Prism) Run() error {
 	c := ui.NewContextFromRGBA(prism.Canvas)
 	c.FontSize = prism.FontSize
 
-	btn := ui.NewLabelButton(c, "Click me!")
+	vs := ui.NewVStack(c)
+	btn := vs.AddLabelButton("Click me!")
 	prism.Touch.AddTapHandler(btn, func() {
 		fmt.Println("tapped!")
 	})
-	btn.Render(50, 100)
+	vs.Render(50, 100)
 
 	// refresh the screen
 	b := prism.Canvas.Bounds()
