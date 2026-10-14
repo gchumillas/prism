@@ -50,6 +50,68 @@ func TestVStack_Add(t *testing.T) {
 	})
 }
 
+func TestVStack_AddButton(t *testing.T) {
+	t.Run("add button", func(t *testing.T) {
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		vs.Render(0, 0)
+		require.True(t, btn.Contains(50, 25))
+	})
+
+	t.Run("repaint stacker in a different position", func(t *testing.T) {
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		vs.Render(0, 0)
+		vs.Render(100, 50)
+		require.True(t, btn.Contains(150, 75))
+	})
+
+	t.Run("remove item", func(t *testing.T) {
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
+		vs.Add(r)
+		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		vs.Render(0, 0)
+		require.True(t, btn.Contains(50, 75))
+
+		// When an item is removed, the button moves up.
+		// Verify that it is clickable in its new position and not in its old position.
+		vs.Remove(r)
+		vs.Render(0, 0)
+		require.True(t, btn.Contains(50, 25))
+		require.False(t, btn.Contains(50, 75))
+	})
+
+	t.Run("change item height", func(t *testing.T) {
+		env := NewEnv()
+		vs := ui.NewVStack(env.ctx)
+		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
+		vs.Add(r)
+		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		vs.Render(0, 0)
+		require.True(t, btn.Contains(50, 75))
+
+		// When an item's height changes, the button moves vertically.
+		// Verify that it is clickable in its new position and not in its old position.
+		r.Max.Y += 50
+		vs.Render(0, 0)
+		require.True(t, btn.Contains(50, 125))
+		require.False(t, btn.Contains(50, 75))
+	})
+}
+
+func TestVStack_RemoveButton(t *testing.T) {
+	env := NewEnv()
+	vs := ui.NewVStack(env.ctx)
+	btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+	require.Len(t, vs.Children(), 1)
+	vs.RemoveButton(btn)
+	require.Empty(t, vs.Children())
+}
+
 func TestVStack_Remove(t *testing.T) {
 	env := NewEnv()
 	vs := ui.NewVStack(env.ctx)

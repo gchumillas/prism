@@ -60,6 +60,26 @@ func (vs *VStack) Remove(child Widget) {
 	})
 }
 
+func (vs *VStack) AddButton(child Widget) *Button {
+	btn := newClickableWidget(child)
+	vs.children = append(vs.children, btn)
+	return btn.Button
+}
+
+func (vs *VStack) RemoveButton(btn *Button) {
+	i := slices.IndexFunc(vs.children, func(x Widget) bool {
+		if v, ok := x.(*clickableWidget); ok {
+			if v.Button == btn {
+				return true
+			}
+		}
+		return false
+	})
+	if i > -1 {
+		vs.children = slices.Delete(vs.children, i, i+1)
+	}
+}
+
 func (vs *VStack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
 	childPos := image.Pt(pos.X+vs.padding.X, pos.Y+vs.padding.Y)
