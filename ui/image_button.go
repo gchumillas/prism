@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"hash/maphash"
 	"image"
 	"image/color"
 	"io"
@@ -11,15 +10,14 @@ import (
 
 var imgBtnPad = image.Pt(5, 5)
 
-type ImageButton struct {
+type imageButton struct {
 	canvas *gg.Context
 	img    *Image
-	pos    image.Point
 	size   image.Point
 }
 
-func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
-	ib := &ImageButton{canvas: c.canvas}
+func loadImageButton(c Context, r io.Reader) (_ *imageButton, err error) {
+	ib := &imageButton{canvas: c.canvas}
 	if ib.img, err = LoadImage(c, r); err != nil {
 		return
 	}
@@ -27,16 +25,13 @@ func LoadImageButton(c Context, r io.Reader) (_ *ImageButton, err error) {
 	return ib, nil
 }
 
-func (ib *ImageButton) Footprint() []uint64 {
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, ib.pos)
-	return append([]uint64{h.Sum64()}, ib.img.Footprint()...)
+func (ib *imageButton) Footprint() []uint64 {
+	return ib.img.Footprint()
 }
 
-func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	ib.pos = image.Pt(x, y)
-	hb := ib.hitbox()
+func (ib *imageButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	pos := image.Pt(x, y)
+	hb := image.Rectangle{Min: pos, Max: pos.Add(ib.size)}
 	lineWidth := 4
 	ib.canvas.SetLineWidth(float64(lineWidth))
 	ib.canvas.SetColor(color.Black)
@@ -53,15 +48,4 @@ func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image
 
 	dr, _ := ib.img.Render(x+imgBtnPad.X, y+imgBtnPad.Y)
 	return append(dr, dirtyReg), image.Pt(hb.Dx(), hb.Dy())
-}
-
-func (ib *ImageButton) Contains(x, y int) bool {
-	return image.Pt(x, y).In(ib.hitbox())
-}
-
-func (ib *ImageButton) hitbox() image.Rectangle {
-	return image.Rectangle{
-		Min: ib.pos,
-		Max: ib.pos.Add(ib.size),
-	}
 }

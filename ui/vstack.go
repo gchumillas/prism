@@ -2,6 +2,7 @@ package ui
 
 import (
 	"image"
+	"io"
 	"reflect"
 	"slices"
 )
@@ -21,14 +22,15 @@ func (val WithPadding) applyStack(vs *VStack) { vs.padding = image.Point(val) }
 func (val WithGap) applyStack(vs *VStack)     { vs.gap = int(val) }
 
 type VStack struct {
+	ctx             Context
 	padding         image.Point
 	gap             int
 	children        []Widget
 	prevChildStates []childState
 }
 
-func NewVStack(c Context, opts ...stackOption) *VStack {
-	vs := &VStack{}
+func NewVStack(ctx Context, opts ...stackOption) *VStack {
+	vs := &VStack{ctx: ctx}
 	for _, opt := range opts {
 		opt.applyStack(vs)
 	}
@@ -64,6 +66,16 @@ func (vs *VStack) AddButton(child Widget) *Button {
 	btn := newClickableWidget(child)
 	vs.children = append(vs.children, btn)
 	return btn.Button
+}
+
+func (vs *VStack) AddImageButton(r io.Reader) (*Button, error) {
+	img, err := loadImageButton(vs.ctx, r)
+	if err != nil {
+		return nil, err
+	}
+	btn := newClickableWidget(img)
+	vs.children = append(vs.children, btn)
+	return btn.Button, nil
 }
 
 func (vs *VStack) RemoveButton(btn *Button) {
