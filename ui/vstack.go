@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"hash/maphash"
 	"image"
 	"io"
 	"reflect"
@@ -45,7 +46,13 @@ func (vs *VStack) Footprint() []uint64 {
 		result = append(result, uint64(typ), uint64(len(footprint)))
 		result = append(result, footprint...)
 	}
-	return result
+
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, vs.padding.X)
+	maphash.WriteComparable(&h, vs.padding.Y)
+	maphash.WriteComparable(&h, vs.gap)
+	return append([]uint64{h.Sum64()}, result...)
 }
 
 func (vs *VStack) Children() []Widget {
