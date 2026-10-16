@@ -1,8 +1,8 @@
 #!/bin/bash
+set -e
 
-mage lint || { echo "Linting failed, aborting push"; exit 1; }
-mage web:build || { echo "Linting failed, aborting push"; exit 1; }
-mage sb:build || { echo "Linting failed, aborting push"; exit 1; }
-mage eink:build || { echo "Linting failed, aborting push"; exit 1; }
-
-exit 0
+mage lint
+mage test
+mage web:build
+mage sb:build
+mage eink:build
