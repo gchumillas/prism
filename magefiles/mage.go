@@ -47,6 +47,10 @@ func (Test) Run() error {
 	return sh.RunV("go", "test", "./...")
 }
 
+func (Test) Regression() error {
+	return sh.RunV("go", "test", "./...", "-tags=regression")
+}
+
 // ---- Web ----
 type Web mg.Namespace
 
