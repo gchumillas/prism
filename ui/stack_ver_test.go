@@ -30,7 +30,7 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("add button", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 25))
 	})
@@ -38,7 +38,7 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("repaint stacker in a different position", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		vs.Render(100, 50)
 		require.True(t, btn.Contains(150, 75))
@@ -49,7 +49,7 @@ func TestVStack_AddButton(t *testing.T) {
 		vs := ui.NewVStack(env.ctx)
 		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
 
@@ -66,7 +66,7 @@ func TestVStack_AddButton(t *testing.T) {
 		vs := ui.NewVStack(env.ctx)
 		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
 
@@ -226,7 +226,7 @@ func TestVStack_Render(t *testing.T) {
 
 		// btn2 is no longer clickable at position p
 		// because removing btn1 shifts btn2 upward
-		vs.RemoveButton(btn1)
+		btn1.DetachFrom(vs)
 		vs.Render(0, 0)
 		require.False(t, btn2.Contains(p.X, p.Y))
 	})

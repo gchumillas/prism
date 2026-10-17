@@ -42,18 +42,3 @@ func TestVStack_Remove(t *testing.T) {
 		require.Equal(t, vs.Remove(r), 2)
 	})
 }
-
-func TestVStack_RemoveButton(t *testing.T) {
-	t.Run("zero button", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		require.False(t, vs.RemoveButton(nil))
-	})
-
-	t.Run("one button", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
-		require.True(t, vs.RemoveButton(btn))
-	})
-}

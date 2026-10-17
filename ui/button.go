@@ -1,6 +1,9 @@
 package ui
 
-import "image"
+import (
+	"image"
+	"slices"
+)
 
 type Button struct {
 	bounds image.Rectangle
@@ -17,6 +20,28 @@ type clickableWidget struct {
 
 func newClickableWidget(w Widget) *clickableWidget {
 	return &clickableWidget{Button: &Button{}, widget: w}
+}
+
+func AttachButton(owner *Stack, w Widget) *Button {
+	btn := newClickableWidget(w)
+	owner.children = append(owner.children, btn)
+	return btn.Button
+}
+
+func (b *Button) DetachFrom(owner *Stack) bool {
+	i := slices.IndexFunc(owner.children, func(x Widget) bool {
+		if v, ok := x.(*clickableWidget); ok {
+			if v.Button == b {
+				return true
+			}
+		}
+		return false
+	})
+	if i > -1 {
+		owner.children = slices.Delete(owner.children, i, i+1)
+		return true
+	}
+	return false
 }
 
 func (cb *clickableWidget) Render(x, y int) ([]image.Rectangle, image.Point) {
