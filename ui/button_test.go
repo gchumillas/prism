@@ -13,7 +13,7 @@ func TestButton_DetachFrom(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
 		hs := ui.NewHStack(env.ctx)
-		btn := ui.AttachLabelButton(vs, "Click me!")
+		btn := ui.AttachLabelButton(vs, env.ctx, "Click me!")
 		require.False(t, btn.DetachFrom(hs))
 	})
 

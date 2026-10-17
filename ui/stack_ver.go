@@ -7,12 +7,18 @@ import (
 	"slices"
 )
 
-// TODO: remove param `ctx Context`, since we just need to pass the canvas (affects other places)
-func NewVStack(ctx Context, opts ...StackOption) *Stack {
-	return newStack(ctx, verticalFootprint, verticalLayout, opts...)
+type VStack struct {
+	*baseStack
 }
 
-func verticalFootprint(s *Stack) []uint64 {
+// TODO: remove param `ctx Context`, since we just need to pass the canvas (affects other places)
+func NewVStack(ctx Context, opts ...StackOption) *VStack {
+	return &VStack{
+		baseStack: newStack(ctx, verticalFootprint, verticalLayout, opts...),
+	}
+}
+
+func verticalFootprint(s *baseStack) []uint64 {
 	var result []uint64
 	for _, child := range s.children {
 		typ := typeID(reflect.TypeOf(child))
@@ -30,7 +36,7 @@ func verticalFootprint(s *Stack) []uint64 {
 	return append([]uint64{h.Sum64()}, result...)
 }
 
-func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func verticalLayout(s *baseStack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
 	childPos := image.Pt(pos.X+s.padding.X, pos.Y+s.padding.Y)
 	prevHeight := 0

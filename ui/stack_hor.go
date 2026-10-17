@@ -7,11 +7,17 @@ import (
 	"slices"
 )
 
-func NewHStack(ctx Context, opts ...StackOption) *Stack {
-	return newStack(ctx, horizontalFootprint, horizontalLayout, opts...)
+type HStack struct {
+	*baseStack
 }
 
-func horizontalFootprint(s *Stack) []uint64 {
+func NewHStack(ctx Context, opts ...StackOption) *HStack {
+	return &HStack{
+		baseStack: newStack(ctx, horizontalFootprint, horizontalLayout, opts...),
+	}
+}
+
+func horizontalFootprint(s *baseStack) []uint64 {
 	var result []uint64
 	for _, child := range s.children {
 		typ := typeID(reflect.TypeOf(child))
@@ -29,7 +35,7 @@ func horizontalFootprint(s *Stack) []uint64 {
 	return append([]uint64{h.Sum64()}, result...)
 }
 
-func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func horizontalLayout(s *baseStack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	size = image.Pt(s.padding.X, 0)
 	for i, child := range s.children {
 		if i > 0 {
