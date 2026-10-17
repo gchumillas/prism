@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"hash/maphash"
 	"image"
 	"io"
 	"reflect"
@@ -15,42 +14,62 @@ type childState struct {
 	footprint []uint64
 }
 
-type stack struct {
+type Stack struct {
 	ctx             Context
 	padding         image.Point
 	gap             int
 	children        []Widget
 	prevChildStates []childState
+	footprint       func(*Stack) []uint64
+	layout          func(*Stack, int, int) ([]image.Rectangle, image.Point)
 }
 
-type stackOption interface {
-	applyStack(*stack)
+type StackOption interface {
+	applyStack(*Stack)
 }
 
-func (val WithPadding) applyStack(s *stack) { s.padding = image.Point(val) }
-func (val WithGap) applyStack(s *stack)     { s.gap = int(val) }
+func (val WithPadding) applyStack(s *Stack) { s.padding = image.Point(val) }
+func (val WithGap) applyStack(s *Stack)     { s.gap = int(val) }
 
-func (s *stack) Children() []Widget {
+func newStack(
+	ctx Context,
+	footprint func(*Stack) []uint64,
+	layout func(*Stack, int, int) ([]image.Rectangle, image.Point),
+	opts ...StackOption,
+) *Stack {
+	s := &Stack{
+		ctx:       ctx,
+		footprint: footprint,
+		layout:    layout,
+	}
+	for _, opt := range opts {
+		opt.applyStack(s)
+	}
+	return s
+}
+
+// TODO: remove Stack.Children
+func (s *Stack) Children() []Widget {
 	return s.children
 }
 
-func (s *stack) Add(child Widget) {
+func (s *Stack) Add(child Widget) {
 	s.children = append(s.children, child)
 }
 
-func (s *stack) Remove(child Widget) {
+func (s *Stack) Remove(child Widget) {
 	s.children = slices.DeleteFunc(s.children, func(c Widget) bool {
 		return c == child
 	})
 }
 
-func (s *stack) AddButton(child Widget) *Button {
+func (s *Stack) AddButton(child Widget) *Button {
 	btn := newClickableWidget(child)
 	s.children = append(s.children, btn)
 	return btn.Button
 }
 
-func (s *stack) AddImageButton(r io.Reader) (*Button, error) {
+func (s *Stack) AddImageButton(r io.Reader) (*Button, error) {
 	img, err := loadImageButton(s.ctx, r)
 	if err != nil {
 		return nil, err
@@ -60,13 +79,13 @@ func (s *stack) AddImageButton(r io.Reader) (*Button, error) {
 	return btn.Button, nil
 }
 
-func (s *stack) AddLabelButton(text string) *Button {
+func (s *Stack) AddLabelButton(text string) *Button {
 	btn := newClickableWidget(newLabelButton(s.ctx, text))
 	s.children = append(s.children, btn)
 	return btn.Button
 }
 
-func (s *stack) RemoveButton(btn *Button) {
+func (s *Stack) RemoveButton(btn *Button) {
 	i := slices.IndexFunc(s.children, func(x Widget) bool {
 		if v, ok := x.(*clickableWidget); ok {
 			if v.Button == btn {
@@ -80,19 +99,10 @@ func (s *stack) RemoveButton(btn *Button) {
 	}
 }
 
-func (s *stack) Footprint() []uint64 {
-	var result []uint64
-	for _, child := range s.children {
-		typ := typeID(reflect.TypeOf(child))
-		footprint := child.Footprint()
-		result = append(result, uint64(typ), uint64(len(footprint)))
-		result = append(result, footprint...)
-	}
+func (s *Stack) Footprint() []uint64 {
+	return s.footprint(s)
+}
 
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, s.padding.X)
-	maphash.WriteComparable(&h, s.padding.Y)
-	maphash.WriteComparable(&h, s.gap)
-	return append([]uint64{h.Sum64()}, result...)
+func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	return s.layout(s, x, y)
 }
