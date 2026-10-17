@@ -32,9 +32,9 @@ func TestVStack(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
 
-		lbBtn := vs.AddLabelButton("Click me!")
+		btn := ui.AttachLabelButton(vs, "Click me!")
 		require.Len(t, vs.Children(), 1)
-		vs.RemoveButton(lbBtn)
+		vs.RemoveButton(btn)
 		require.Empty(t, vs.Children())
 	})
 }
@@ -258,8 +258,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn1 := vs.AddLabelButton("Button")
-		btn2 := vs.AddLabelButton("Button")
+		btn1 := ui.AttachLabelButton(vs, "Button")
+		btn2 := ui.AttachLabelButton(vs, "Button")
 
 		// btn2 is clickable at position p
 		p := image.Pt(80, 115)

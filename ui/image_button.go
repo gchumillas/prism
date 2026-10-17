@@ -25,6 +25,16 @@ func loadImageButton(c Context, r io.Reader) (_ *imageButton, err error) {
 	return ib, nil
 }
 
+func AttachImageButton(owner *Stack, r io.Reader) (*Button, error) {
+	img, err := loadImageButton(owner.ctx, r)
+	if err != nil {
+		return nil, err
+	}
+	btn := newClickableWidget(img)
+	owner.children = append(owner.children, btn)
+	return btn.Button, nil
+}
+
 func (ib *imageButton) Footprint() []uint64 {
 	return ib.img.Footprint()
 }

@@ -22,6 +22,12 @@ func newLabelButton(c Context, text string) *labelButton {
 	return lb
 }
 
+func AttachLabelButton(owner *Stack, text string) *Button {
+	btn := newClickableWidget(newLabelButton(owner.ctx, text))
+	owner.children = append(owner.children, btn)
+	return btn.Button
+}
+
 func (lb *labelButton) Footprint() []uint64 {
 	return lb.label.Footprint()
 }
