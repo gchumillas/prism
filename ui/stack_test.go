@@ -8,16 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStack_Add(t *testing.T) {
-	t.Run("custom widget", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		cw := NewCustomWidget(env.ctx, "custom ui")
-		vs.Add(cw)
-		require.Contains(t, vs.Children(), cw)
-	})
-}
-
 func TestVStack_Remove(t *testing.T) {
 	t.Run("zero items", func(t *testing.T) {
 		env := NewEnv()

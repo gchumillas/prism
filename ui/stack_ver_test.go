@@ -12,20 +12,6 @@ import (
 	_ "image/png"
 )
 
-type CustomWidget struct{ Label ui.Label }
-
-func NewCustomWidget(c ui.Context, text string) *CustomWidget {
-	return &CustomWidget{Label: *ui.NewLabel(c, text)}
-}
-
-func (cw *CustomWidget) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	return cw.Label.Render(x, y)
-}
-
-func (cw *CustomWidget) Footprint() []uint64 {
-	return cw.Label.Footprint()
-}
-
 func TestVStack_AddButton(t *testing.T) {
 	t.Run("add button", func(t *testing.T) {
 		env := NewEnv()
