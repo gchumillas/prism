@@ -47,11 +47,6 @@ func newStack(
 	return s
 }
 
-// TODO: remove Stack.Children
-func (s *Stack) Children() []Widget {
-	return s.children
-}
-
 func (s *Stack) Add(child Widget) {
 	s.children = append(s.children, child)
 }

@@ -10,16 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAttachImageButton(t *testing.T) {
-	env := NewEnv()
-	vs := ui.NewVStack(env.ctx)
-	dat, err := os.ReadFile("testdata/icon1.png")
-	require.NoError(t, err)
-	_, err = ui.AttachImageButton(vs, bytes.NewReader(dat))
-	require.NoError(t, err)
-	require.Len(t, vs.Children(), 1)
-}
-
 func TestImageButton(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()

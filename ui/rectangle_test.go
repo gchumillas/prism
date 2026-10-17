@@ -10,17 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRectangle(t *testing.T) {
-	t.Run("can be stacked vertically", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-
-		r := ui.NewRectangle(env.ctx, 50, 100, color.White)
-		vs.Add(r)
-		require.Contains(t, vs.Children(), r)
-	})
-}
-
 func TestRectangle_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()

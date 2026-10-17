@@ -1,12 +1,37 @@
 package ui
 
 import (
+	"image"
 	"image/color"
 	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
+
+type CustomWidget struct{ Label Label }
+
+func NewCustomWidget(c Context, text string) *CustomWidget {
+	return &CustomWidget{Label: *NewLabel(c, text)}
+}
+
+func (cw *CustomWidget) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	return cw.Label.Render(x, y)
+}
+
+func (cw *CustomWidget) Footprint() []uint64 {
+	return cw.Label.Footprint()
+}
+
+func TestStack_Add(t *testing.T) {
+	t.Run("custom widget", func(t *testing.T) {
+		ctx := NewContext(320, 240)
+		vs := NewVStack(ctx)
+		cw := NewCustomWidget(ctx, "custom ui")
+		vs.Add(cw)
+		require.Contains(t, vs.children, cw)
+	})
+}
 
 func TestVStack_Render(t *testing.T) {
 	appWidth, appHeight := 320, 240
