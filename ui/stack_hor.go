@@ -1,25 +1,35 @@
 package ui
 
 import (
+	"hash/maphash"
 	"image"
 	"reflect"
 	"slices"
 )
 
-type HStack struct {
-	stack
+func NewHStack(ctx Context, opts ...StackOption) *Stack {
+	return newStack(ctx, horizontalFootprint, horizontalLayout, opts...)
 }
 
-func NewHStack(ctx Context, opts ...stackOption) *HStack {
-	s := &HStack{}
-	s.ctx = ctx
-	for _, opt := range opts {
-		opt.applyStack(&s.stack)
+func horizontalFootprint(s *Stack) []uint64 {
+	var result []uint64
+	for _, child := range s.children {
+		typ := typeID(reflect.TypeOf(child))
+		footprint := child.Footprint()
+		result = append(result, uint64(typ), uint64(len(footprint)))
+		result = append(result, footprint...)
 	}
-	return s
+
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, "horizontal")
+	maphash.WriteComparable(&h, s.padding.X)
+	maphash.WriteComparable(&h, s.padding.Y)
+	maphash.WriteComparable(&h, s.gap)
+	return append([]uint64{h.Sum64()}, result...)
 }
 
-func (s *HStack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	size = image.Pt(s.padding.X, 0)
 	for i, child := range s.children {
 		if i > 0 {

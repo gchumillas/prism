@@ -1,25 +1,36 @@
 package ui
 
 import (
+	"hash/maphash"
 	"image"
 	"reflect"
 	"slices"
 )
 
-type VStack struct {
-	stack
+// TODO: remove param `ctx Context`, since we just need to pass the canvas (affects other places)
+func NewVStack(ctx Context, opts ...StackOption) *Stack {
+	return newStack(ctx, verticalFootprint, verticalLayout, opts...)
 }
 
-func NewVStack(ctx Context, opts ...stackOption) *VStack {
-	s := &VStack{}
-	s.ctx = ctx
-	for _, opt := range opts {
-		opt.applyStack(&s.stack)
+func verticalFootprint(s *Stack) []uint64 {
+	var result []uint64
+	for _, child := range s.children {
+		typ := typeID(reflect.TypeOf(child))
+		footprint := child.Footprint()
+		result = append(result, uint64(typ), uint64(len(footprint)))
+		result = append(result, footprint...)
 	}
-	return s
+
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, "vertical")
+	maphash.WriteComparable(&h, s.padding.X)
+	maphash.WriteComparable(&h, s.padding.Y)
+	maphash.WriteComparable(&h, s.gap)
+	return append([]uint64{h.Sum64()}, result...)
 }
 
-func (s *VStack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
 	childPos := image.Pt(pos.X+s.padding.X, pos.Y+s.padding.Y)
 	prevHeight := 0
