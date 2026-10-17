@@ -25,13 +25,13 @@ func loadImageButton(c Context, r io.Reader) (_ *imageButton, err error) {
 	return ib, nil
 }
 
-func AttachImageButton(owner *Stack, r io.Reader) (*Button, error) {
-	img, err := loadImageButton(owner.ctx, r)
+func AttachImageButton(owner Stack, ctx Context, r io.Reader) (*Button, error) {
+	img, err := loadImageButton(ctx, r)
 	if err != nil {
 		return nil, err
 	}
 	btn := newClickableWidget(img)
-	owner.children = append(owner.children, btn)
+	owner.Add(btn)
 	return btn.Button, nil
 }
 

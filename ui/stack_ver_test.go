@@ -202,8 +202,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn1 := ui.AttachLabelButton(vs, "Button")
-		btn2 := ui.AttachLabelButton(vs, "Button")
+		btn1 := ui.AttachLabelButton(vs, env.ctx, "Button")
+		btn2 := ui.AttachLabelButton(vs, env.ctx, "Button")
 
 		// btn2 is clickable at position p
 		p := image.Pt(80, 115)

@@ -22,9 +22,9 @@ func newLabelButton(c Context, text string) *labelButton {
 	return lb
 }
 
-func AttachLabelButton(owner *Stack, text string) *Button {
-	btn := newClickableWidget(newLabelButton(owner.ctx, text))
-	owner.children = append(owner.children, btn)
+func AttachLabelButton(owner Stack, ctx Context, text string) *Button {
+	btn := newClickableWidget(newLabelButton(ctx, text))
+	owner.Add(btn)
 	return btn.Button
 }
 
