@@ -56,10 +56,12 @@ func (s *Stack) Add(child Widget) {
 	s.children = append(s.children, child)
 }
 
-func (s *Stack) Remove(child Widget) {
+func (s *Stack) Remove(child Widget) (n int) {
+	oldLen := len(s.children)
 	s.children = slices.DeleteFunc(s.children, func(c Widget) bool {
 		return c == child
 	})
+	return oldLen - len(s.children)
 }
 
 func (s *Stack) AddButton(child Widget) *Button {
@@ -68,7 +70,7 @@ func (s *Stack) AddButton(child Widget) *Button {
 	return btn.Button
 }
 
-func (s *Stack) RemoveButton(btn *Button) {
+func (s *Stack) RemoveButton(btn *Button) bool {
 	i := slices.IndexFunc(s.children, func(x Widget) bool {
 		if v, ok := x.(*clickableWidget); ok {
 			if v.Button == btn {
@@ -79,7 +81,9 @@ func (s *Stack) RemoveButton(btn *Button) {
 	})
 	if i > -1 {
 		s.children = slices.Delete(s.children, i, i+1)
+		return true
 	}
+	return false
 }
 
 func (s *Stack) Footprint() []uint64 {
