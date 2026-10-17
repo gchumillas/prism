@@ -8,6 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestAttachLabelButton(t *testing.T) {
+	env := NewEnv()
+	vs := ui.NewVStack(env.ctx)
+
+	ui.AttachLabelButton(vs, "Click me!")
+	require.Len(t, vs.Children(), 1)
+}
+
 func TestLabelButton_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
