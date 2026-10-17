@@ -12,6 +12,14 @@ import (
 	_ "image/png"
 )
 
+func TestVStack_Detach(t *testing.T) {
+	env := NewEnv()
+	vs := ui.NewVStack(env.ctx)
+	hs := ui.AttachHStack(vs, env.ctx)
+	require.True(t, hs.DetachFrom(vs))
+	require.False(t, hs.DetachFrom(vs))
+}
+
 func TestVStack_AddButton(t *testing.T) {
 	t.Run("add button", func(t *testing.T) {
 		env := NewEnv()
@@ -162,8 +170,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.NewVStack(env.ctx)
-		vs1.Add(vs2)
+		vs2 := ui.AttachHStack(vs1, env.ctx)
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -180,8 +187,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.NewVStack(env.ctx)
-		vs1.Add(vs2)
+		vs2 := ui.AttachHStack(vs1, env.ctx)
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -301,8 +307,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.NewVStack(env.ctx)
-		vs1.Add(vs2)
+		vs2 := ui.AttachHStack(vs1, env.ctx)
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs2.Add(sh)

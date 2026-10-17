@@ -7,6 +7,15 @@ import (
 	"slices"
 )
 
+type hStackWrapper struct {
+	BaseWidget
+	*HStack
+}
+
+func newHStackWrapper(hs *HStack) *hStackWrapper {
+	return &hStackWrapper{HStack: hs}
+}
+
 type HStack struct {
 	*baseStack
 }
@@ -15,6 +24,28 @@ func NewHStack(ctx Context, opts ...StackOption) *HStack {
 	return &HStack{
 		baseStack: newStack(ctx, horizontalFootprint, horizontalLayout, opts...),
 	}
+}
+
+func AttachHStack(owner Stack, ctx Context, opts ...StackOption) *HStack {
+	hs := NewHStack(ctx, opts...)
+	owner.Add(newHStackWrapper(hs))
+	return hs
+}
+
+func (s *HStack) DetachFrom(owner Stack) bool {
+	items := owner.Children()
+	if i := slices.IndexFunc(items, func(x Widget) bool {
+		if v, ok := x.(*hStackWrapper); ok {
+			if v.HStack == s {
+				return true
+			}
+		}
+		return false
+	}); i > -1 {
+		owner.Remove(items[i])
+		return true
+	}
+	return false
 }
 
 func horizontalFootprint(s *baseStack) []uint64 {

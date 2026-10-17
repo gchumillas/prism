@@ -12,6 +12,7 @@ import (
 )
 
 type Rectangle struct {
+	ui.BaseWidget
 	canvas        draw.Image
 	Width, Height int
 	color         color.Color
@@ -45,6 +46,14 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Po
 	return []image.Rectangle{rec}, rec.Size()
 }
 
+func TestHStack_Detach(t *testing.T) {
+	env := NewEnv()
+	hs := ui.NewHStack(env.ctx)
+	vs := ui.AttachVStack(hs, env.ctx)
+	require.True(t, vs.DetachFrom(hs))
+	require.False(t, vs.DetachFrom(hs))
+}
+
 func TestHStack_Render(t *testing.T) {
 	t.Run("full paint", func(t *testing.T) {
 		env := NewEnv()
@@ -71,12 +80,10 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("nested items", func(t *testing.T) {
 		env := NewEnv()
 
-		r := NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100})
-		hs2 := ui.NewHStack(env.ctx)
-		hs2.Add(r)
-
 		hs1 := ui.NewHStack(env.ctx)
-		hs1.Add(hs2)
+		hs2 := ui.AttachHStack(hs1, env.ctx)
+		r := NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100})
+		hs2.Add(r)
 
 		regs, _ := hs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{

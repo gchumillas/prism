@@ -12,6 +12,7 @@ import (
 var imgCounter atomic.Uint64
 
 type Image struct {
+	BaseWidget
 	canvas *gg.Context
 	img    image.Image
 	id     uint64

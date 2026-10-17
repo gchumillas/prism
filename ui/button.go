@@ -6,6 +6,7 @@ import (
 )
 
 type Button struct {
+	BaseWidget
 	bounds image.Rectangle
 }
 
@@ -15,11 +16,11 @@ func (b *Button) Contains(x, y int) bool {
 
 type clickableWidget struct {
 	*Button
-	widget Widget
+	wg Widget
 }
 
 func newClickableWidget(w Widget) *clickableWidget {
-	return &clickableWidget{Button: &Button{}, widget: w}
+	return &clickableWidget{Button: &Button{}, wg: w}
 }
 
 func AttachButton(owner Stack, w Widget) *Button {
@@ -46,12 +47,12 @@ func (b *Button) DetachFrom(owner Stack) bool {
 }
 
 func (cb *clickableWidget) Render(x, y int) ([]image.Rectangle, image.Point) {
-	dirtyRegs, size := cb.widget.Render(x, y)
+	dirtyRegs, size := cb.wg.Render(x, y)
 	pos := image.Pt(x, y)
 	cb.bounds = image.Rectangle{Min: pos, Max: pos.Add(size)}
 	return dirtyRegs, size
 }
 
 func (cb *clickableWidget) Footprint() []uint64 {
-	return cb.widget.Footprint()
+	return cb.wg.Footprint()
 }

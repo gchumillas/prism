@@ -9,7 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type CustomWidget struct{ Label Label }
+type CustomWidget struct {
+	BaseWidget
+	Label Label
+}
 
 func NewCustomWidget(c Context, text string) *CustomWidget {
 	return &CustomWidget{Label: *NewLabel(c, text)}

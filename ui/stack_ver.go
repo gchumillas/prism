@@ -7,6 +7,15 @@ import (
 	"slices"
 )
 
+type vStackWrapper struct {
+	BaseWidget
+	*VStack
+}
+
+func newVStackWrapper(vs *VStack) *vStackWrapper {
+	return &vStackWrapper{VStack: vs}
+}
+
 type VStack struct {
 	*baseStack
 }
@@ -16,6 +25,28 @@ func NewVStack(ctx Context, opts ...StackOption) *VStack {
 	return &VStack{
 		baseStack: newStack(ctx, verticalFootprint, verticalLayout, opts...),
 	}
+}
+
+func AttachVStack(owner Stack, ctx Context, opts ...StackOption) *VStack {
+	vs := NewVStack(ctx, opts...)
+	owner.Add(newVStackWrapper(vs))
+	return vs
+}
+
+func (s *VStack) DetachFrom(owner Stack) bool {
+	items := owner.Children()
+	if i := slices.IndexFunc(items, func(x Widget) bool {
+		if v, ok := x.(*vStackWrapper); ok {
+			if v.VStack == s {
+				return true
+			}
+		}
+		return false
+	}); i > -1 {
+		owner.Remove(items[i])
+		return true
+	}
+	return false
 }
 
 func verticalFootprint(s *baseStack) []uint64 {

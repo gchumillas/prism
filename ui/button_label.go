@@ -10,6 +10,7 @@ import (
 var labelBtnPad = image.Point{38, 19}
 
 type labelButton struct {
+	BaseWidget
 	canvas *gg.Context
 	label  *Label
 	size   image.Point

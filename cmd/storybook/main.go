@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"os"
-	"slices"
 
 	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/internal/platform"
@@ -12,17 +11,16 @@ import (
 )
 
 type Storybook struct {
-	ctx      ui.Context
-	children []ui.Widget
+	ctx ui.Context
+	vs  *ui.VStack
 	// physical devices
 	Touch  app.TapDispatcher
 	Screen app.Renderer
 }
 
 func (sb *Storybook) Run() error {
-	vs := ui.NewVStack(sb.ctx)
-	btn := ui.AttachLabelButton(vs, sb.ctx, "Click me!")
-	sb.Add(vs)
+	sb.vs = ui.NewVStack(sb.ctx)
+	btn := ui.AttachLabelButton(sb.vs, sb.ctx, "Click me!")
 
 	sb.Touch.AddTapHandler(btn, func() {
 		fmt.Println("clicked!")
@@ -32,22 +30,10 @@ func (sb *Storybook) Run() error {
 	return sb.refresh()
 }
 
-func (sb *Storybook) Add(child ui.Widget) {
-	sb.children = append(sb.children, child)
-}
-
-func (app *Storybook) Remove(child ui.Widget) {
-	app.children = slices.DeleteFunc(app.children, func(c ui.Widget) bool {
-		return c == child
-	})
-}
-
 func (sb *Storybook) Render() {
 	r := sb.ctx.Canvas().Bounds()
 	ui.NewRectangle(sb.ctx, r.Dx(), r.Dy(), color.White)
-	for _, e := range sb.children {
-		e.Render(100, 200)
-	}
+	sb.vs.Render(100, 200)
 }
 
 func (sb *Storybook) refresh() error {

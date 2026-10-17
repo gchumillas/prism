@@ -28,7 +28,12 @@ var seed = maphash.MakeSeed()
 type Widget interface {
 	Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)
 	Footprint() []uint64
+	widget()
 }
+
+type BaseWidget struct{}
+
+func (BaseWidget) widget() {}
 
 type Context struct {
 	canvas   *gg.Context

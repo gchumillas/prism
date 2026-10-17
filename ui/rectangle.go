@@ -9,6 +9,7 @@ import (
 )
 
 type Rectangle struct {
+	BaseWidget
 	width, height int
 	fillColor     color.Color
 

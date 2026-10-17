@@ -31,6 +31,7 @@ func NewEnv() *Env {
 // ---- Rect ----
 
 type Rect struct {
+	ui.BaseWidget
 	canvas draw.Image
 	image.Rectangle
 	color color.Color

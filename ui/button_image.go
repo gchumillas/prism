@@ -11,6 +11,7 @@ import (
 var imgBtnPad = image.Pt(5, 5)
 
 type imageButton struct {
+	BaseWidget
 	canvas *gg.Context
 	img    *Image
 	size   image.Point

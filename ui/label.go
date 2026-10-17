@@ -11,6 +11,7 @@ import (
 )
 
 type Label struct {
+	BaseWidget
 	canvas   *gg.Context
 	text     string
 	fontSize float64
