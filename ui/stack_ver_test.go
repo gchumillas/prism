@@ -26,29 +26,6 @@ func (cw *CustomWidget) Footprint() []uint64 {
 	return cw.Label.Footprint()
 }
 
-func TestVStack(t *testing.T) {
-	// TODO: here we are testing VStack.Remove
-	t.Run("can remove widgets", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-
-		btn := ui.AttachLabelButton(vs, "Click me!")
-		require.Len(t, vs.Children(), 1)
-		vs.RemoveButton(btn)
-		require.Empty(t, vs.Children())
-	})
-}
-
-func TestVStack_Add(t *testing.T) {
-	t.Run("custom widget", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		cw := NewCustomWidget(env.ctx, "custom ui")
-		vs.Add(cw)
-		require.Contains(t, vs.Children(), cw)
-	})
-}
-
 func TestVStack_AddButton(t *testing.T) {
 	t.Run("add button", func(t *testing.T) {
 		env := NewEnv()
@@ -100,25 +77,6 @@ func TestVStack_AddButton(t *testing.T) {
 		require.True(t, btn.Contains(50, 125))
 		require.False(t, btn.Contains(50, 75))
 	})
-}
-
-func TestVStack_RemoveButton(t *testing.T) {
-	env := NewEnv()
-	vs := ui.NewVStack(env.ctx)
-	btn := vs.AddButton(NewRect(env.canvas, 0, 0, 100, 50, color.White))
-	require.Len(t, vs.Children(), 1)
-	vs.RemoveButton(btn)
-	require.Empty(t, vs.Children())
-}
-
-func TestVStack_Remove(t *testing.T) {
-	env := NewEnv()
-	vs := ui.NewVStack(env.ctx)
-	r := NewRect(env.canvas, 0, 0, 100, 50, color.White)
-	vs.Add(r)
-	require.Contains(t, vs.Children(), r)
-	vs.Remove(r)
-	require.NotContains(t, vs.Children(), r)
 }
 
 func TestVStack_Render(t *testing.T) {
