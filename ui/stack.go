@@ -2,7 +2,6 @@ package ui
 
 import (
 	"image"
-	"io"
 	"reflect"
 	"slices"
 )
@@ -65,22 +64,6 @@ func (s *Stack) Remove(child Widget) {
 
 func (s *Stack) AddButton(child Widget) *Button {
 	btn := newClickableWidget(child)
-	s.children = append(s.children, btn)
-	return btn.Button
-}
-
-func (s *Stack) AddImageButton(r io.Reader) (*Button, error) {
-	img, err := loadImageButton(s.ctx, r)
-	if err != nil {
-		return nil, err
-	}
-	btn := newClickableWidget(img)
-	s.children = append(s.children, btn)
-	return btn.Button, nil
-}
-
-func (s *Stack) AddLabelButton(text string) *Button {
-	btn := newClickableWidget(newLabelButton(s.ctx, text))
 	s.children = append(s.children, btn)
 	return btn.Button
 }

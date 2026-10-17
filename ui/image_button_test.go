@@ -16,7 +16,7 @@ func TestImageButton(t *testing.T) {
 		vs := ui.NewVStack(env.ctx)
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
-		_, err = vs.AddImageButton(bytes.NewReader(dat))
+		_, err = ui.AttachImageButton(vs, bytes.NewReader(dat))
 		require.NoError(t, err)
 		_, size := vs.Render(0, 0)
 		require.Equal(t, image.Pt(34, 34), size)
@@ -27,7 +27,7 @@ func TestImageButton(t *testing.T) {
 		vs := ui.NewVStack(env.ctx)
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
-		btn, err := vs.AddImageButton(bytes.NewReader(dat))
+		btn, err := ui.AttachImageButton(vs, bytes.NewReader(dat))
 		require.NoError(t, err)
 		vs.Render(100, 50)
 

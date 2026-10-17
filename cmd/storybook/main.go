@@ -21,7 +21,7 @@ type Storybook struct {
 
 func (sb *Storybook) Run() error {
 	vs := ui.NewVStack(sb.ctx)
-	btn := vs.AddLabelButton("Click me!")
+	btn := ui.AttachLabelButton(vs, "Click me!")
 	sb.Add(vs)
 
 	sb.Touch.AddTapHandler(btn, func() {
