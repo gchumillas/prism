@@ -9,12 +9,32 @@ import (
 
 type HStack struct {
 	*baseStack
+	wrapper *hStackWrapper
 }
 
 func NewHStack(ctx Context, opts ...StackOption) *HStack {
 	return &HStack{
 		baseStack: newStack(ctx, horizontalFootprint, horizontalLayout, opts...),
 	}
+}
+
+type hStackWrapper struct {
+	*HStack
+}
+
+func (hsw *hStackWrapper) Footprint() []uint64 {
+	return hsw.footprint()
+}
+
+func AttachHStack(owner Stack, ctx Context, opts ...StackOption) *HStack {
+	hs := NewHStack(ctx, opts...)
+	hs.wrapper = &hStackWrapper{HStack: hs}
+	owner.Add(hs.wrapper)
+	return hs
+}
+
+func (s *HStack) DetachFrom(owner Stack) bool {
+	return owner.Remove(s.wrapper) > 0
 }
 
 func horizontalFootprint(s *baseStack) []uint64 {

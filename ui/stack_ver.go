@@ -9,6 +9,7 @@ import (
 
 type VStack struct {
 	*baseStack
+	wrapper *vStackWrapper
 }
 
 // TODO: remove param `ctx Context`, since we just need to pass the canvas (affects other places)
@@ -16,6 +17,25 @@ func NewVStack(ctx Context, opts ...StackOption) *VStack {
 	return &VStack{
 		baseStack: newStack(ctx, verticalFootprint, verticalLayout, opts...),
 	}
+}
+
+type vStackWrapper struct {
+	*VStack
+}
+
+func (hsw *vStackWrapper) Footprint() []uint64 {
+	return hsw.footprint()
+}
+
+func AttachVStack(owner Stack, ctx Context, opts ...StackOption) *VStack {
+	vs := NewVStack(ctx, opts...)
+	vs.wrapper = &vStackWrapper{VStack: vs}
+	owner.Add(vs.wrapper)
+	return vs
+}
+
+func (s *VStack) DetachFrom(owner Stack) bool {
+	return owner.Remove(s.wrapper) > 0
 }
 
 func verticalFootprint(s *baseStack) []uint64 {
