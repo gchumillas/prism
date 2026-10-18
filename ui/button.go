@@ -5,7 +5,7 @@ import (
 )
 
 type Button struct {
-	wrapper Widget // esto se puede apilar
+	wrapper Widget
 	bounds  image.Rectangle
 }
 
