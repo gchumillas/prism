@@ -30,19 +30,19 @@ func horizontalFootprint(s *Stack) []uint64 {
 	var h maphash.Hash
 	h.SetSeed(seed)
 	maphash.WriteComparable(&h, "horizontal")
-	maphash.WriteComparable(&h, s.padding.X)
-	maphash.WriteComparable(&h, s.padding.Y)
+	maphash.WriteComparable(&h, s.paddingX)
+	maphash.WriteComparable(&h, s.paddingY)
 	maphash.WriteComparable(&h, s.gap)
 	return append([]uint64{h.Sum64()}, result...)
 }
 
 func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	size = image.Pt(s.padding.X, 0)
+	size = image.Pt(s.paddingX, 0)
 	for i, child := range s.children {
 		if i > 0 {
 			size.X += s.gap
 		}
-		pos := image.Pt(x+size.X, y+s.padding.Y)
+		pos := image.Pt(x+size.X, y+s.paddingY)
 		childRegs, childSize := child.Render(pos.X, pos.Y)
 		cs := childState{
 			pos:       pos,
@@ -71,6 +71,6 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 	// TODO: button leaks?
 	s.prevChildStates = s.prevChildStates[:len(s.children)]
 	dirtyRegs = MergeRegions(dirtyRegs)
-	size = image.Pt(size.X+s.padding.X, size.Y+2*s.padding.Y)
+	size = image.Pt(size.X+s.paddingX, size.Y+2*s.paddingY)
 	return
 }

@@ -24,7 +24,8 @@ func (sw *stackWrapper) Footprint() []uint64 {
 type Stack struct {
 	wrapper         *stackWrapper
 	ctx             Context
-	padding         image.Point
+	paddingX        int
+	paddingY        int
 	gap             int
 	children        []Widget
 	prevChildStates []childState
@@ -36,8 +37,9 @@ type StackOption interface {
 	applyStack(*Stack)
 }
 
-func (val WithPadding) applyStack(s *Stack) { s.padding = image.Point(val) }
-func (val WithGap) applyStack(s *Stack)     { s.gap = int(val) }
+func (val WithPaddingX) applyStack(s *Stack) { s.paddingX = int(val) }
+func (val WithPaddingY) applyStack(s *Stack) { s.paddingY = int(val) }
+func (val WithGap) applyStack(s *Stack)      { s.gap = int(val) }
 
 func newStack(
 	ctx Context,

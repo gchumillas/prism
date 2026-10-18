@@ -50,6 +50,7 @@ func (l *Label) size() image.Point {
 }
 
 func (l *Label) Footprint() []uint64 {
+	// TODO: maybe we don'tneed maphash (affects other places)
 	var h maphash.Hash
 	h.SetSeed(seed)
 	maphash.WriteComparable(&h, l.text)
