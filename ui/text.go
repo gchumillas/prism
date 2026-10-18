@@ -30,7 +30,7 @@ func NewText(c Context, text string, width int) *Text {
 	return t
 }
 
-func (r *Text) Footprint() []uint64 {
+func (t *Text) Footprint() []uint64 {
 	return nil
 }
 

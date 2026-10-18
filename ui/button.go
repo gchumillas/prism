@@ -18,14 +18,14 @@ type clickableWidget struct {
 	widget Widget
 }
 
-func AttachButton(owner Stack, w Widget) *Button {
+func AttachButton(owner *Stack, w Widget) *Button {
 	btn := &Button{}
 	btn.wrapper = &clickableWidget{Button: btn, widget: w}
 	owner.Add(btn.wrapper)
 	return btn
 }
 
-func (b *Button) DetachFrom(owner Stack) bool {
+func (b *Button) DetachFrom(owner *Stack) bool {
 	return owner.Remove(b.wrapper) > 0
 }
 

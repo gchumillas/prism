@@ -25,7 +25,7 @@ func loadImageButton(c Context, r io.Reader) (_ *imageButton, err error) {
 	return ib, nil
 }
 
-func AttachImageButton(owner Stack, ctx Context, r io.Reader) (*Button, error) {
+func AttachImageButton(owner *Stack, ctx Context, r io.Reader) (*Button, error) {
 	img, err := loadImageButton(ctx, r)
 	if err != nil {
 		return nil, err
