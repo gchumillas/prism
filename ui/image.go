@@ -17,8 +17,8 @@ type Image struct {
 	id     uint64
 }
 
-func LoadImage(c Context, r io.Reader) (i *Image, err error) {
-	i = &Image{canvas: c.canvas, id: imgCounter.Add(1)}
+func LoadImage(c *Canvas, r io.Reader) (i *Image, err error) {
+	i = &Image{canvas: c.context, id: imgCounter.Add(1)}
 	if i.img, _, err = image.Decode(r); err != nil {
 		return
 	}

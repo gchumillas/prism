@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type CustomWidget struct{ Label Label }
+type CustomWidget struct{ Label *Label }
 
-func NewCustomWidget(c Context, text string) *CustomWidget {
-	return &CustomWidget{Label: *NewLabel(c, text)}
+func NewCustomWidget(c *Canvas, text string) *CustomWidget {
+	return &CustomWidget{Label: NewLabel(c, text)}
 }
 
 func (cw *CustomWidget) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
@@ -25,9 +25,9 @@ func (cw *CustomWidget) Footprint() []uint64 {
 
 func TestStack_Add(t *testing.T) {
 	t.Run("custom widget", func(t *testing.T) {
-		ctx := NewContext(320, 240)
-		vs := NewVStack(ctx)
-		cw := NewCustomWidget(ctx, "custom ui")
+		c := NewCanvas(320, 240)
+		vs := NewVStack(c)
+		cw := NewCustomWidget(c, "custom ui")
 		vs.Add(cw)
 		require.Contains(t, vs.children, cw)
 	})
@@ -37,13 +37,13 @@ func TestVStack_Render(t *testing.T) {
 	appWidth, appHeight := 320, 240
 
 	t.Run("unused prev states are purged", func(t *testing.T) {
-		ctx := NewContext(appWidth, appHeight)
+		c := NewCanvas(appWidth, appHeight)
 
 		for n := range 3 {
-			vs := NewVStack(ctx)
+			vs := NewVStack(c)
 			var shapes []*Rectangle
 			for i := range 3 {
-				shape := NewRectangle(ctx, 100, 50, color.Gray{Y: uint8(i)})
+				shape := NewRectangle(c, 100, 50, color.Gray{Y: uint8(i)})
 				shapes = append(shapes, shape)
 				vs.Add(shape)
 			}

@@ -14,8 +14,8 @@ import (
 
 func TestVStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
-	hs := ui.NewHStack(env.ctx)
-	vs := ui.AttachVStackTo(hs, env.ctx)
+	hs := ui.NewHStack(env.canvas)
+	vs := ui.AttachVStackTo(hs, env.canvas)
 	require.True(t, vs.DetachFrom(hs))
 	require.False(t, vs.DetachFrom(hs))
 }
@@ -23,16 +23,16 @@ func TestVStack_DetachFrom(t *testing.T) {
 func TestVStack_AddButton(t *testing.T) {
 	t.Run("add button", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		vs := ui.NewVStack(env.canvas)
+		btn := ui.AttachButtonTo(vs, NewRect(env.image, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 25))
 	})
 
 	t.Run("repaint stacker in a different position", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		vs := ui.NewVStack(env.canvas)
+		btn := ui.AttachButtonTo(vs, NewRect(env.image, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		vs.Render(100, 50)
 		require.True(t, btn.Contains(150, 75))
@@ -40,10 +40,10 @@ func TestVStack_AddButton(t *testing.T) {
 
 	t.Run("remove item", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
+		vs := ui.NewVStack(env.canvas)
+		r := NewRect(env.image, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButtonTo(vs, NewRect(env.image, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
 
@@ -57,10 +57,10 @@ func TestVStack_AddButton(t *testing.T) {
 
 	t.Run("change item height", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
+		vs := ui.NewVStack(env.canvas)
+		r := NewRect(env.image, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButtonTo(vs, NewRect(env.image, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
 
@@ -76,9 +76,9 @@ func TestVStack_AddButton(t *testing.T) {
 func TestVStack_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx, ui.WithGap(10))
-		vs.Add(NewRect(env.canvas, 0, 0, 100, 50, color.Black))
-		vs.Add(NewRect(env.canvas, 0, 0, 50, 50, color.White))
+		vs := ui.NewVStack(env.canvas, ui.WithGap(10))
+		vs.Add(NewRect(env.image, 0, 0, 100, 50, color.Black))
+		vs.Add(NewRect(env.image, 0, 0, 50, 50, color.White))
 		_, size := vs.Render(0, 0)
 		require.Equal(t, image.Pt(100, 110), size)
 	})
@@ -86,9 +86,9 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("render all widgets", func(t *testing.T) {
 		env := NewEnv()
 
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		for i := range 3 {
-			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			vs.Add(shape)
 		}
 
@@ -104,10 +104,10 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("render only affected widget", func(t *testing.T) {
 		env := NewEnv()
 
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		var shapes []*Rect
 		for i := range 3 {
-			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -121,10 +121,10 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("render affected widget and below", func(t *testing.T) {
 		env := NewEnv()
 
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		var shapes []*Rect
 		for i := range 3 {
-			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -138,10 +138,10 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("render widgets below deleted", func(t *testing.T) {
 		env := NewEnv()
 
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		var shapes []*Rect
 		for i := range 3 {
-			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -155,9 +155,9 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("render on change position", func(t *testing.T) {
 		env := NewEnv()
 
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		for i := range 3 {
-			shape := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			vs.Add(shape)
 		}
 
@@ -169,10 +169,10 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("nested", func(t *testing.T) {
 		env := NewEnv()
 
-		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.AttachVStackTo(vs1, env.ctx)
+		vs1 := ui.NewVStack(env.canvas)
+		vs2 := ui.AttachVStackTo(vs1, env.canvas)
 
-		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
+		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
 		regs, _ := vs1.Render(0, 0)
@@ -186,10 +186,10 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("nested change after steady state", func(t *testing.T) {
 		env := NewEnv()
 
-		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.AttachVStackTo(vs1, env.ctx)
+		vs1 := ui.NewVStack(env.canvas)
+		vs2 := ui.AttachVStackTo(vs1, env.canvas)
 
-		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
+		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
 		regs, _ := vs1.Render(0, 0)
@@ -207,9 +207,9 @@ func TestVStack_Render(t *testing.T) {
 
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
-		btn1 := ui.AttachLabelButtonTo(vs, env.ctx, "Button")
-		btn2 := ui.AttachLabelButtonTo(vs, env.ctx, "Button")
+		vs := ui.NewVStack(env.canvas)
+		btn1 := ui.AttachLabelButtonTo(vs, env.canvas, "Button")
+		btn2 := ui.AttachLabelButtonTo(vs, env.canvas, "Button")
 
 		// btn2 is clickable at position p
 		p := image.Pt(80, 115)
@@ -225,10 +225,10 @@ func TestVStack_Render(t *testing.T) {
 
 	t.Run("remove from list of different widgets", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		var shapes []*Rect
 		for i := range uint8(2) {
-			r := NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: i})
+			r := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: i})
 			shapes = append(shapes, r)
 			vs.Add(r)
 		}
@@ -242,10 +242,10 @@ func TestVStack_Render(t *testing.T) {
 
 	t.Run("remove from list of identical widgets", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		var shapes []*Rect
 		for range uint8(3) {
-			r := NewRect(env.canvas, 0, 0, 100, 50, color.White)
+			r := NewRect(env.image, 0, 0, 100, 50, color.White)
 			shapes = append(shapes, r)
 			vs.Add(r)
 		}
@@ -263,10 +263,10 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("render different widget sizes", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rect{
-			NewRect(env.canvas, 0, 0, 100, 50, color.Gray{Y: 25}),  // landscape
-			NewRect(env.canvas, 0, 50, 50, 100, color.Gray{Y: 50}), // square
+			NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: 25}),  // landscape
+			NewRect(env.image, 0, 50, 50, 100, color.Gray{Y: 50}), // square
 		}
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		for _, rec := range recs {
 			vs.Add(rec)
 		}
@@ -282,10 +282,10 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("different widget with the same footprint", func(t *testing.T) {
 		env := NewEnv()
 		recs := []ui.Widget{
-			NewRect(env.canvas, 0, 0, 100, 50, color.White),
-			NewRect1(env.canvas, 0, 50, 100, 100, color.White),
+			NewRect(env.image, 0, 0, 100, 50, color.White),
+			NewRect1(env.image, 0, 50, 100, 100, color.White),
 		}
-		vs := ui.NewVStack(env.ctx, ui.WithGap(10))
+		vs := ui.NewVStack(env.canvas, ui.WithGap(10))
 		for _, rec := range recs {
 			vs.Add(rec)
 		}
@@ -306,17 +306,17 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("nested vstack child replaced by different type", func(t *testing.T) {
 		env := NewEnv()
 
-		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.AttachVStackTo(vs1, env.ctx)
+		vs1 := ui.NewVStack(env.canvas)
+		vs2 := ui.AttachVStackTo(vs1, env.canvas)
 
-		sh := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
+		sh := NewRect(env.image, 0, 0, 100, 50, color.Black)
 		vs2.Add(sh)
 		regs, _ := vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
 		// replace child with another one with identical footprint and different type
 		vs2.Remove(sh)
-		vs2.Add(NewRect1(env.canvas, 0, 0, 100, 50, color.Black))
+		vs2.Add(NewRect1(env.image, 0, 0, 100, 50, color.Black))
 		regs, _ = vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 	})

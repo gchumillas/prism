@@ -7,13 +7,12 @@ import (
 	"slices"
 )
 
-// TODO: remove param `ctx Context`, since we just need to pass the canvas (affects other places)
-func NewVStack(ctx Context, opts ...stackOption) *Stack {
-	return newStack(ctx, verticalFootprint, verticalLayout, opts...)
+func NewVStack(c *Canvas, opts ...stackOption) *Stack {
+	return newStack(c, verticalFootprint, verticalLayout, opts...)
 }
 
-func AttachVStackTo(parent *Stack, ctx Context, opts ...stackOption) *Stack {
-	vs := NewVStack(ctx, opts...)
+func AttachVStackTo(parent *Stack, c *Canvas, opts ...stackOption) *Stack {
+	vs := NewVStack(c, opts...)
 	vs.wrapper = &stackWrapper{Stack: vs}
 	parent.Add(vs.wrapper)
 	return vs

@@ -18,14 +18,14 @@ var seed = maphash.MakeSeed()
 // ---- Env ----
 
 type Env struct {
-	canvas *image.RGBA
-	ctx    ui.Context
+	image  *image.RGBA
+	canvas *ui.Canvas
 }
 
 func NewEnv() *Env {
-	canvas := image.NewRGBA(image.Rect(0, 0, 640, 480))
-	ctx := ui.NewContextFromRGBA(canvas)
-	return &Env{canvas: canvas, ctx: ctx}
+	img := image.NewRGBA(image.Rect(0, 0, 640, 480))
+	c := ui.NewCanvasFromRGBA(img)
+	return &Env{image: img, canvas: c}
 }
 
 // ---- Rect ----

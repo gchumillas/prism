@@ -47,8 +47,8 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Po
 
 func TestHStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
-	vs := ui.NewVStack(env.ctx)
-	hs := ui.AttachHStackTo(vs, env.ctx)
+	vs := ui.NewVStack(env.canvas)
+	hs := ui.AttachHStackTo(vs, env.canvas)
 	require.True(t, hs.DetachFrom(vs))
 	require.False(t, hs.DetachFrom(vs))
 }
@@ -57,12 +57,12 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("full paint", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*ui.Rectangle{
-			ui.NewRectangle(env.ctx, 50, 150, color.Gray{Y: 100}),
-			ui.NewRectangle(env.ctx, 150, 50, color.Gray{Y: 150}),
-			ui.NewRectangle(env.ctx, 100, 100, color.Gray{Y: 200}),
+			ui.NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			ui.NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.ctx, ui.WithGap(10))
+		hs := ui.NewHStack(env.canvas, ui.WithGap(10))
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -79,9 +79,9 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("nested items", func(t *testing.T) {
 		env := NewEnv()
 
-		r := NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100})
-		hs1 := ui.NewHStack(env.ctx)
-		hs2 := ui.AttachHStackTo(hs1, env.ctx)
+		r := NewRectangle(env.image, 50, 100, color.Gray{Y: 100})
+		hs1 := ui.NewHStack(env.canvas)
+		hs2 := ui.AttachHStackTo(hs1, env.canvas)
 		hs2.Add(r)
 
 		regs, _ := hs1.Render(0, 0)
@@ -95,10 +95,10 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/remove item", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100}),
+			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
 		}
 
-		hs := ui.NewHStack(env.ctx)
+		hs := ui.NewHStack(env.canvas)
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -115,12 +115,12 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/call twice", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*ui.Rectangle{
-			ui.NewRectangle(env.ctx, 50, 150, color.Gray{Y: 100}),
-			ui.NewRectangle(env.ctx, 150, 50, color.Gray{Y: 150}),
-			ui.NewRectangle(env.ctx, 100, 100, color.Gray{Y: 200}),
+			ui.NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			ui.NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.ctx, ui.WithGap(10))
+		hs := ui.NewHStack(env.canvas, ui.WithGap(10))
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -134,12 +134,12 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/change item height", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
-			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
-			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
+			NewRectangle(env.image, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.image, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.ctx)
+		hs := ui.NewHStack(env.canvas)
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -154,12 +154,12 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/change item width", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
-			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
-			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
+			NewRectangle(env.image, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.image, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.ctx)
+		hs := ui.NewHStack(env.canvas)
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -177,12 +177,12 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/delete item", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
-			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
-			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
+			NewRectangle(env.image, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.image, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.ctx)
+		hs := ui.NewHStack(env.canvas)
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -201,11 +201,11 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/same footprint", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100}),
-			NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100}),
+			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
+			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
 		}
 
-		hs := ui.NewHStack(env.ctx)
+		hs := ui.NewHStack(env.canvas)
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -222,12 +222,12 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/change position", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*ui.Rectangle{
-			ui.NewRectangle(env.ctx, 50, 150, color.Gray{Y: 100}),
-			ui.NewRectangle(env.ctx, 150, 50, color.Gray{Y: 150}),
-			ui.NewRectangle(env.ctx, 100, 100, color.Gray{Y: 200}),
+			ui.NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			ui.NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.ctx)
+		hs := ui.NewHStack(env.canvas)
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -247,9 +247,9 @@ func TestHStack_Render(t *testing.T) {
 	// hit area follows widget after sibling removal
 	t.Run("remove button", func(t *testing.T) {
 		env := NewEnv()
-		hs := ui.NewHStack(env.ctx)
-		btn1 := ui.AttachButtonTo(hs, NewRectangle(env.canvas, 200, 100, color.Gray{Y: 100}))
-		btn2 := ui.AttachButtonTo(hs, NewRectangle(env.canvas, 200, 100, color.Gray{Y: 200}))
+		hs := ui.NewHStack(env.canvas)
+		btn1 := ui.AttachButtonTo(hs, NewRectangle(env.image, 200, 100, color.Gray{Y: 100}))
+		btn2 := ui.AttachButtonTo(hs, NewRectangle(env.image, 200, 100, color.Gray{Y: 200}))
 
 		// btn2 is clickable at position p
 		p := image.Pt(300, 50)

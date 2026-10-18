@@ -11,8 +11,8 @@ import (
 )
 
 type Storybook struct {
-	ctx ui.Context
-	vs  *ui.Stack
+	canvas *ui.Canvas
+	vs     *ui.Stack
 	// physical devices
 	Touch    app.TapDispatcher
 	Screen   app.Renderer
@@ -20,8 +20,8 @@ type Storybook struct {
 }
 
 func (sb *Storybook) Run() error {
-	sb.vs = ui.NewVStack(sb.ctx)
-	btn := ui.AttachLabelButtonTo(sb.vs, sb.ctx, "Click me!", ui.WithFontSize(sb.FontSize))
+	sb.vs = ui.NewVStack(sb.canvas)
+	btn := ui.AttachLabelButtonTo(sb.vs, sb.canvas, "Click me!", ui.WithFontSize(sb.FontSize))
 
 	sb.Touch.AddTapHandler(btn, func() {
 		fmt.Println("clicked!")
@@ -32,14 +32,14 @@ func (sb *Storybook) Run() error {
 }
 
 func (sb *Storybook) Render() {
-	r := sb.ctx.Canvas().Bounds()
-	ui.NewRectangle(sb.ctx, r.Dx(), r.Dy(), color.White)
+	r := sb.canvas.Image().Bounds()
+	ui.NewRectangle(sb.canvas, r.Dx(), r.Dy(), color.White)
 	sb.vs.Render(100, 200)
 }
 
 func (sb *Storybook) refresh() error {
 	sb.Render()
-	b := sb.ctx.Canvas().Bounds()
+	b := sb.canvas.Image().Bounds()
 	s := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
 	return sb.Screen.Refresh([]app.Region{s})
 }
@@ -51,9 +51,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	ctx := ui.NewContextFromRGBA(env.Canvas)
+	c := ui.NewCanvasFromRGBA(env.Canvas)
 	sb := &Storybook{
-		ctx:      ctx,
+		canvas:   c,
 		Touch:    env.Touch,
 		Screen:   env.Screen,
 		FontSize: env.FontSize,

@@ -26,9 +26,9 @@ type textOption interface {
 
 func (val WithFontSize) applyText(l *Text) { l.fontSize = float64(val) }
 
-func NewText(c Context, text string, width int, opts ...textOption) *Text {
+func NewText(c *Canvas, text string, width int, opts ...textOption) *Text {
 	t := &Text{
-		canvas:   c.canvas,
+		canvas:   c.context,
 		text:     text,
 		width:    width,
 		fontSize: defaultFontSize,
