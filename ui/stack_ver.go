@@ -7,38 +7,19 @@ import (
 	"slices"
 )
 
-type VStack struct {
-	*baseStack
-	wrapper *vStackWrapper
-}
-
 // TODO: remove param `ctx Context`, since we just need to pass the canvas (affects other places)
-func NewVStack(ctx Context, opts ...StackOption) *VStack {
-	return &VStack{
-		baseStack: newStack(ctx, verticalFootprint, verticalLayout, opts...),
-	}
+func NewVStack(ctx Context, opts ...StackOption) *Stack {
+	return newStack(ctx, verticalFootprint, verticalLayout, opts...)
 }
 
-type vStackWrapper struct {
-	*VStack
-}
-
-func (hsw *vStackWrapper) Footprint() []uint64 {
-	return hsw.footprint()
-}
-
-func AttachVStack(owner Stack, ctx Context, opts ...StackOption) *VStack {
+func AttachVStack(owner *Stack, ctx Context, opts ...StackOption) *Stack {
 	vs := NewVStack(ctx, opts...)
-	vs.wrapper = &vStackWrapper{VStack: vs}
+	vs.wrapper = &stackWrapper{Stack: vs}
 	owner.Add(vs.wrapper)
 	return vs
 }
 
-func (s *VStack) DetachFrom(owner Stack) bool {
-	return owner.Remove(s.wrapper) > 0
-}
-
-func verticalFootprint(s *baseStack) []uint64 {
+func verticalFootprint(s *Stack) []uint64 {
 	var result []uint64
 	for _, child := range s.children {
 		typ := typeID(reflect.TypeOf(child))
@@ -56,7 +37,7 @@ func verticalFootprint(s *baseStack) []uint64 {
 	return append([]uint64{h.Sum64()}, result...)
 }
 
-func verticalLayout(s *baseStack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
 	childPos := image.Pt(pos.X+s.padding.X, pos.Y+s.padding.Y)
 	prevHeight := 0

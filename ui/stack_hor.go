@@ -7,37 +7,18 @@ import (
 	"slices"
 )
 
-type HStack struct {
-	*baseStack
-	wrapper *hStackWrapper
+func NewHStack(ctx Context, opts ...StackOption) *Stack {
+	return newStack(ctx, horizontalFootprint, horizontalLayout, opts...)
 }
 
-func NewHStack(ctx Context, opts ...StackOption) *HStack {
-	return &HStack{
-		baseStack: newStack(ctx, horizontalFootprint, horizontalLayout, opts...),
-	}
-}
-
-type hStackWrapper struct {
-	*HStack
-}
-
-func (hsw *hStackWrapper) Footprint() []uint64 {
-	return hsw.footprint()
-}
-
-func AttachHStack(owner Stack, ctx Context, opts ...StackOption) *HStack {
+func AttachHStack(owner *Stack, ctx Context, opts ...StackOption) *Stack {
 	hs := NewHStack(ctx, opts...)
-	hs.wrapper = &hStackWrapper{HStack: hs}
+	hs.wrapper = &stackWrapper{Stack: hs}
 	owner.Add(hs.wrapper)
 	return hs
 }
 
-func (s *HStack) DetachFrom(owner Stack) bool {
-	return owner.Remove(s.wrapper) > 0
-}
-
-func horizontalFootprint(s *baseStack) []uint64 {
+func horizontalFootprint(s *Stack) []uint64 {
 	var result []uint64
 	for _, child := range s.children {
 		typ := typeID(reflect.TypeOf(child))
@@ -55,7 +36,7 @@ func horizontalFootprint(s *baseStack) []uint64 {
 	return append([]uint64{h.Sum64()}, result...)
 }
 
-func horizontalLayout(s *baseStack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	size = image.Pt(s.padding.X, 0)
 	for i, child := range s.children {
 		if i > 0 {

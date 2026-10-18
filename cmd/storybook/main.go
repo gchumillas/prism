@@ -12,7 +12,7 @@ import (
 
 type Storybook struct {
 	ctx ui.Context
-	vs  *ui.VStack
+	vs  *ui.Stack
 	// physical devices
 	Touch  app.TapDispatcher
 	Screen app.Renderer
