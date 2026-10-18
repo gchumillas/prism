@@ -22,7 +22,7 @@ func (prism *Prism) Run() error {
 	c.FontSize = prism.FontSize
 
 	vs := ui.NewVStack(c)
-	btn := ui.AttachLabelButton(vs, c, "Click me!")
+	btn := ui.AttachLabelButtonTo(vs, c, "Click me!")
 	prism.Touch.AddTapHandler(btn, func() {
 		fmt.Println("tapped!")
 	})

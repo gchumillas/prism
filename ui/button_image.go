@@ -25,12 +25,12 @@ func loadImageButton(c Context, r io.Reader) (_ *imageButton, err error) {
 	return ib, nil
 }
 
-func AttachImageButton(owner *Stack, ctx Context, r io.Reader) (*Button, error) {
+func AttachImageButtonTo(parent *Stack, ctx Context, r io.Reader) (*Button, error) {
 	img, err := loadImageButton(ctx, r)
 	if err != nil {
 		return nil, err
 	}
-	return AttachButton(owner, img), nil
+	return AttachButtonTo(parent, img), nil
 }
 
 func (ib *imageButton) Footprint() []uint64 {

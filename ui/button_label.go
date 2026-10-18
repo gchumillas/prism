@@ -22,8 +22,8 @@ func newLabelButton(c Context, text string) *labelButton {
 	return lb
 }
 
-func AttachLabelButton(owner *Stack, ctx Context, text string) *Button {
-	return AttachButton(owner, newLabelButton(ctx, text))
+func AttachLabelButtonTo(parent *Stack, ctx Context, text string) *Button {
+	return AttachButtonTo(parent, newLabelButton(ctx, text))
 }
 
 func (lb *labelButton) Footprint() []uint64 {

@@ -12,7 +12,7 @@ func TestLabelButton_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		ui.AttachLabelButton(vs, env.ctx, "Hello, World!")
+		ui.AttachLabelButtonTo(vs, env.ctx, "Hello, World!")
 		_, size := vs.Render(0, 0)
 		require.Equal(t, image.Pt(257, 75), size)
 	})
@@ -20,7 +20,7 @@ func TestLabelButton_Render(t *testing.T) {
 	t.Run("Contains", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn := ui.AttachLabelButton(vs, env.ctx, "Click me!")
+		btn := ui.AttachLabelButtonTo(vs, env.ctx, "Click me!")
 		vs.Render(100, 50)
 
 		require.False(t, btn.Contains(0, 0))   // outside

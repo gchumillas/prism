@@ -11,10 +11,10 @@ func NewHStack(ctx Context, opts ...StackOption) *Stack {
 	return newStack(ctx, horizontalFootprint, horizontalLayout, opts...)
 }
 
-func AttachHStack(owner *Stack, ctx Context, opts ...StackOption) *Stack {
+func AttachHStackTo(parent *Stack, ctx Context, opts ...StackOption) *Stack {
 	hs := NewHStack(ctx, opts...)
 	hs.wrapper = &stackWrapper{Stack: hs}
-	owner.Add(hs.wrapper)
+	parent.Add(hs.wrapper)
 	return hs
 }
 

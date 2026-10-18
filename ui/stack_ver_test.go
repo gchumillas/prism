@@ -15,7 +15,7 @@ import (
 func TestVStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
 	hs := ui.NewHStack(env.ctx)
-	vs := ui.AttachVStack(hs, env.ctx)
+	vs := ui.AttachVStackTo(hs, env.ctx)
 	require.True(t, vs.DetachFrom(hs))
 	require.False(t, vs.DetachFrom(hs))
 }
@@ -24,7 +24,7 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("add button", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 25))
 	})
@@ -32,7 +32,7 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("repaint stacker in a different position", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		vs.Render(100, 50)
 		require.True(t, btn.Contains(150, 75))
@@ -43,7 +43,7 @@ func TestVStack_AddButton(t *testing.T) {
 		vs := ui.NewVStack(env.ctx)
 		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
 
@@ -60,7 +60,7 @@ func TestVStack_AddButton(t *testing.T) {
 		vs := ui.NewVStack(env.ctx)
 		r := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := ui.AttachButton(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
+		btn := ui.AttachButtonTo(vs, NewRect(env.canvas, 0, 0, 100, 50, color.White))
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
 
@@ -170,7 +170,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.AttachVStack(vs1, env.ctx)
+		vs2 := ui.AttachVStackTo(vs1, env.ctx)
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -187,7 +187,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.AttachVStack(vs1, env.ctx)
+		vs2 := ui.AttachVStackTo(vs1, env.ctx)
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -208,8 +208,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.ctx)
-		btn1 := ui.AttachLabelButton(vs, env.ctx, "Button")
-		btn2 := ui.AttachLabelButton(vs, env.ctx, "Button")
+		btn1 := ui.AttachLabelButtonTo(vs, env.ctx, "Button")
+		btn2 := ui.AttachLabelButtonTo(vs, env.ctx, "Button")
 
 		// btn2 is clickable at position p
 		p := image.Pt(80, 115)
@@ -307,7 +307,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.ctx)
-		vs2 := ui.AttachVStack(vs1, env.ctx)
+		vs2 := ui.AttachVStackTo(vs1, env.ctx)
 
 		sh := NewRect(env.canvas, 0, 0, 100, 50, color.Black)
 		vs2.Add(sh)
