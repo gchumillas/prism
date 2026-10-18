@@ -31,15 +31,15 @@ func verticalFootprint(s *Stack) []uint64 {
 	var h maphash.Hash
 	h.SetSeed(seed)
 	maphash.WriteComparable(&h, "vertical")
-	maphash.WriteComparable(&h, s.padding.X)
-	maphash.WriteComparable(&h, s.padding.Y)
+	maphash.WriteComparable(&h, s.paddingX)
+	maphash.WriteComparable(&h, s.paddingY)
 	maphash.WriteComparable(&h, s.gap)
 	return append([]uint64{h.Sum64()}, result...)
 }
 
 func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	pos := image.Pt(x, y)
-	childPos := image.Pt(pos.X+s.padding.X, pos.Y+s.padding.Y)
+	childPos := image.Pt(pos.X+s.paddingX, pos.Y+s.paddingY)
 	prevHeight := 0
 	for i, child := range s.children {
 		if i > 0 {
