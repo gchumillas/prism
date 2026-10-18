@@ -25,8 +25,8 @@ func loadImageButton(c *Canvas, r io.Reader) (_ *imageButton, err error) {
 	return ib, nil
 }
 
-func AttachImageButtonTo(parent *Stack, c *Canvas, r io.Reader) (*Button, error) {
-	img, err := loadImageButton(c, r)
+func AttachImageButtonTo(parent *Stack, r io.Reader) (*Button, error) {
+	img, err := loadImageButton(parent.canvas, r)
 	if err != nil {
 		return nil, err
 	}

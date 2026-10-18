@@ -15,7 +15,7 @@ import (
 func TestVStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
 	hs := ui.NewHStack(env.canvas)
-	vs := ui.AttachVStackTo(hs, env.canvas)
+	vs := ui.AttachVStackTo(hs)
 	require.True(t, vs.DetachFrom(hs))
 	require.False(t, vs.DetachFrom(hs))
 }
@@ -170,7 +170,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.canvas)
-		vs2 := ui.AttachVStackTo(vs1, env.canvas)
+		vs2 := ui.AttachVStackTo(vs1)
 
 		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -187,7 +187,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.canvas)
-		vs2 := ui.AttachVStackTo(vs1, env.canvas)
+		vs2 := ui.AttachVStackTo(vs1)
 
 		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -208,8 +208,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.canvas)
-		btn1 := ui.AttachLabelButtonTo(vs, env.canvas, "Button")
-		btn2 := ui.AttachLabelButtonTo(vs, env.canvas, "Button")
+		btn1 := ui.AttachLabelButtonTo(vs, "Button")
+		btn2 := ui.AttachLabelButtonTo(vs, "Button")
 
 		// btn2 is clickable at position p
 		p := image.Pt(80, 115)
@@ -307,7 +307,7 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.canvas)
-		vs2 := ui.AttachVStackTo(vs1, env.canvas)
+		vs2 := ui.AttachVStackTo(vs1)
 
 		sh := NewRect(env.image, 0, 0, 100, 50, color.Black)
 		vs2.Add(sh)
