@@ -24,7 +24,7 @@ type baseStack struct {
 	gap             int
 	children        []Widget
 	prevChildStates []childState
-	footprint       func(*baseStack) []uint64
+	stamp           func(*baseStack) []uint64
 	layout          func(*baseStack, int, int) ([]image.Rectangle, image.Point)
 }
 
@@ -42,9 +42,9 @@ func newStack(
 	opts ...StackOption,
 ) *baseStack {
 	s := &baseStack{
-		ctx:       ctx,
-		footprint: footprint,
-		layout:    layout,
+		ctx:    ctx,
+		stamp:  footprint,
+		layout: layout,
 	}
 	for _, opt := range opts {
 		opt.applyStack(s)
@@ -64,8 +64,8 @@ func (s *baseStack) Remove(child Widget) (n int) {
 	return oldLen - len(s.children)
 }
 
-func (s *baseStack) Footprint() []uint64 {
-	return s.footprint(s)
+func (s *baseStack) footprint() []uint64 {
+	return s.stamp(s)
 }
 
 func (s *baseStack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {

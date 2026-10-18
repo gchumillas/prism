@@ -45,6 +45,14 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Po
 	return []image.Rectangle{rec}, rec.Size()
 }
 
+func TestHStack_DetachFrom(t *testing.T) {
+	env := NewEnv()
+	vs := ui.NewVStack(env.ctx)
+	hs := ui.AttachHStack(vs, env.ctx)
+	require.True(t, hs.DetachFrom(vs))
+	require.False(t, hs.DetachFrom(vs))
+}
+
 func TestHStack_Render(t *testing.T) {
 	t.Run("full paint", func(t *testing.T) {
 		env := NewEnv()
@@ -72,11 +80,9 @@ func TestHStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		r := NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100})
-		hs2 := ui.NewHStack(env.ctx)
-		hs2.Add(r)
-
 		hs1 := ui.NewHStack(env.ctx)
-		hs1.Add(hs2)
+		hs2 := ui.AttachHStack(hs1, env.ctx)
+		hs2.Add(r)
 
 		regs, _ := hs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
