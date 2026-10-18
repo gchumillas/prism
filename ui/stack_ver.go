@@ -12,10 +12,10 @@ func NewVStack(ctx Context, opts ...StackOption) *Stack {
 	return newStack(ctx, verticalFootprint, verticalLayout, opts...)
 }
 
-func AttachVStack(owner *Stack, ctx Context, opts ...StackOption) *Stack {
+func AttachVStackTo(parent *Stack, ctx Context, opts ...StackOption) *Stack {
 	vs := NewVStack(ctx, opts...)
 	vs.wrapper = &stackWrapper{Stack: vs}
-	owner.Add(vs.wrapper)
+	parent.Add(vs.wrapper)
 	return vs
 }
 

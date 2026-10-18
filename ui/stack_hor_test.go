@@ -48,7 +48,7 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Po
 func TestHStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
 	vs := ui.NewVStack(env.ctx)
-	hs := ui.AttachHStack(vs, env.ctx)
+	hs := ui.AttachHStackTo(vs, env.ctx)
 	require.True(t, hs.DetachFrom(vs))
 	require.False(t, hs.DetachFrom(vs))
 }
@@ -81,7 +81,7 @@ func TestHStack_Render(t *testing.T) {
 
 		r := NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100})
 		hs1 := ui.NewHStack(env.ctx)
-		hs2 := ui.AttachHStack(hs1, env.ctx)
+		hs2 := ui.AttachHStackTo(hs1, env.ctx)
 		hs2.Add(r)
 
 		regs, _ := hs1.Render(0, 0)
@@ -248,8 +248,8 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("remove button", func(t *testing.T) {
 		env := NewEnv()
 		hs := ui.NewHStack(env.ctx)
-		btn1 := ui.AttachButton(hs, NewRectangle(env.canvas, 200, 100, color.Gray{Y: 100}))
-		btn2 := ui.AttachButton(hs, NewRectangle(env.canvas, 200, 100, color.Gray{Y: 200}))
+		btn1 := ui.AttachButtonTo(hs, NewRectangle(env.canvas, 200, 100, color.Gray{Y: 100}))
+		btn2 := ui.AttachButtonTo(hs, NewRectangle(env.canvas, 200, 100, color.Gray{Y: 200}))
 
 		// btn2 is clickable at position p
 		p := image.Pt(300, 50)

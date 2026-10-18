@@ -18,15 +18,15 @@ type clickableWidget struct {
 	widget Widget
 }
 
-func AttachButton(owner *Stack, w Widget) *Button {
+func AttachButtonTo(parent *Stack, w Widget) *Button {
 	btn := &Button{}
 	btn.wrapper = &clickableWidget{Button: btn, widget: w}
-	owner.Add(btn.wrapper)
+	parent.Add(btn.wrapper)
 	return btn
 }
 
-func (b *Button) DetachFrom(owner *Stack) bool {
-	return owner.Remove(b.wrapper) > 0
+func (b *Button) DetachFrom(parent *Stack) bool {
+	return parent.Remove(b.wrapper) > 0
 }
 
 func (cb *clickableWidget) Render(x, y int) ([]image.Rectangle, image.Point) {
