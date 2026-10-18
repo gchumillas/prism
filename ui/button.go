@@ -2,11 +2,11 @@ package ui
 
 import (
 	"image"
-	"slices"
 )
 
 type Button struct {
-	bounds image.Rectangle
+	wrapper Widget // esto se puede apilar
+	bounds  image.Rectangle
 }
 
 func (b *Button) Contains(x, y int) bool {
@@ -18,31 +18,15 @@ type clickableWidget struct {
 	widget Widget
 }
 
-func newClickableWidget(w Widget) *clickableWidget {
-	return &clickableWidget{Button: &Button{}, widget: w}
-}
-
 func AttachButton(owner Stack, w Widget) *Button {
-	btn := newClickableWidget(w)
-	owner.Add(btn)
-	return btn.Button
+	btn := &Button{}
+	btn.wrapper = &clickableWidget{Button: btn, widget: w}
+	owner.Add(btn.wrapper)
+	return btn
 }
 
 func (b *Button) DetachFrom(owner Stack) bool {
-	items := owner.Children()
-	i := slices.IndexFunc(items, func(x Widget) bool {
-		if v, ok := x.(*clickableWidget); ok {
-			if v.Button == b {
-				return true
-			}
-		}
-		return false
-	})
-	if i > -1 {
-		owner.Remove(items[i])
-		return true
-	}
-	return false
+	return owner.Remove(b.wrapper) > 0
 }
 
 func (cb *clickableWidget) Render(x, y int) ([]image.Rectangle, image.Point) {

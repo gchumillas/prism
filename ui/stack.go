@@ -14,7 +14,6 @@ type childState struct {
 }
 
 type Stack interface {
-	Children() []Widget
 	Add(Widget)
 	Remove(Widget) int
 }
@@ -51,10 +50,6 @@ func newStack(
 		opt.applyStack(s)
 	}
 	return s
-}
-
-func (s *baseStack) Children() []Widget {
-	return s.children
 }
 
 func (s *baseStack) Add(child Widget) {

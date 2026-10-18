@@ -30,9 +30,7 @@ func AttachImageButton(owner Stack, ctx Context, r io.Reader) (*Button, error) {
 	if err != nil {
 		return nil, err
 	}
-	btn := newClickableWidget(img)
-	owner.Add(btn)
-	return btn.Button, nil
+	return AttachButton(owner, img), nil
 }
 
 func (ib *imageButton) Footprint() []uint64 {
