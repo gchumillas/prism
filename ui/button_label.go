@@ -22,8 +22,8 @@ func newLabelButton(c *Canvas, text string, opts ...labelOption) *labelButton {
 	return lb
 }
 
-func AttachLabelButtonTo(parent *Stack, c *Canvas, text string, opts ...labelOption) *Button {
-	return AttachButtonTo(parent, newLabelButton(c, text, opts...))
+func AttachLabelButtonTo(parent *Stack, text string, opts ...labelOption) *Button {
+	return AttachButtonTo(parent, newLabelButton(parent.canvas, text, opts...))
 }
 
 func (lb *labelButton) Footprint() []uint64 {
