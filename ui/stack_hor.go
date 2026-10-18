@@ -7,11 +7,11 @@ import (
 	"slices"
 )
 
-func NewHStack(ctx Context, opts ...StackOption) *Stack {
+func NewHStack(ctx Context, opts ...stackOption) *Stack {
 	return newStack(ctx, horizontalFootprint, horizontalLayout, opts...)
 }
 
-func AttachHStackTo(parent *Stack, ctx Context, opts ...StackOption) *Stack {
+func AttachHStackTo(parent *Stack, ctx Context, opts ...stackOption) *Stack {
 	hs := NewHStack(ctx, opts...)
 	hs.wrapper = &stackWrapper{Stack: hs}
 	parent.Add(hs.wrapper)

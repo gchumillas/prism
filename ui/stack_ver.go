@@ -8,11 +8,11 @@ import (
 )
 
 // TODO: remove param `ctx Context`, since we just need to pass the canvas (affects other places)
-func NewVStack(ctx Context, opts ...StackOption) *Stack {
+func NewVStack(ctx Context, opts ...stackOption) *Stack {
 	return newStack(ctx, verticalFootprint, verticalLayout, opts...)
 }
 
-func AttachVStackTo(parent *Stack, ctx Context, opts ...StackOption) *Stack {
+func AttachVStackTo(parent *Stack, ctx Context, opts ...stackOption) *Stack {
 	vs := NewVStack(ctx, opts...)
 	vs.wrapper = &stackWrapper{Stack: vs}
 	parent.Add(vs.wrapper)

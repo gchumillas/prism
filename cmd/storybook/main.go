@@ -14,13 +14,14 @@ type Storybook struct {
 	ctx ui.Context
 	vs  *ui.Stack
 	// physical devices
-	Touch  app.TapDispatcher
-	Screen app.Renderer
+	Touch    app.TapDispatcher
+	Screen   app.Renderer
+	FontSize float64
 }
 
 func (sb *Storybook) Run() error {
 	sb.vs = ui.NewVStack(sb.ctx)
-	btn := ui.AttachLabelButtonTo(sb.vs, sb.ctx, "Click me!")
+	btn := ui.AttachLabelButtonTo(sb.vs, sb.ctx, "Click me!", ui.WithFontSize(sb.FontSize))
 
 	sb.Touch.AddTapHandler(btn, func() {
 		fmt.Println("clicked!")
@@ -51,11 +52,11 @@ func main() {
 	}
 
 	ctx := ui.NewContextFromRGBA(env.Canvas)
-	ctx.FontSize = env.FontSize
 	sb := &Storybook{
-		ctx:    ctx,
-		Touch:  env.Touch,
-		Screen: env.Screen,
+		ctx:      ctx,
+		Touch:    env.Touch,
+		Screen:   env.Screen,
+		FontSize: env.FontSize,
 	}
 
 	if err := sb.Run(); err != nil {
