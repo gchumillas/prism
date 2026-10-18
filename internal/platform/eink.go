@@ -4,6 +4,7 @@ package platform
 
 import (
 	"image"
+	"slices"
 
 	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/screen"
@@ -98,7 +99,7 @@ func (td *TouchDispatcher) AddTapHandler(btn app.Tappable, action func()) (id in
 func (td *TouchDispatcher) RemoveTapHandler(id int) {
 	for i, h := range td.handlers {
 		if h.id == id {
-			td.handlers = append(td.handlers[:i], td.handlers[i+1:]...)
+			td.handlers = slices.Delete(td.handlers, i, i+1)
 			break
 		}
 	}
@@ -114,7 +115,8 @@ func (td *TouchDispatcher) Listen() {
 
 		curPoint = ts.Points[0]
 		if curPoint.ID < 0 && prevPoint.ID > 0 {
-			for _, handler := range td.handlers {
+			handlers := slices.Clone(td.handlers)
+			for _, handler := range handlers {
 				if handler.btn.Contains(int(prevPoint.X), int(screen.Height-prevPoint.Y)) {
 					handler.action()
 				}
