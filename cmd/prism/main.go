@@ -18,7 +18,7 @@ type Prism struct {
 }
 
 func (prism *Prism) Run() error {
-	c := ui.NewContextFromRGBA(prism.Canvas)
+	c := ui.NewCanvasFromRGBA(prism.Canvas)
 
 	vs := ui.NewVStack(c)
 	btn := ui.AttachLabelButtonTo(vs, c, "Click me!", ui.WithFontSize(prism.FontSize))

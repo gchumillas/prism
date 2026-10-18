@@ -15,7 +15,7 @@ func TestImage_Render(t *testing.T) {
 		env := NewEnv()
 		icon, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
-		img, err := ui.LoadImage(env.ctx, bytes.NewReader(icon))
+		img, err := ui.LoadImage(env.canvas, bytes.NewReader(icon))
 		require.NoError(t, err)
 		_, size := img.Render(0, 0)
 		require.Equal(t, image.Pt(24, 24), size)

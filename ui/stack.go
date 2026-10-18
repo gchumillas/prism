@@ -23,7 +23,7 @@ func (sw *stackWrapper) Footprint() []uint64 {
 
 type Stack struct {
 	wrapper         *stackWrapper
-	ctx             Context
+	canvas          *Canvas
 	paddingX        int
 	paddingY        int
 	gap             int
@@ -42,13 +42,13 @@ func (val WithPaddingY) applyStack(s *Stack) { s.paddingY = int(val) }
 func (val WithGap) applyStack(s *Stack)      { s.gap = int(val) }
 
 func newStack(
-	ctx Context,
+	canvas *Canvas,
 	footprint func(*Stack) []uint64,
 	layout func(*Stack, int, int) ([]image.Rectangle, image.Point),
 	opts ...stackOption,
 ) *Stack {
 	s := &Stack{
-		ctx:    ctx,
+		canvas: canvas,
 		stamp:  footprint,
 		layout: layout,
 	}

@@ -13,7 +13,7 @@ import (
 func TestRectangle_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
-		r := ui.NewRectangle(env.ctx, 100, 50, color.White)
+		r := ui.NewRectangle(env.canvas, 100, 50, color.White)
 		_, size := r.Render(0, 0)
 		require.Equal(t, image.Pt(100, 50), size)
 	})
@@ -38,8 +38,8 @@ func TestRectangle_Footprint(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			s0, s1 := test.shapes[0], test.shapes[1]
-			r0 := ui.NewRectangle(env.ctx, s0.width, s0.height, s0.color)
-			r1 := ui.NewRectangle(env.ctx, s1.width, s1.height, s1.color)
+			r0 := ui.NewRectangle(env.canvas, s0.width, s0.height, s0.color)
+			r1 := ui.NewRectangle(env.canvas, s1.width, s1.height, s1.color)
 			require.False(t, slices.Equal(r0.Footprint(), r1.Footprint()))
 		})
 	}

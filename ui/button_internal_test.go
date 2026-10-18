@@ -9,19 +9,19 @@ import (
 )
 
 func TestAttachImageButton(t *testing.T) {
-	ctx := NewContext(320, 240)
-	vs := NewVStack(ctx)
+	c := NewCanvas(320, 240)
+	vs := NewVStack(c)
 	dat, err := os.ReadFile("testdata/icon1.png")
 	require.NoError(t, err)
-	_, err = AttachImageButtonTo(vs, ctx, bytes.NewReader(dat))
+	_, err = AttachImageButtonTo(vs, c, bytes.NewReader(dat))
 	require.NoError(t, err)
 	require.Len(t, vs.children, 1)
 }
 
 func TestAttachLabelButton(t *testing.T) {
-	ctx := NewContext(320, 240)
-	vs := NewVStack(ctx)
+	c := NewCanvas(320, 240)
+	vs := NewVStack(c)
 
-	AttachLabelButtonTo(vs, ctx, "Click me!")
+	AttachLabelButtonTo(vs, c, "Click me!")
 	require.Len(t, vs.children, 1)
 }

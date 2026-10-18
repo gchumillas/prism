@@ -27,9 +27,9 @@ type labelOption interface {
 func (val WithFontSize) applyLabel(l *Label) { l.fontSize = float64(val) }
 
 // TODO: add optional color param
-func NewLabel(c Context, text string, opts ...labelOption) *Label {
+func NewLabel(c *Canvas, text string, opts ...labelOption) *Label {
 	l := &Label{
-		canvas:   c.canvas,
+		canvas:   c.context,
 		fontSize: defaultFontSize,
 		text:     text,
 	}

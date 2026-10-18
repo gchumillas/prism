@@ -30,20 +30,20 @@ type Widget interface {
 	Footprint() []uint64
 }
 
-type Context struct {
-	canvas *gg.Context
+type Canvas struct {
+	context *gg.Context
 }
 
-func NewContext(width, height int) Context {
-	canvas := gg.NewContext(width, height)
-	return Context{canvas: canvas}
+func NewCanvas(width, height int) *Canvas {
+	dc := gg.NewContext(width, height)
+	return &Canvas{context: dc}
 }
 
-func NewContextFromRGBA(img *image.RGBA) Context {
-	canvas := gg.NewContextForRGBA(img)
-	return Context{canvas: canvas}
+func NewCanvasFromRGBA(img *image.RGBA) *Canvas {
+	dc := gg.NewContextForRGBA(img)
+	return &Canvas{context: dc}
 }
 
-func (c Context) Canvas() image.Image {
-	return c.canvas.Image()
+func (c *Canvas) Image() image.Image {
+	return c.context.Image()
 }

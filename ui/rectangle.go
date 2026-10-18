@@ -15,9 +15,9 @@ type Rectangle struct {
 	canvas *gg.Context
 }
 
-func NewRectangle(c Context, width, height int, fillColor color.Color) *Rectangle {
+func NewRectangle(c *Canvas, width, height int, fillColor color.Color) *Rectangle {
 	s := &Rectangle{
-		canvas:    c.canvas,
+		canvas:    c.context,
 		width:     width,
 		height:    height,
 		fillColor: fillColor,

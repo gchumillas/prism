@@ -13,10 +13,10 @@ import (
 func TestImageButton(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
-		_, err = ui.AttachImageButtonTo(vs, env.ctx, bytes.NewReader(dat))
+		_, err = ui.AttachImageButtonTo(vs, env.canvas, bytes.NewReader(dat))
 		require.NoError(t, err)
 		_, size := vs.Render(0, 0)
 		require.Equal(t, image.Pt(34, 34), size)
@@ -24,10 +24,10 @@ func TestImageButton(t *testing.T) {
 
 	t.Run("Contains", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(env.ctx)
+		vs := ui.NewVStack(env.canvas)
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
-		btn, err := ui.AttachImageButtonTo(vs, env.ctx, bytes.NewReader(dat))
+		btn, err := ui.AttachImageButtonTo(vs, env.canvas, bytes.NewReader(dat))
 		require.NoError(t, err)
 		vs.Render(100, 50)
 

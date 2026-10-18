@@ -16,8 +16,8 @@ type imageButton struct {
 	size   image.Point
 }
 
-func loadImageButton(c Context, r io.Reader) (_ *imageButton, err error) {
-	ib := &imageButton{canvas: c.canvas}
+func loadImageButton(c *Canvas, r io.Reader) (_ *imageButton, err error) {
+	ib := &imageButton{canvas: c.context}
 	if ib.img, err = LoadImage(c, r); err != nil {
 		return
 	}
@@ -25,8 +25,8 @@ func loadImageButton(c Context, r io.Reader) (_ *imageButton, err error) {
 	return ib, nil
 }
 
-func AttachImageButtonTo(parent *Stack, ctx Context, r io.Reader) (*Button, error) {
-	img, err := loadImageButton(ctx, r)
+func AttachImageButtonTo(parent *Stack, c *Canvas, r io.Reader) (*Button, error) {
+	img, err := loadImageButton(c, r)
 	if err != nil {
 		return nil, err
 	}
