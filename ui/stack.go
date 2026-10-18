@@ -33,7 +33,7 @@ type Stack struct {
 	layout          func(*Stack, int, int) ([]image.Rectangle, image.Point)
 }
 
-type StackOption interface {
+type stackOption interface {
 	applyStack(*Stack)
 }
 
@@ -45,7 +45,7 @@ func newStack(
 	ctx Context,
 	footprint func(*Stack) []uint64,
 	layout func(*Stack, int, int) ([]image.Rectangle, image.Point),
-	opts ...StackOption,
+	opts ...stackOption,
 ) *Stack {
 	s := &Stack{
 		ctx:    ctx,

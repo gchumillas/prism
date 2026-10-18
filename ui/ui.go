@@ -31,24 +31,17 @@ type Widget interface {
 }
 
 type Context struct {
-	canvas   *gg.Context
-	FontSize float64
+	canvas *gg.Context
 }
 
 func NewContext(width, height int) Context {
 	canvas := gg.NewContext(width, height)
-	return Context{
-		canvas:   canvas,
-		FontSize: defaultFontSize,
-	}
+	return Context{canvas: canvas}
 }
 
 func NewContextFromRGBA(img *image.RGBA) Context {
 	canvas := gg.NewContextForRGBA(img)
-	return Context{
-		canvas:   canvas,
-		FontSize: defaultFontSize,
-	}
+	return Context{canvas: canvas}
 }
 
 func (c Context) Canvas() image.Image {

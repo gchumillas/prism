@@ -19,10 +19,9 @@ type Prism struct {
 
 func (prism *Prism) Run() error {
 	c := ui.NewContextFromRGBA(prism.Canvas)
-	c.FontSize = prism.FontSize
 
 	vs := ui.NewVStack(c)
-	btn := ui.AttachLabelButtonTo(vs, c, "Click me!")
+	btn := ui.AttachLabelButtonTo(vs, c, "Click me!", ui.WithFontSize(prism.FontSize))
 	prism.Touch.AddTapHandler(btn, func() {
 		fmt.Println("tapped!")
 	})

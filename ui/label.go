@@ -20,12 +20,21 @@ type Label struct {
 	ascent  int
 }
 
+type labelOption interface {
+	applyLabel(*Label)
+}
+
+func (val WithFontSize) applyLabel(l *Label) { l.fontSize = float64(val) }
+
 // TODO: add optional color param
-func NewLabel(c Context, text string) *Label {
+func NewLabel(c Context, text string, opts ...labelOption) *Label {
 	l := &Label{
 		canvas:   c.canvas,
-		fontSize: c.FontSize,
+		fontSize: defaultFontSize,
 		text:     text,
+	}
+	for _, opt := range opts {
+		opt.applyLabel(l)
 	}
 
 	var err error

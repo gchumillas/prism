@@ -20,12 +20,21 @@ type Text struct {
 	fontSize float64
 }
 
-func NewText(c Context, text string, width int) *Text {
+type textOption interface {
+	applyText(*Text)
+}
+
+func (val WithFontSize) applyText(l *Text) { l.fontSize = float64(val) }
+
+func NewText(c Context, text string, width int, opts ...textOption) *Text {
 	t := &Text{
 		canvas:   c.canvas,
 		text:     text,
 		width:    width,
-		fontSize: c.FontSize,
+		fontSize: defaultFontSize,
+	}
+	for _, opt := range opts {
+		opt.applyText(t)
 	}
 	return t
 }
