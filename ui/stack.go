@@ -86,13 +86,12 @@ func (s *Stack) AttachTo(parent *Stack) error {
 	return nil
 }
 
-// TODO: DetachFrom should return an error
-func (s *Stack) DetachFrom(parent *Stack) bool {
+func (s *Stack) DetachFrom(parent *Stack) error {
 	if parent.Remove(s.wrapper) > 0 {
 		s.wrapper = nil
-		return true
+		return nil
 	}
-	return false
+	return ErrNotAttached
 }
 
 func (s *Stack) footprint() []uint64 {

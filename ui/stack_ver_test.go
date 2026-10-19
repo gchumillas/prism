@@ -16,8 +16,8 @@ func TestVStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
 	hs := ui.NewHStack(env.canvas)
 	vs := ui.AttachVStackTo(hs)
-	require.True(t, vs.DetachFrom(hs))
-	require.False(t, vs.DetachFrom(hs))
+	require.NoError(t, vs.DetachFrom(hs))
+	require.ErrorIs(t, vs.DetachFrom(hs), ui.ErrNotAttached)
 }
 
 func TestVStack_AddButton(t *testing.T) {

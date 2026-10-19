@@ -50,8 +50,8 @@ func TestHStack_DetachFrom(t *testing.T) {
 	vs := ui.NewVStack(env.canvas)
 	hs := ui.NewHStack(env.canvas)
 	_ = hs.AttachTo(vs)
-	require.True(t, hs.DetachFrom(vs))
-	require.False(t, hs.DetachFrom(vs))
+	require.NoError(t, hs.DetachFrom(vs))
+	require.ErrorIs(t, hs.DetachFrom(vs), ui.ErrNotAttached)
 }
 
 func TestHStack_Render(t *testing.T) {
