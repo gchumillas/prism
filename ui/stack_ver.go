@@ -11,13 +11,6 @@ func NewVStack(c *Canvas, opts ...stackOption) *Stack {
 	return newStack(c, verticalFootprint, verticalLayout, opts...)
 }
 
-func AttachVStackTo(parent *Stack, opts ...stackOption) *Stack {
-	vs := NewVStack(parent.canvas, opts...)
-	vs.wrapper = &stackWrapper{Stack: vs}
-	parent.Add(vs.wrapper)
-	return vs
-}
-
 func verticalFootprint(s *Stack) []uint64 {
 	var result []uint64
 	for _, child := range s.children {

@@ -15,7 +15,8 @@ import (
 func TestVStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
 	hs := ui.NewHStack(env.canvas)
-	vs := ui.AttachVStackTo(hs)
+	vs := ui.NewVStack(env.canvas)
+	_ = vs.AttachTo(hs)
 	require.NoError(t, vs.DetachFrom(hs))
 	require.ErrorIs(t, vs.DetachFrom(hs), ui.ErrNotAttached)
 }
@@ -174,7 +175,8 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.canvas)
-		vs2 := ui.AttachVStackTo(vs1)
+		vs2 := ui.NewVStack(env.canvas)
+		_ = vs2.AttachTo(vs1)
 
 		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -191,7 +193,8 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.canvas)
-		vs2 := ui.AttachVStackTo(vs1)
+		vs2 := ui.NewVStack(env.canvas)
+		_ = vs2.AttachTo(vs1)
 
 		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
@@ -313,7 +316,8 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs1 := ui.NewVStack(env.canvas)
-		vs2 := ui.AttachVStackTo(vs1)
+		vs2 := ui.NewVStack(env.canvas)
+		_ = vs2.AttachTo(vs1)
 
 		sh := NewRect(env.image, 0, 0, 100, 50, color.Black)
 		vs2.Add(sh)
