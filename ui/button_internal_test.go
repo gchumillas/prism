@@ -22,6 +22,7 @@ func TestAttachLabelButton(t *testing.T) {
 	c := NewCanvas(320, 240)
 	vs := NewVStack(c)
 
-	AttachLabelButtonTo(vs, "Click me!")
+	btn := NewLabelButton(c, "Click me!")
+	_ = btn.AttachTo(vs)
 	require.Len(t, vs.children, 1)
 }

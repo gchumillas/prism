@@ -15,17 +15,11 @@ type labelButton struct {
 	size   image.Point
 }
 
-func newLabelButton(c *Canvas, text string, opts ...labelOption) *labelButton {
+func NewLabelButton(c *Canvas, text string, opts ...labelOption) *Button {
 	lb := &labelButton{canvas: c.context}
 	lb.label = NewLabel(c, text, opts...)
 	lb.size = lb.label.size().Add(labelBtnPad.Mul(2))
-	return lb
-}
-
-func AttachLabelButtonTo(parent *Stack, text string, opts ...labelOption) *Button {
-	btn := NewButton(newLabelButton(parent.canvas, text, opts...))
-	_ = btn.AttachTo(parent)
-	return btn
+	return NewButton(lb)
 }
 
 func (lb *labelButton) Footprint() []uint64 {
