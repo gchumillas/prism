@@ -20,6 +20,7 @@ type Text struct {
 	fontSize float64
 }
 
+// TODO: make textOption public (affects others)
 type textOption interface {
 	applyText(*Text)
 }

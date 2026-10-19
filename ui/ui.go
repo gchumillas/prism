@@ -32,18 +32,23 @@ type Widget interface {
 
 type Canvas struct {
 	context *gg.Context
+	image   *image.RGBA
 }
 
 func NewCanvas(width, height int) *Canvas {
-	dc := gg.NewContext(width, height)
-	return &Canvas{context: dc}
+	c := &Canvas{}
+	c.image = image.NewRGBA(image.Rect(0, 0, width, height))
+	c.context = gg.NewContextForRGBA(c.image)
+	return c
 }
 
 func NewCanvasFromRGBA(img *image.RGBA) *Canvas {
-	dc := gg.NewContextForRGBA(img)
-	return &Canvas{context: dc}
+	c := &Canvas{}
+	c.image = img
+	c.context = gg.NewContextForRGBA(img)
+	return c
 }
 
-func (c *Canvas) Image() image.Image {
-	return c.context.Image()
+func (c *Canvas) Image() *image.RGBA {
+	return c.image
 }

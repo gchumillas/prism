@@ -20,7 +20,7 @@ func TestButton_DetachFrom(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.canvas)
 		hs := ui.NewHStack(env.canvas)
-		btn := ui.NewLabelButton(env.canvas, "Click me!")
+		btn := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
 		_ = btn.AttachTo(vs)
 		require.ErrorIs(t, ui.ErrNotAttached, btn.DetachFrom(hs))
 	})

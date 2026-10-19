@@ -215,13 +215,14 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.canvas)
-		btn1 := ui.NewLabelButton(env.canvas, "Button")
-		btn2 := ui.NewLabelButton(env.canvas, "Button")
+		btn1 := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
+		btn2 := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
 		_ = btn1.AttachTo(vs)
 		_ = btn2.AttachTo(vs)
+		vs.Render(0, 0)
 
 		// btn2 is clickable at position p
-		p := image.Pt(80, 115)
+		p := image.Pt(45, 65)
 		vs.Render(0, 0)
 		require.True(t, btn2.Contains(p.X, p.Y))
 

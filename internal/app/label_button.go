@@ -1,25 +1,26 @@
-package ui
+package app
 
 import (
 	"image"
 	"image/color"
 
 	"github.com/fogleman/gg"
+	"github.com/gchumillas/prism/ui"
 )
 
 var labelBtnPad = image.Point{38, 19}
 
 type labelButton struct {
 	canvas *gg.Context
-	label  *Label
+	label  *ui.Label
 	size   image.Point
 }
 
-func NewLabelButton(c *Canvas, text string, opts ...labelOption) *Button {
-	lb := &labelButton{canvas: c.context}
-	lb.label = NewLabel(c, text, opts...)
-	lb.size = lb.label.size().Add(labelBtnPad.Mul(2))
-	return NewButton(lb)
+func NewLabelButton(c *ui.Canvas, text string, opts ...ui.LabelOption) *ui.Button {
+	lb := &labelButton{canvas: gg.NewContextForRGBA(c.Image())}
+	lb.label = ui.NewLabel(c, text, opts...)
+	lb.size = lb.label.Size().Add(labelBtnPad.Mul(2))
+	return ui.NewButton(lb)
 }
 
 func (lb *labelButton) Footprint() []uint64 {

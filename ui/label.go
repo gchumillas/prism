@@ -20,21 +20,21 @@ type Label struct {
 	ascent  int
 }
 
-type labelOption interface {
-	applyLabel(*Label)
+type LabelOption interface {
+	ApplyLabel(*Label)
 }
 
-func (val WithFontSize) applyLabel(l *Label) { l.fontSize = float64(val) }
+func (val WithFontSize) ApplyLabel(l *Label) { l.fontSize = float64(val) }
 
 // TODO: add optional color param
-func NewLabel(c *Canvas, text string, opts ...labelOption) *Label {
+func NewLabel(c *Canvas, text string, opts ...LabelOption) *Label {
 	l := &Label{
 		canvas:   c.context,
 		fontSize: defaultFontSize,
 		text:     text,
 	}
 	for _, opt := range opts {
-		opt.applyLabel(l)
+		opt.ApplyLabel(l)
 	}
 
 	var err error
@@ -53,7 +53,7 @@ func NewLabel(c *Canvas, text string, opts ...labelOption) *Label {
 	return l
 }
 
-func (l *Label) size() image.Point {
+func (l *Label) Size() image.Point {
 	bounds, _ := font.BoundString(l.face, l.text)
 	return image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
 }
