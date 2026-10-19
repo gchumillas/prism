@@ -1,11 +1,19 @@
 package ui
 
 import (
+	"errors"
+	"fmt"
 	"image"
+)
+
+var (
+	ErrAttached    = errors.New("already attached to another stack")
+	ErrNotAttached = errors.New("not found or already detached from the stack")
 )
 
 type Button struct {
 	wrapper Widget
+	widget  Widget
 	bounds  image.Rectangle
 }
 
@@ -15,18 +23,27 @@ func (b *Button) Contains(x, y int) bool {
 
 type clickableWidget struct {
 	*Button
-	widget Widget
 }
 
-func AttachButtonTo(parent *Stack, w Widget) *Button {
-	btn := &Button{}
-	btn.wrapper = &clickableWidget{Button: btn, widget: w}
-	parent.Add(btn.wrapper)
-	return btn
+func NewButton(w Widget) *Button {
+	return &Button{widget: w}
 }
 
-func (b *Button) DetachFrom(parent *Stack) bool {
-	return parent.Remove(b.wrapper) > 0
+func (b *Button) AttachTo(parent *Stack) error {
+	if b.wrapper != nil {
+		return fmt.Errorf("button: %w", ErrAttached)
+	}
+	b.wrapper = &clickableWidget{Button: b}
+	parent.Add(b.wrapper)
+	return nil
+}
+
+func (b *Button) DetachFrom(parent *Stack) error {
+	if parent.Remove(b.wrapper) > 0 {
+		b.wrapper = nil
+		return nil
+	}
+	return ErrNotAttached
 }
 
 func (cb *clickableWidget) Render(x, y int) ([]image.Rectangle, image.Point) {

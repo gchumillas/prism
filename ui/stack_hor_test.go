@@ -248,8 +248,10 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("remove button", func(t *testing.T) {
 		env := NewEnv()
 		hs := ui.NewHStack(env.canvas)
-		btn1 := ui.AttachButtonTo(hs, NewRectangle(env.image, 200, 100, color.Gray{Y: 100}))
-		btn2 := ui.AttachButtonTo(hs, NewRectangle(env.image, 200, 100, color.Gray{Y: 200}))
+		btn1 := ui.NewButton(NewRectangle(env.image, 200, 100, color.Gray{Y: 100}))
+		btn2 := ui.NewButton(NewRectangle(env.image, 200, 100, color.Gray{Y: 200}))
+		_ = btn1.AttachTo(hs)
+		_ = btn2.AttachTo(hs)
 
 		// btn2 is clickable at position p
 		p := image.Pt(300, 50)
@@ -258,7 +260,7 @@ func TestHStack_Render(t *testing.T) {
 
 		// btn2 is no longer clickable at position p
 		// because removing btn1 shifts btn2 upward
-		btn1.DetachFrom(hs)
+		_ = btn1.DetachFrom(hs)
 		hs.Render(0, 0)
 		require.False(t, btn2.Contains(p.X, p.Y))
 	})
