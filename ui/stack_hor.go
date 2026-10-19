@@ -11,13 +11,6 @@ func NewHStack(c *Canvas, opts ...stackOption) *Stack {
 	return newStack(c, horizontalFootprint, horizontalLayout, opts...)
 }
 
-func AttachHStackTo(parent *Stack, opts ...stackOption) *Stack {
-	hs := NewHStack(parent.canvas, opts...)
-	hs.wrapper = &stackWrapper{Stack: hs}
-	parent.Add(hs.wrapper)
-	return hs
-}
-
 func horizontalFootprint(s *Stack) []uint64 {
 	var result []uint64
 	for _, child := range s.children {

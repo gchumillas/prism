@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"image"
 	"reflect"
 	"slices"
@@ -70,8 +71,26 @@ func (s *Stack) Remove(child Widget) (n int) {
 	return oldLen - len(s.children)
 }
 
-func (s *Stack) DetachFrom(owner *Stack) bool {
-	return owner.Remove(s.wrapper) > 0
+// TODO: The new method permits cycles: `s.AttachTo(s)` succeeds, as do `child.AttachTo(root)`
+// followed by `root.AttachTo(child)`. Rendering these stacks then recurses until stack overflow.
+// The removed constructor helper avoided this by always allocating a new child. Reject self-attachment
+// and attachment beneath a descendant before modifying either stack.
+func (s *Stack) AttachTo(parent *Stack) error {
+	if s.wrapper != nil {
+		return fmt.Errorf("stack: %w", ErrAttached)
+	}
+	s.wrapper = &stackWrapper{Stack: s}
+	parent.Add(s.wrapper)
+	return nil
+}
+
+// TODO: DetachFrom should return an error
+func (s *Stack) DetachFrom(parent *Stack) bool {
+	if parent.Remove(s.wrapper) > 0 {
+		s.wrapper = nil
+		return true
+	}
+	return false
 }
 
 func (s *Stack) footprint() []uint64 {
