@@ -1,11 +1,14 @@
 package ui
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"reflect"
 	"slices"
 )
+
+var ErrCircularRef = errors.New("circular reference")
 
 type childState struct {
 	pos       image.Point
@@ -71,13 +74,12 @@ func (s *Stack) Remove(child Widget) (n int) {
 	return oldLen - len(s.children)
 }
 
-// TODO: The new method permits cycles: `s.AttachTo(s)` succeeds, as do `child.AttachTo(root)`
-// followed by `root.AttachTo(child)`. Rendering these stacks then recurses until stack overflow.
-// The removed constructor helper avoided this by always allocating a new child. Reject self-attachment
-// and attachment beneath a descendant before modifying either stack.
 func (s *Stack) AttachTo(parent *Stack) error {
 	if s.wrapper != nil {
 		return fmt.Errorf("stack: %w", ErrAttached)
+	}
+	if parent == s || s.hasStack(parent) {
+		return fmt.Errorf("stack: %w", ErrCircularRef)
 	}
 	s.wrapper = &stackWrapper{Stack: s}
 	parent.Add(s.wrapper)
@@ -99,4 +101,15 @@ func (s *Stack) footprint() []uint64 {
 
 func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	return s.layout(s, x, y)
+}
+
+func (s *Stack) hasStack(other *Stack) bool {
+	for _, child := range s.children {
+		if v, ok := child.(*stackWrapper); ok {
+			if v.Stack == other || v.hasStack(other) {
+				return true
+			}
+		}
+	}
+	return false
 }

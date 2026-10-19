@@ -8,6 +8,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestStack_AttachTo(t *testing.T) {
+	t.Run("self reference", func(t *testing.T) {
+		env := NewEnv()
+		s := ui.NewHStack(env.canvas)
+		require.ErrorIs(t, s.AttachTo(s), ui.ErrCircularRef)
+	})
+	t.Run("circular reference 1", func(t *testing.T) {
+		env := NewEnv()
+		s1 := ui.NewHStack(env.canvas)
+		s2 := ui.NewVStack(env.canvas)
+		require.NoError(t, s2.AttachTo(s1))
+		require.ErrorIs(t, s1.AttachTo(s2), ui.ErrCircularRef)
+	})
+
+	t.Run("circular reference 2", func(t *testing.T) {
+		env := NewEnv()
+		s1 := ui.NewHStack(env.canvas)
+		s2 := ui.NewVStack(env.canvas)
+		s3 := ui.NewHStack(env.canvas)
+		require.NoError(t, s3.AttachTo(s2))
+		require.NoError(t, s2.AttachTo(s1))
+		require.ErrorIs(t, s1.AttachTo(s3), ui.ErrCircularRef)
+	})
+}
+
 func TestVStack_Remove(t *testing.T) {
 	t.Run("zero items", func(t *testing.T) {
 		env := NewEnv()
