@@ -30,7 +30,9 @@ func AttachImageButtonTo(parent *Stack, r io.Reader) (*Button, error) {
 	if err != nil {
 		return nil, err
 	}
-	return AttachButtonTo(parent, img), nil
+	btn := NewButton(img)
+	_ = btn.AttachTo(parent)
+	return btn, nil
 }
 
 func (ib *imageButton) Footprint() []uint64 {
