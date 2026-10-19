@@ -13,8 +13,9 @@ func TestAttachImageButton(t *testing.T) {
 	vs := NewVStack(c)
 	dat, err := os.ReadFile("testdata/icon1.png")
 	require.NoError(t, err)
-	_, err = AttachImageButtonTo(vs, bytes.NewReader(dat))
+	btn, err := LoadImageButton(c, bytes.NewReader(dat))
 	require.NoError(t, err)
+	_ = btn.AttachTo(vs)
 	require.Len(t, vs.children, 1)
 }
 
