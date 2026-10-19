@@ -48,7 +48,8 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Po
 func TestHStack_DetachFrom(t *testing.T) {
 	env := NewEnv()
 	vs := ui.NewVStack(env.canvas)
-	hs := ui.AttachHStackTo(vs)
+	hs := ui.NewHStack(env.canvas)
+	_ = hs.AttachTo(vs)
 	require.True(t, hs.DetachFrom(vs))
 	require.False(t, hs.DetachFrom(vs))
 }
@@ -81,7 +82,8 @@ func TestHStack_Render(t *testing.T) {
 
 		r := NewRectangle(env.image, 50, 100, color.Gray{Y: 100})
 		hs1 := ui.NewHStack(env.canvas)
-		hs2 := ui.AttachHStackTo(hs1)
+		hs2 := ui.NewHStack(env.canvas)
+		_ = hs2.AttachTo(hs1)
 		hs2.Add(r)
 
 		regs, _ := hs1.Render(0, 0)
