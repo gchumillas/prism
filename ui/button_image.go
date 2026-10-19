@@ -16,23 +16,13 @@ type imageButton struct {
 	size   image.Point
 }
 
-func loadImageButton(c *Canvas, r io.Reader) (_ *imageButton, err error) {
+func LoadImageButton(c *Canvas, r io.Reader) (_ *Button, err error) {
 	ib := &imageButton{canvas: c.context}
 	if ib.img, err = LoadImage(c, r); err != nil {
 		return
 	}
 	ib.size = ib.img.size().Add(imgBtnPad.Mul(2))
-	return ib, nil
-}
-
-func AttachImageButtonTo(parent *Stack, r io.Reader) (*Button, error) {
-	img, err := loadImageButton(parent.canvas, r)
-	if err != nil {
-		return nil, err
-	}
-	btn := NewButton(img)
-	_ = btn.AttachTo(parent)
-	return btn, nil
+	return NewButton(ib), nil
 }
 
 func (ib *imageButton) Footprint() []uint64 {
