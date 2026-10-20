@@ -2,6 +2,7 @@ package ui
 
 import (
 	"bytes"
+	"image/color"
 	"os"
 	"testing"
 
@@ -23,7 +24,7 @@ func TestAttachLabelButton(t *testing.T) {
 	c := NewCanvas(320, 240)
 	vs := NewVStack(c)
 
-	btn := NewLabelButton(c, "Click me!")
+	btn := NewButton(NewRectangle(c, 100, 50, color.White))
 	_ = btn.AttachTo(vs)
 	require.Len(t, vs.children, 1)
 }

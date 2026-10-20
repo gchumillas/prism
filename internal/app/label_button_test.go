@@ -1,18 +1,30 @@
-package ui_test
+package app_test
 
 import (
 	"image"
 	"testing"
 
+	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 )
+
+type Env struct {
+	image  *image.RGBA
+	canvas *ui.Canvas
+}
+
+func NewEnv() *Env {
+	img := image.NewRGBA(image.Rect(0, 0, 640, 480))
+	c := ui.NewCanvasFromRGBA(img)
+	return &Env{image: img, canvas: c}
+}
 
 func TestLabelButton_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.canvas)
-		btn := ui.NewLabelButton(env.canvas, "Hello, World!")
+		btn := app.NewLabelButton(env.canvas, "Hello, World!")
 		_ = btn.AttachTo(vs)
 		_, size := vs.Render(0, 0)
 		require.Equal(t, image.Pt(257, 75), size)
@@ -21,7 +33,7 @@ func TestLabelButton_Render(t *testing.T) {
 	t.Run("Contains", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(env.canvas)
-		btn := ui.NewLabelButton(env.canvas, "Click me!")
+		btn := app.NewLabelButton(env.canvas, "Click me!")
 		_ = btn.AttachTo(vs)
 		vs.Render(100, 50)
 
