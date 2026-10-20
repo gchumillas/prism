@@ -38,14 +38,7 @@ func (lb *labelButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image
 	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 
-	// addSafeMargin(r, margin)
-	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	// TODO: use an Outset(rect, margin) utility instead (affect others)
-	dirtyReg := image.Rectangle{
-		Min: hb.Min.Sub(margin),
-		Max: hb.Max.Add(margin),
-	}
-
+	dirtyReg := image.Rectangle{Min: hb.Min, Max: hb.Max}.Inset(-lineWidth/2 - 1)
 	dr, _ := lb.label.Render(x+labelBtnPad.X, y+labelBtnPad.Y)
 	return append(dr, dirtyReg), image.Pt(hb.Dx(), hb.Dy())
 }
