@@ -24,7 +24,7 @@ func LoadImage(c *Canvas, r io.Reader) (i *Image, err error) {
 	return
 }
 
-func (i *Image) size() image.Point {
+func (i *Image) Size() image.Point {
 	b := i.img.Bounds()
 	return image.Pt(b.Dx(), b.Dy())
 }

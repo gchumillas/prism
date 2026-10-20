@@ -1,4 +1,4 @@
-package ui
+package app
 
 import (
 	"image"
@@ -6,23 +6,24 @@ import (
 	"io"
 
 	"github.com/fogleman/gg"
+	"github.com/gchumillas/prism/ui"
 )
 
 var imgBtnPad = image.Pt(5, 5)
 
 type imageButton struct {
 	canvas *gg.Context
-	img    *Image
+	img    *ui.Image
 	size   image.Point
 }
 
-func LoadImageButton(c *Canvas, r io.Reader) (_ *Button, err error) {
-	ib := &imageButton{canvas: c.context}
-	if ib.img, err = LoadImage(c, r); err != nil {
+func LoadImageButton(c *ui.Canvas, r io.Reader) (_ *ui.Button, err error) {
+	ib := &imageButton{canvas: gg.NewContextForRGBA(c.Image())}
+	if ib.img, err = ui.LoadImage(c, r); err != nil {
 		return
 	}
-	ib.size = ib.img.size().Add(imgBtnPad.Mul(2))
-	return NewButton(ib), nil
+	ib.size = ib.img.Size().Add(imgBtnPad.Mul(2))
+	return ui.NewButton(ib), nil
 }
 
 func (ib *imageButton) Footprint() []uint64 {

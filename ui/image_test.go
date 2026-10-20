@@ -13,7 +13,7 @@ import (
 func TestImage_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
-		icon, err := os.ReadFile("testdata/icon1.png")
+		icon, err := os.ReadFile("testdata/icon.png")
 		require.NoError(t, err)
 		img, err := ui.LoadImage(env.canvas, bytes.NewReader(icon))
 		require.NoError(t, err)
