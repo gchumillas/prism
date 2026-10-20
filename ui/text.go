@@ -20,14 +20,13 @@ type Text struct {
 	fontSize float64
 }
 
-// TODO: make textOption public (affects others)
-type textOption interface {
-	applyText(*Text)
+type TextOption interface {
+	ApplyText(*Text)
 }
 
-func (val WithFontSize) applyText(l *Text) { l.fontSize = float64(val) }
+func (val WithFontSize) ApplyText(l *Text) { l.fontSize = float64(val) }
 
-func NewText(c *Canvas, text string, width int, opts ...textOption) *Text {
+func NewText(c *Canvas, text string, width int, opts ...TextOption) *Text {
 	t := &Text{
 		canvas:   c.context,
 		text:     text,
@@ -35,7 +34,7 @@ func NewText(c *Canvas, text string, width int, opts ...textOption) *Text {
 		fontSize: defaultFontSize,
 	}
 	for _, opt := range opts {
-		opt.applyText(t)
+		opt.ApplyText(t)
 	}
 	return t
 }
