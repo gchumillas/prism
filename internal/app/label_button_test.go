@@ -9,31 +9,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type Env struct {
-	image  *image.RGBA
-	canvas *ui.Canvas
-}
-
-func NewEnv() *Env {
-	img := image.NewRGBA(image.Rect(0, 0, 640, 480))
-	c := ui.NewCanvasFromRGBA(img)
-	return &Env{image: img, canvas: c}
-}
-
 func TestLabelButton_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.canvas)
-		btn := app.NewLabelButton(env.canvas, "Hello, World!")
+		c := ui.NewCanvas(320, 240)
+		vs := ui.NewVStack(c)
+		btn := app.NewLabelButton(c, "Hello, World!")
 		_ = btn.AttachTo(vs)
 		_, size := vs.Render(0, 0)
 		require.Equal(t, image.Pt(257, 75), size)
 	})
 
 	t.Run("Contains", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.canvas)
-		btn := app.NewLabelButton(env.canvas, "Click me!")
+		c := ui.NewCanvas(320, 240)
+		vs := ui.NewVStack(c)
+		btn := app.NewLabelButton(c, "Click me!")
 		_ = btn.AttachTo(vs)
 		vs.Render(100, 50)
 
