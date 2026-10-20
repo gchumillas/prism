@@ -81,6 +81,7 @@ func (s *Stack) AttachTo(parent *Stack) error {
 	if parent == s || s.hasStack(parent) {
 		return fmt.Errorf("stack: %w", ErrCircularRef)
 	}
+	s.reset()
 	s.wrapper = &stackWrapper{Stack: s}
 	parent.Add(s.wrapper)
 	return nil
@@ -111,4 +112,13 @@ func (s *Stack) hasStack(other *Stack) bool {
 		}
 	}
 	return false
+}
+
+func (s *Stack) reset() {
+	s.prevChildStates = nil
+	for _, child := range s.children {
+		if wrapper, ok := child.(*stackWrapper); ok {
+			wrapper.reset()
+		}
+	}
 }

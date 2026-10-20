@@ -33,22 +33,23 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 		}
 		pos := image.Pt(x+size.X, y+s.paddingY)
 		childRegs, childSize := child.Render(pos.X, pos.Y)
-		cs := childState{
-			pos:       pos,
-			typ:       reflect.TypeOf(child),
-			footprint: child.Footprint(),
-			// TODO: this is wrong, since "size" and "dirty regions" are different concepts
-			regs: []image.Rectangle{{Min: pos, Max: pos.Add(childSize)}},
-		}
 		if i < len(s.prevChildStates) {
 			prev := &s.prevChildStates[i]
-			if prev.pos != cs.pos || prev.typ != cs.typ || !slices.Equal(prev.footprint, cs.footprint) {
+			if prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, child.Footprint()) {
+				prev.pos = pos
+				prev.typ = reflect.TypeOf(child)
+				prev.footprint = child.Footprint()
 				dirtyRegs = append(dirtyRegs, prev.regs...)
 				dirtyRegs = append(dirtyRegs, childRegs...)
-				*prev = cs
+				prev.regs = childRegs
 			}
 		} else {
-			s.prevChildStates = append(s.prevChildStates, cs)
+			s.prevChildStates = append(s.prevChildStates, childState{
+				pos:       pos,
+				typ:       reflect.TypeOf(child),
+				footprint: child.Footprint(),
+				regs:      childRegs,
+			})
 			dirtyRegs = append(dirtyRegs, childRegs...)
 		}
 		size.X += childSize.X
