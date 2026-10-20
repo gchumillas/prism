@@ -19,14 +19,10 @@ func horizontalFootprint(s *Stack) []uint64 {
 		result = append(result, uint64(typ), uint64(len(footprint)))
 		result = append(result, footprint...)
 	}
-
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, "horizontal")
-	maphash.WriteComparable(&h, s.paddingX)
-	maphash.WriteComparable(&h, s.paddingY)
-	maphash.WriteComparable(&h, s.gap)
-	return append([]uint64{h.Sum64()}, result...)
+	return append(
+		[]uint64{maphash.String(seed, "horizontal"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)},
+		result...,
+	)
 }
 
 func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {

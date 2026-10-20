@@ -59,11 +59,7 @@ func (l *Label) Size() image.Point {
 }
 
 func (l *Label) Footprint() []uint64 {
-	// TODO: maybe we don'tneed maphash (affects other places)
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, l.text)
-	return []uint64{h.Sum64()}
+	return []uint64{maphash.String(seed, l.text)}
 }
 
 func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {

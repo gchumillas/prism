@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"hash/maphash"
 	"image"
 	"io"
 	"sync/atomic"
@@ -31,10 +30,7 @@ func (i *Image) size() image.Point {
 }
 
 func (i *Image) Footprint() []uint64 {
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, i.id)
-	return []uint64{h.Sum64()}
+	return []uint64{i.id}
 }
 
 func (i *Image) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
