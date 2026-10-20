@@ -57,7 +57,7 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 	for _, child := range s.prevChildStates[len(s.children):] {
 		dirtyRegs = append(dirtyRegs, child.regs...)
 	}
-	// TODO: button leaks?
+	clear(s.prevChildStates[len(s.children):])
 	s.prevChildStates = s.prevChildStates[:len(s.children)]
 	dirtyRegs = MergeRegions(dirtyRegs)
 	size = image.Pt(size.X+s.paddingX, size.Y+2*s.paddingY)
