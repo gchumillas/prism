@@ -45,12 +45,7 @@ func NewRect(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect {
 }
 
 func (r *Rect) Footprint() []uint64 {
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, r.Dx())
-	maphash.WriteComparable(&h, r.Dy())
-	maphash.WriteComparable(&h, r.color)
-	return []uint64{h.Sum64()}
+	return []uint64{uint64(r.Dx()), uint64(r.Dy()), maphash.Comparable(seed, r.color)}
 }
 
 func (r *Rect) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {

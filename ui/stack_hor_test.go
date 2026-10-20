@@ -1,7 +1,6 @@
 package ui_test
 
 import (
-	"hash/maphash"
 	"image"
 	"image/color"
 	"image/draw"
@@ -27,16 +26,8 @@ func NewRectangle(canvas draw.Image, width, height int, c color.Color) *Rectangl
 }
 
 func (rec *Rectangle) Footprint() []uint64 {
-	var h maphash.Hash
-	h.SetSeed(seed)
-	maphash.WriteComparable(&h, rec.Width)
-	maphash.WriteComparable(&h, rec.Height)
 	r, g, b, a := rec.color.RGBA()
-	maphash.WriteComparable(&h, r)
-	maphash.WriteComparable(&h, g)
-	maphash.WriteComparable(&h, b)
-	maphash.WriteComparable(&h, a)
-	return []uint64{h.Sum64()}
+	return []uint64{uint64(rec.Width), uint64(rec.Height), uint64(r), uint64(g), uint64(b), uint64(a)}
 }
 
 func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
