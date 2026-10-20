@@ -13,6 +13,7 @@ func TestButton_AttachTo(t *testing.T) {
 	hs := ui.NewHStack(env.canvas)
 	btn := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
 	require.NoError(t, btn.AttachTo(hs))
+	require.ErrorIs(t, btn.AttachTo(hs), ui.ErrAttached)
 }
 
 func TestButton_DetachFrom(t *testing.T) {

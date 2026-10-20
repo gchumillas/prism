@@ -1,4 +1,4 @@
-package ui_test
+package app_test
 
 import (
 	"bytes"
@@ -6,17 +6,18 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gchumillas/prism/internal/app"
 	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 )
 
-func TestImageButton(t *testing.T) {
+func TestLoadImageButton(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.canvas)
+		c := ui.NewCanvas(320, 230)
+		vs := ui.NewVStack(c)
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
-		btn, err := ui.LoadImageButton(env.canvas, bytes.NewReader(dat))
+		btn, err := app.LoadImageButton(c, bytes.NewReader(dat))
 		require.NoError(t, err)
 		_ = btn.AttachTo(vs)
 		_, size := vs.Render(0, 0)
@@ -24,11 +25,11 @@ func TestImageButton(t *testing.T) {
 	})
 
 	t.Run("Contains", func(t *testing.T) {
-		env := NewEnv()
-		vs := ui.NewVStack(env.canvas)
+		c := ui.NewCanvas(320, 230)
+		vs := ui.NewVStack(c)
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
-		btn, err := ui.LoadImageButton(env.canvas, bytes.NewReader(dat))
+		btn, err := app.LoadImageButton(c, bytes.NewReader(dat))
 		require.NoError(t, err)
 		_ = btn.AttachTo(vs)
 		vs.Render(100, 50)
