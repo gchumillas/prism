@@ -40,12 +40,7 @@ func (ib *imageButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image
 		float64(hb.Dx()), float64(hb.Dy()))
 	ib.canvas.Stroke()
 
-	margin := image.Pt(lineWidth/2+1, lineWidth/2+1)
-	dirtyReg := image.Rectangle{
-		Min: hb.Min.Sub(margin),
-		Max: hb.Max.Add(margin),
-	}
-
+	dirtyReg := image.Rectangle{Min: hb.Min, Max: hb.Max}.Inset(-lineWidth/2 - 1)
 	dr, _ := ib.img.Render(x+imgBtnPad.X, y+imgBtnPad.Y)
 	return append(dr, dirtyReg), image.Pt(hb.Dx(), hb.Dy())
 }
