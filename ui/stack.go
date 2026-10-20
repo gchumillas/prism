@@ -37,19 +37,19 @@ type Stack struct {
 	layout          func(*Stack, int, int) ([]image.Rectangle, image.Point)
 }
 
-type stackOption interface {
-	applyStack(*Stack)
+type StackOption interface {
+	ApplyStack(*Stack)
 }
 
-func (val WithPaddingX) applyStack(s *Stack) { s.paddingX = int(val) }
-func (val WithPaddingY) applyStack(s *Stack) { s.paddingY = int(val) }
-func (val WithGap) applyStack(s *Stack)      { s.gap = int(val) }
+func (val WithPaddingX) ApplyStack(s *Stack) { s.paddingX = int(val) }
+func (val WithPaddingY) ApplyStack(s *Stack) { s.paddingY = int(val) }
+func (val WithGap) ApplyStack(s *Stack)      { s.gap = int(val) }
 
 func newStack(
 	canvas *Canvas,
 	footprint func(*Stack) []uint64,
 	layout func(*Stack, int, int) ([]image.Rectangle, image.Point),
-	opts ...stackOption,
+	opts ...StackOption,
 ) *Stack {
 	s := &Stack{
 		canvas: canvas,
@@ -57,7 +57,7 @@ func newStack(
 		layout: layout,
 	}
 	for _, opt := range opts {
-		opt.applyStack(s)
+		opt.ApplyStack(s)
 	}
 	return s
 }

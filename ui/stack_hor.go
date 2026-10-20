@@ -7,7 +7,7 @@ import (
 	"slices"
 )
 
-func NewHStack(c *Canvas, opts ...stackOption) *Stack {
+func NewHStack(c *Canvas, opts ...StackOption) *Stack {
 	return newStack(c, horizontalFootprint, horizontalLayout, opts...)
 }
 

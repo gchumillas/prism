@@ -7,7 +7,7 @@ import (
 	"slices"
 )
 
-func NewVStack(c *Canvas, opts ...stackOption) *Stack {
+func NewVStack(c *Canvas, opts ...StackOption) *Stack {
 	return newStack(c, verticalFootprint, verticalLayout, opts...)
 }
 
