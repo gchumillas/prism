@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"errors"
 	"hash/maphash"
 	"image"
 
@@ -24,6 +25,12 @@ var uiFont = func() *opentype.Font {
 }()
 
 var seed = maphash.MakeSeed()
+
+var (
+	ErrAttached    = errors.New("already attached to another stack")
+	ErrNotAttached = errors.New("not found or already detached from the stack")
+	ErrCircularRef = errors.New("circular reference")
+)
 
 type Widget interface {
 	Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)

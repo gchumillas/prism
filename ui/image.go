@@ -16,12 +16,13 @@ type Image struct {
 	id     uint64
 }
 
-func LoadImage(c *Canvas, r io.Reader) (i *Image, err error) {
-	i = &Image{canvas: c.context, id: imgCounter.Add(1)}
-	if i.img, _, err = image.Decode(r); err != nil {
-		return
+func LoadImage(c *Canvas, r io.Reader) (*Image, error) {
+	var err error
+	img := &Image{canvas: c.context, id: imgCounter.Add(1)}
+	if img.img, _, err = image.Decode(r); err != nil {
+		return nil, err
 	}
-	return
+	return img, err
 }
 
 func (i *Image) Size() image.Point {
