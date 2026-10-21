@@ -1,14 +1,11 @@
 package ui
 
 import (
-	"errors"
 	"fmt"
 	"image"
 	"reflect"
 	"slices"
 )
-
-var ErrCircularRef = errors.New("circular reference")
 
 type childState struct {
 	pos       image.Point
