@@ -3,14 +3,54 @@
 package ui
 
 import (
+	"hash/maphash"
 	"image"
 	"image/color"
 	"image/draw"
 	"testing"
 
+	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/internal/test"
 	"github.com/stretchr/testify/require"
 )
+
+type Square struct {
+	ctx   *gg.Context
+	len   int
+	bSize int
+}
+
+func NewSquare(canvas *image.RGBA, len, bSize int) *Square {
+	ctx := gg.NewContextForRGBA(canvas)
+	return &Square{ctx: ctx, len: len, bSize: bSize}
+}
+
+func (sq *Square) Footprint() []uint64 {
+	var h maphash.Hash
+	h.SetSeed(seed)
+	maphash.WriteComparable(&h, sq.len)
+	maphash.WriteComparable(&h, sq.bSize)
+	return []uint64{h.Sum64()}
+}
+
+func (sq *Square) Render(x, y int) ([]image.Rectangle, image.Point) {
+	sq.ctx.SetColor(color.White)
+	sq.ctx.SetLineWidth(float64(sq.bSize))
+	sq.ctx.DrawLine(float64(x), float64(y), float64(x+sq.len), float64(y))
+	sq.ctx.DrawLine(float64(x), float64(y+sq.len), float64(x+sq.len), float64(y+sq.len))
+	sq.ctx.DrawLine(float64(x), float64(y), float64(x), float64(y+sq.len))
+	sq.ctx.DrawLine(float64(x+sq.len), float64(y), float64(x+sq.len), float64(y+sq.len))
+	sq.ctx.Stroke()
+
+	safeMargin := sq.bSize/2 + 1
+	size := image.Pt(sq.len, sq.len)
+	dirtyReg := image.Rectangle{
+		Min: image.Pt(x-safeMargin, y-safeMargin),
+		Max: image.Pt(x+sq.len+safeMargin, y+sq.len+safeMargin),
+	}
+
+	return []image.Rectangle{dirtyReg}, size
+}
 
 // https://github.com/gchumillas/prism/pull/77
 func TestPull77(t *testing.T) {
@@ -21,6 +61,24 @@ func TestPull77(t *testing.T) {
 		vs := NewHStack(c)
 		require.NotEqual(t, hs.footprint(), vs.footprint())
 	})
+}
+
+func Test1(t *testing.T) {
+	c := NewCanvas(320, 250)
+
+	hs := NewHStack(c)
+	hs1 := NewHStack(c)
+	hs1.Add(NewRectangle(c, 50, 50, color.White))
+
+	hs1.AttachTo(hs)
+	hs.Render(0, 0)
+
+	hs1.DetachFrom(hs)
+	hs.Render(0, 0)
+
+	hs1.AttachTo(hs)
+	regs, _ := hs.Render(0, 0)
+	require.NotEmpty(t, regs)
 }
 
 // https://github.com/gchumillas/prism/issues/110
@@ -60,4 +118,65 @@ func TestIssue110(t *testing.T) {
 		draw.Draw(c.image, reg, image.NewUniform(color.Transparent), image.Point{}, draw.Src)
 	}
 	test.RectIsColor(t, c.image, x0, y0, x1, y1, color.Transparent) // has been cleared correctly
+}
+
+// https://github.com/gchumillas/prism/issues/73
+func TestIssue73(t *testing.T) {
+	t.Run("dirty regions cover all pixels", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		sq1 := NewSquare(c.image, 50, 10) // square with a border
+		sq2 := NewSquare(c.image, 50, 0)  // square without a border
+		hs := NewHStack(c, WithGap(50))
+		hs.Add(sq1)
+		hs.Add(sq2)
+		hs.Render(10, 10)
+
+		// clear the squares and repaint
+		hs.Remove(sq1)
+		hs.Remove(sq2)
+		dirtyRegs, _ := hs.Render(10, 10)
+
+		// clear "dirty regions"
+		for _, reg := range dirtyRegs {
+			draw.Draw(c.image, reg, image.NewUniform(color.Transparent), image.Pt(0, 0), draw.Src)
+		}
+
+		// the canvas should be completely clean
+		b := c.image.Bounds()
+		test.RectIsColor(t, c.image, b.Min.X, b.Min.Y, b.Max.X, b.Max.Y, color.Transparent)
+	})
+
+	t.Run("prev regions are preserved", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs := NewHStack(c)
+
+		square := NewRectangle(c, 20, 20, color.White)
+		hs.Add(square)
+		dirtyRegs, _ := hs.Render(0, 0)
+		// "dirtyRegs" contains the square and only it
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 20, 20),
+		}, dirtyRegs)
+
+		hs.Remove(square)
+		landscape := NewRectangle(c, 30, 10, color.White)
+		hs.Add(landscape)
+		dirtyRegs, _ = hs.Render(0, 0)
+		// "dirtyRegs" contains the square and the landscape and only them
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 30, 10),
+			image.Rect(0, 10, 20, 20),
+		}, dirtyRegs)
+
+		hs.Remove(landscape)
+		portrait := NewRectangle(c, 10, 30, color.Black)
+		hs.Add(portrait)
+		// "dirtyRegs" contains the landscape and the portrait and only them
+		// it doesn't contain the square
+		dirtyRegs, _ = hs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 30, 10),
+			image.Rect(0, 10, 10, 30),
+		}, dirtyRegs)
+	})
 }
