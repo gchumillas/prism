@@ -180,3 +180,37 @@ func TestIssue73(t *testing.T) {
 		}, dirtyRegs)
 	})
 }
+
+// https://github.com/gchumillas/prism/issues/113
+func TestIssue113(t *testing.T) {
+	c := NewCanvas(320, 240)
+	hs1 := NewHStack(c)
+	hs2 := NewHStack(c)
+	a := NewRectangle(c, 50, 50, color.Gray{Y: 75})
+	b := NewRectangle(c, 50, 50, color.Gray{Y: 150})
+	hs2.Add(a)
+	hs2.Add(b)
+	hs2.AttachTo(hs1)
+
+	// An inner HStack contains rectangles A and B.
+	// The first render returns the regions of A and B, which are cached.
+	regs, _ := hs1.Render(0, 0)
+	require.Equal(t, []image.Rectangle{
+		image.Rect(0, 0, 100, 50),
+	}, regs)
+
+	// B is removed and rendered again. The inner HStack returns only B's old
+	// region, because that's the only thing that changed. Only that is cached.
+	hs2.Remove(b)
+	regs, _ = hs1.Render(0, 0)
+	require.Equal(t, []image.Rectangle{
+		image.Rect(0, 0, 100, 50),
+	}, regs)
+
+	// The inner HStack is detached. prev.regs is cleared, and contains only B.
+	hs2.DetachFrom(hs1)
+	regs, _ = hs1.Render(0, 0)
+	require.Equal(t, []image.Rectangle{
+		image.Rect(0, 0, 100, 50),
+	}, regs)
+}
