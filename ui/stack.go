@@ -35,6 +35,9 @@ type Stack struct {
 	prevChildStates []childState
 	stamp           func(*Stack) []uint64
 	layout          func(*Stack, int, int) ([]image.Rectangle, image.Point)
+
+	childStackDetached bool
+	prevDirtyRegs      []image.Rectangle
 }
 
 type StackOption interface {
@@ -89,6 +92,7 @@ func (s *Stack) AttachTo(parent *Stack) error {
 
 func (s *Stack) DetachFrom(parent *Stack) error {
 	if parent.Remove(s.wrapper) > 0 {
+		parent.childStackDetached = true
 		s.wrapper = nil
 		return nil
 	}
