@@ -16,19 +16,19 @@ import (
 
 type Square struct {
 	ctx   *gg.Context
-	len   int
+	width int
 	bSize int
 }
 
-func NewSquare(canvas *image.RGBA, len, bSize int) *Square {
+func NewSquare(canvas *image.RGBA, width, bSize int) *Square {
 	ctx := gg.NewContextForRGBA(canvas)
-	return &Square{ctx: ctx, len: len, bSize: bSize}
+	return &Square{ctx: ctx, width: width, bSize: bSize}
 }
 
 func (sq *Square) Footprint() []uint64 {
 	var h maphash.Hash
 	h.SetSeed(seed)
-	maphash.WriteComparable(&h, sq.len)
+	maphash.WriteComparable(&h, sq.width)
 	maphash.WriteComparable(&h, sq.bSize)
 	return []uint64{h.Sum64()}
 }
@@ -36,17 +36,17 @@ func (sq *Square) Footprint() []uint64 {
 func (sq *Square) Render(x, y int) ([]image.Rectangle, image.Point) {
 	sq.ctx.SetColor(color.White)
 	sq.ctx.SetLineWidth(float64(sq.bSize))
-	sq.ctx.DrawLine(float64(x), float64(y), float64(x+sq.len), float64(y))
-	sq.ctx.DrawLine(float64(x), float64(y+sq.len), float64(x+sq.len), float64(y+sq.len))
-	sq.ctx.DrawLine(float64(x), float64(y), float64(x), float64(y+sq.len))
-	sq.ctx.DrawLine(float64(x+sq.len), float64(y), float64(x+sq.len), float64(y+sq.len))
+	sq.ctx.DrawLine(float64(x), float64(y), float64(x+sq.width), float64(y))
+	sq.ctx.DrawLine(float64(x), float64(y+sq.width), float64(x+sq.width), float64(y+sq.width))
+	sq.ctx.DrawLine(float64(x), float64(y), float64(x), float64(y+sq.width))
+	sq.ctx.DrawLine(float64(x+sq.width), float64(y), float64(x+sq.width), float64(y+sq.width))
 	sq.ctx.Stroke()
 
 	safeMargin := sq.bSize/2 + 1
-	size := image.Pt(sq.len, sq.len)
+	size := image.Pt(sq.width, sq.width)
 	dirtyReg := image.Rectangle{
 		Min: image.Pt(x-safeMargin, y-safeMargin),
-		Max: image.Pt(x+sq.len+safeMargin, y+sq.len+safeMargin),
+		Max: image.Pt(x+sq.width+safeMargin, y+sq.width+safeMargin),
 	}
 
 	return []image.Rectangle{dirtyReg}, size

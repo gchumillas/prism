@@ -4,15 +4,17 @@ import (
 	"errors"
 	"hash/maphash"
 	"image"
+	"image/color"
 
 	"github.com/fogleman/gg"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/opentype"
 )
 
-const (
-	defaultFontSize = 10
-	defaultDPI      = 226
+var (
+	defaultFontSize = 10.
+	defaultColor    = color.NRGBA{A: 0xff}
+	defaultDPI      = 226.
 )
 
 // add ui.Font() option
