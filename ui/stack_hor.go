@@ -41,7 +41,11 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 				prev.footprint = child.Footprint()
 				dirtyRegs = append(dirtyRegs, prev.regs...)
 				dirtyRegs = append(dirtyRegs, childRegs...)
-				prev.regs = childRegs
+				if _, ok := child.(*stackWrapper); ok {
+					prev.regs = MergeRegions(append(prev.regs, childRegs...))
+				} else {
+					prev.regs = childRegs
+				}
 			}
 		} else {
 			s.prevChildStates = append(s.prevChildStates, childState{
@@ -60,14 +64,7 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 	}
 	clear(s.prevChildStates[len(s.children):])
 	s.prevChildStates = s.prevChildStates[:len(s.children)]
-	if s.childStackDetached {
-		dirtyRegs = append(dirtyRegs, s.prevDirtyRegs...)
-		s.childStackDetached = false
-	}
 	dirtyRegs = MergeRegions(dirtyRegs)
-	if len(dirtyRegs) > 0 {
-		s.prevDirtyRegs = dirtyRegs
-	}
 	size = image.Pt(size.X+s.paddingX, size.Y+2*s.paddingY)
 	return
 }
