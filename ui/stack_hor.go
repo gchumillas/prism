@@ -12,17 +12,7 @@ func NewHStack(c *Canvas, opts ...StackOption) *Stack {
 }
 
 func horizontalFootprint(s *Stack) []uint64 {
-	var result []uint64
-	for _, child := range s.children {
-		typ := typeID(reflect.TypeOf(child))
-		footprint := child.Footprint()
-		result = append(result, uint64(typ), uint64(len(footprint)))
-		result = append(result, footprint...)
-	}
-	return append(
-		[]uint64{maphash.String(seed, "horizontal"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)},
-		result...,
-	)
+	return []uint64{maphash.String(seed, "horizontal"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)}
 }
 
 func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
@@ -33,29 +23,48 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 		}
 		pos := image.Pt(x+size.X, y+s.paddingY)
 		childRegs, childSize := child.Render(pos.X, pos.Y)
-		if i < len(s.prevChildStates) {
-			prev := &s.prevChildStates[i]
-			if prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, child.Footprint()) {
-				prev.pos = pos
-				prev.typ = reflect.TypeOf(child)
-				prev.footprint = child.Footprint()
-				dirtyRegs = append(dirtyRegs, prev.regs...)
-				dirtyRegs = append(dirtyRegs, childRegs...)
-				if _, ok := child.(*stackWrapper); ok {
-					prev.regs = MergeRegions(append(prev.regs, childRegs...))
-				} else {
-					prev.regs = childRegs
+
+		if _, ok := child.(*stackWrapper); ok {
+			dirtyRegs = append(dirtyRegs, childRegs...)
+			if i < len(s.prevChildStates) {
+				prev := &s.prevChildStates[i]
+				if prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, child.Footprint()) {
+					prev.pos = pos
+					prev.typ = reflect.TypeOf(child)
+					prev.footprint = child.Footprint()
+					dirtyRegs = append(dirtyRegs, prev.regs...)
 				}
+				prev.regs = MergeRegions(append(prev.regs, childRegs...))
+			} else {
+				s.prevChildStates = append(s.prevChildStates, childState{
+					pos:       pos,
+					typ:       reflect.TypeOf(child),
+					footprint: child.Footprint(),
+					regs:      childRegs,
+				})
 			}
 		} else {
-			s.prevChildStates = append(s.prevChildStates, childState{
-				pos:       pos,
-				typ:       reflect.TypeOf(child),
-				footprint: child.Footprint(),
-				regs:      childRegs,
-			})
-			dirtyRegs = append(dirtyRegs, childRegs...)
+			if i < len(s.prevChildStates) {
+				prev := &s.prevChildStates[i]
+				if prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, child.Footprint()) {
+					prev.pos = pos
+					prev.typ = reflect.TypeOf(child)
+					prev.footprint = child.Footprint()
+					dirtyRegs = append(dirtyRegs, prev.regs...)
+					dirtyRegs = append(dirtyRegs, childRegs...)
+					prev.regs = childRegs
+				}
+			} else {
+				s.prevChildStates = append(s.prevChildStates, childState{
+					pos:       pos,
+					typ:       reflect.TypeOf(child),
+					footprint: child.Footprint(),
+					regs:      childRegs,
+				})
+				dirtyRegs = append(dirtyRegs, childRegs...)
+			}
 		}
+
 		size.X += childSize.X
 		size.Y = max(size.Y, childSize.Y)
 	}
