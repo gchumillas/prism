@@ -12,52 +12,57 @@ func NewVStack(c *Canvas, opts ...StackOption) *Stack {
 }
 
 func verticalFootprint(s *Stack) []uint64 {
-	var result []uint64
-	for _, child := range s.children {
-		typ := typeID(reflect.TypeOf(child))
-		footprint := child.Footprint()
-		result = append(result, uint64(typ), uint64(len(footprint)))
-		result = append(result, footprint...)
-	}
-	return append(
-		[]uint64{maphash.String(seed, "vertical"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)},
-		result...,
-	)
+	return []uint64{maphash.String(seed, "vertical"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)}
 }
 
 func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	pos := image.Pt(x, y)
-	childPos := image.Pt(pos.X+s.paddingX, pos.Y+s.paddingY)
-	prevHeight := 0
+	size = image.Pt(0, s.paddingY)
 	for i, child := range s.children {
 		if i > 0 {
-			childPos.Y += s.gap + prevHeight
 			size.Y += s.gap
 		}
-		regs, childSize := child.Render(childPos.X, childPos.Y)
-		prevHeight = childSize.Y
+		pos := image.Pt(x+s.paddingX, y+size.Y)
+		childRegs, childSize := child.Render(pos.X, pos.Y)
+		footprint := child.Footprint()
+		if i < len(s.prevChildStates) {
+			prev := &s.prevChildStates[i]
+			hasChanged := prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, footprint)
+			if hasChanged {
+				prev.pos = pos
+				prev.typ = reflect.TypeOf(child)
+				prev.footprint = footprint
+			}
+			if _, ok := child.(*stackWrapper); ok {
+				dirtyRegs = append(dirtyRegs, childRegs...)
+				if hasChanged {
+					dirtyRegs = append(dirtyRegs, prev.regs...)
+				}
+				if len(childRegs) > 0 {
+					prev.regs = MergeRegions(append(prev.regs, childRegs...))
+				}
+			} else if hasChanged {
+				dirtyRegs = append(dirtyRegs, prev.regs...)
+				dirtyRegs = append(dirtyRegs, childRegs...)
+				prev.regs = childRegs
+			}
+		} else {
+			s.prevChildStates = append(s.prevChildStates, childState{
+				pos:       pos,
+				typ:       reflect.TypeOf(child),
+				footprint: footprint,
+				regs:      childRegs,
+			})
+			dirtyRegs = append(dirtyRegs, childRegs...)
+		}
 		size.X = max(size.X, childSize.X)
 		size.Y += childSize.Y
-		if i < len(s.prevChildStates) {
-			prev := s.prevChildStates[i]
-			if prev.pos == childPos && prev.typ == reflect.TypeOf(child) && slices.Equal(prev.footprint, child.Footprint()) {
-				continue
-			}
-		}
-
-		dirtyRegs = append(dirtyRegs, regs...)
-		cs := childState{pos: childPos, regs: regs, typ: reflect.TypeOf(child), footprint: child.Footprint()}
-		if i < len(s.prevChildStates) {
-			dirtyRegs = append(dirtyRegs, s.prevChildStates[i].regs...)
-			s.prevChildStates[i] = cs
-		} else {
-			s.prevChildStates = append(s.prevChildStates, cs)
-		}
 	}
-	for _, cs := range s.prevChildStates[len(s.children):] {
-		dirtyRegs = append(dirtyRegs, cs.regs...)
+	for _, child := range s.prevChildStates[len(s.children):] {
+		dirtyRegs = append(dirtyRegs, child.regs...)
 	}
+	clear(s.prevChildStates[len(s.children):])
 	s.prevChildStates = s.prevChildStates[:len(s.children)]
 	dirtyRegs = MergeRegions(dirtyRegs)
+	size = image.Pt(size.X+2*s.paddingX, size.Y+s.paddingY)
 	return
 }
