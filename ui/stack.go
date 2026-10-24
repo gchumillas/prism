@@ -32,6 +32,7 @@ type Stack struct {
 	prevChildStates []childState
 	stamp           func(*Stack) []uint64
 	layout          func(*Stack, int, int) ([]image.Rectangle, image.Point)
+	outdated        bool
 }
 
 type StackOption interface {
@@ -78,6 +79,9 @@ func (s *Stack) AttachTo(parent *Stack) error {
 	if parent == s || s.hasStack(parent) {
 		return fmt.Errorf("stack: %w", ErrCircularRef)
 	}
+	if parent.outdated {
+		return fmt.Errorf("stack: %w", ErrNeedsRender)
+	}
 	s.reset()
 	s.wrapper = &stackWrapper{Stack: s}
 	parent.Add(s.wrapper)
@@ -87,6 +91,7 @@ func (s *Stack) AttachTo(parent *Stack) error {
 func (s *Stack) DetachFrom(parent *Stack) error {
 	if parent.Remove(s.wrapper) > 0 {
 		s.wrapper = nil
+		parent.outdated = true
 		return nil
 	}
 	return ErrNotAttached
@@ -97,7 +102,9 @@ func (s *Stack) footprint() []uint64 {
 }
 
 func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	return s.layout(s, x, y)
+	dirtyRegs, size = s.layout(s, x, y)
+	s.outdated = false
+	return
 }
 
 func (s *Stack) hasStack(other *Stack) bool {

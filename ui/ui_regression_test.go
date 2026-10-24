@@ -260,31 +260,6 @@ func Test114(t *testing.T) {
 		}
 		test.RectIsColor(t, c.image, 0, 0, 50, 50, color.Transparent)
 	})
-
-	t.Run("replace stacker with another one with the same footprint", func(t *testing.T) {
-		c := NewCanvas(320, 240)
-		hs := NewHStack(c)
-
-		hs2 := NewHStack(c)
-		hs2.Add(NewRectangle(c, 100, 100, color.White))
-
-		hs3 := NewHStack(c)
-		hs3.Add(NewRectangle(c, 50, 50, color.Black))
-		require.Equal(t, hs2.footprint(), hs3.footprint())
-
-		hs2.AttachTo(hs)
-		regs, _ := hs2.Render(0, 0)
-		require.Equal(t, []image.Rectangle{
-			image.Rect(0, 0, 100, 100),
-		}, regs)
-
-		hs2.DetachFrom(hs)
-		hs3.AttachTo(hs)
-		regs, _ = hs.Render(0, 0)
-		require.Equal(t, []image.Rectangle{
-			image.Rect(0, 0, 50, 50),
-		}, regs)
-	})
 }
 
 // https://github.com/gchumillas/prism/pull/120#discussion_r4368093650
@@ -309,4 +284,48 @@ func TestPull120(t *testing.T) {
 	require.Equal(t, []image.Rectangle{
 		image.Rect(0, 0, 50, 50),
 	}, regs)
+}
+
+// https://github.com/gchumillas/prism/issues/124
+func TestIssue124(t *testing.T) {
+	t.Run("vertical", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		vs := NewVStack(c)
+
+		vs1 := NewVStack(c)
+		vs1.Add(NewRectangle(c, 100, 100, color.White))
+
+		vs2 := NewVStack(c)
+		vs2.Add(NewRectangle(c, 20, 20, color.White))
+
+		vs1.AttachTo(vs)
+		regs, _ := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 100),
+		}, regs)
+
+		vs1.DetachFrom(vs)
+		err := vs2.AttachTo(vs)
+		require.ErrorIs(t, err, ErrNeedsRender)
+	})
+	t.Run("horizontal", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs := NewHStack(c)
+
+		hs1 := NewHStack(c)
+		hs1.Add(NewRectangle(c, 100, 100, color.White))
+
+		hs2 := NewHStack(c)
+		hs2.Add(NewRectangle(c, 20, 20, color.White))
+
+		hs1.AttachTo(hs)
+		regs, _ := hs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 100),
+		}, regs)
+
+		hs1.DetachFrom(hs)
+		err := hs2.AttachTo(hs)
+		require.ErrorIs(t, err, ErrNeedsRender)
+	})
 }

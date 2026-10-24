@@ -32,6 +32,7 @@ var (
 	ErrAttached    = errors.New("already attached to another stack")
 	ErrNotAttached = errors.New("not found or already detached from the stack")
 	ErrCircularRef = errors.New("circular reference")
+	ErrNeedsRender = errors.New("call Render() first")
 )
 
 type Widget interface {
