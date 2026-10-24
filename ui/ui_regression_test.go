@@ -286,3 +286,27 @@ func Test114(t *testing.T) {
 		}, regs)
 	})
 }
+
+// https://github.com/gchumillas/prism/pull/120#discussion_r4368093650
+func TestPull120(t *testing.T) {
+	c := NewCanvas(320, 240)
+	hs := NewHStack(c)
+	hs1 := NewHStack(c)
+	hs1.AttachTo(hs)
+
+	regs, _ := hs.Render(0, 0)
+	require.Empty(t, regs)
+
+	r := NewRectangle(c, 50, 50, color.White)
+	hs1.Add(r)
+	regs, _ = hs.Render(0, 0)
+	require.Equal(t, []image.Rectangle{
+		image.Rect(0, 0, 50, 50),
+	}, regs)
+
+	hs1.DetachFrom(hs)
+	regs, _ = hs.Render(0, 0)
+	require.Equal(t, []image.Rectangle{
+		image.Rect(0, 0, 50, 50),
+	}, regs)
+}
