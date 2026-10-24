@@ -204,7 +204,7 @@ func TestIssue113(t *testing.T) {
 	hs2.Remove(b)
 	regs, _ = hs1.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
-		image.Rect(0, 0, 100, 50),
+		image.Rect(50, 0, 100, 50),
 	}, regs)
 
 	// The inner HStack is detached. prev.regs is cleared, and contains only B.
@@ -213,4 +213,76 @@ func TestIssue113(t *testing.T) {
 	require.Equal(t, []image.Rectangle{
 		image.Rect(0, 0, 100, 50),
 	}, regs)
+}
+
+// https://github.com/gchumillas/prism/issues/114
+func Test114(t *testing.T) {
+	t.Run("partially change nested stack", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs1 := NewHStack(c)
+		hs2 := NewHStack(c)
+		var recs []*Rectangle
+		for i := range uint8(3) {
+			r := NewRectangle(c, 50, 50, color.Gray{Y: 50 + 50*i})
+			recs = append(recs, r)
+			hs2.Add(r)
+		}
+		hs2.AttachTo(hs1)
+		hs1.Render(0, 0)
+
+		recs[1].height = 100
+		regs, _ := hs1.Render(0, 0)
+		// only recs[1] needs to be refreshed
+		// however regs is [(0,0)-(150,50) (50,50)-(100,100)]
+		require.Equal(t, []image.Rectangle{
+			image.Rect(50, 0, 100, 100),
+		}, regs)
+	})
+
+	// https://github.com/gchumillas/prism/pull/119#discussion_r4364201290
+	t.Run("replace widget with stack", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs1 := NewHStack(c)
+		big := NewRectangle(c, 50, 50, color.White)
+		hs1.Add(big)
+		hs1.Render(0, 0)
+
+		// replace the rectangle with a nested stack that has a smaller content
+		hs1.Remove(big)
+		hs2 := NewHStack(c)
+		hs2.Add(NewRectangle(c, 20, 20, color.White))
+		hs2.AttachTo(hs1)
+		regs, _ := hs1.Render(0, 0)
+
+		// the old 50x50 region must be refreshed, otherwise stale pixels remain
+		for _, reg := range regs {
+			draw.Draw(c.image, reg, image.NewUniform(color.Transparent), image.Point{}, draw.Src)
+		}
+		test.RectIsColor(t, c.image, 0, 0, 50, 50, color.Transparent)
+	})
+
+	t.Run("replace stacker with another one with the same footprint", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs := NewHStack(c)
+
+		hs2 := NewHStack(c)
+		hs2.Add(NewRectangle(c, 100, 100, color.White))
+
+		hs3 := NewHStack(c)
+		hs3.Add(NewRectangle(c, 50, 50, color.Black))
+		require.Equal(t, hs2.footprint(), hs3.footprint())
+
+		hs2.AttachTo(hs)
+		regs, _ := hs2.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 100),
+		}, regs)
+
+		hs2.DetachFrom(hs)
+		hs3.AttachTo(hs)
+		regs, _ = hs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 50, 50),
+		}, regs)
+	})
 }
