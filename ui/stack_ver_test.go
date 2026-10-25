@@ -168,7 +168,7 @@ func TestVStack_Render(t *testing.T) {
 
 		vs.Render(0, 0)
 		regs, _ := vs.Render(100, 0)
-		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 200, 150)}, regs)
+		require.Empty(t, regs)
 	})
 
 	t.Run("nested", func(t *testing.T) {
