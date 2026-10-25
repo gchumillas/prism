@@ -1,9 +1,7 @@
 package ui_test
 
 import (
-	"fmt"
 	"image"
-	"image/color"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
@@ -35,9 +33,4 @@ func TestLabel_Footprint(t *testing.T) {
 	for _, test := range tests {
 		require.NotEqual(t, test.lb1.Footprint(), test.lb2.Footprint())
 	}
-}
-
-func Test(t *testing.T) {
-	c := color.RGBA{R: 0x12, G: 0x34, B: 0x56, A: 0x78}
-	fmt.Printf("%x\n", uint32(c.R)<<24|uint32(c.G)<<16|uint32(c.B)<<8|uint32(c.A))
 }
