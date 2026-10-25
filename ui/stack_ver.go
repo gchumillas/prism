@@ -1,68 +1,60 @@
 package ui
 
 import (
-	"hash/maphash"
 	"image"
 	"reflect"
 	"slices"
 )
 
 func NewVStack(c *Canvas, opts ...StackOption) *Stack {
-	return newStack(c, verticalFootprint, verticalLayout, opts...)
+	return newStack(c, verticalLayout, opts...)
 }
 
-func verticalFootprint(s *Stack) []uint64 {
-	return []uint64{maphash.String(seed, "vertical"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)}
-}
-
-func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	size = image.Pt(0, s.paddingY)
-	for i, child := range s.children {
+func verticalLayout(stx *stackContext, st *Stack, x, y int) {
+	stx.size.Y += st.paddingY
+	for i, child := range st.children {
 		if i > 0 {
-			size.Y += s.gap
+			stx.size.Y += st.gap
 		}
-		pos := image.Pt(x+s.paddingX, y+size.Y)
-		childRegs, childSize := child.Render(pos.X, pos.Y)
-		footprint := child.Footprint()
-		if i < len(s.prevChildStates) {
-			prev := &s.prevChildStates[i]
-			hasChanged := prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, footprint)
-			if hasChanged {
-				prev.pos = pos
-				prev.typ = reflect.TypeOf(child)
-				prev.footprint = footprint
-			}
-			if _, ok := child.(*stackWrapper); ok {
-				dirtyRegs = append(dirtyRegs, childRegs...)
+		switch child := child.(type) {
+		case *Stack:
+			prevSize := stx.size
+			stx.size = image.Point{}
+			child.layout(stx, child, x+st.paddingX, y+prevSize.Y)
+			stx.size.X = max(prevSize.X, stx.size.X)
+			stx.size.Y += prevSize.Y
+		case Widget:
+			pos := image.Pt(x+st.paddingX, y+stx.size.Y)
+			childRegs, childSize := child.Render(pos.X, pos.Y)
+			stx.size.X = max(stx.size.X, childSize.X)
+			stx.size.Y += childSize.Y
+			footprint := child.Footprint()
+			if stx.prevChildStatesIdx < len(stx.prevChildStates) {
+				prev := &stx.prevChildStates[stx.prevChildStatesIdx]
+				hasChanged := prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, footprint)
 				if hasChanged {
-					dirtyRegs = append(dirtyRegs, prev.regs...)
+					prev.pos = pos
+					prev.typ = reflect.TypeOf(child)
+					prev.footprint = footprint
+					stx.dirtyRegs = append(stx.dirtyRegs, prev.regs...)
+					stx.dirtyRegs = append(stx.dirtyRegs, childRegs...)
+					prev.regs = childRegs
 				}
-				if len(childRegs) > 0 {
-					prev.regs = MergeRegions(append(prev.regs, childRegs...))
-				}
-			} else if hasChanged {
-				dirtyRegs = append(dirtyRegs, prev.regs...)
-				dirtyRegs = append(dirtyRegs, childRegs...)
-				prev.regs = childRegs
+			} else {
+				stx.prevChildStates = append(stx.prevChildStates, childState{
+					pos:       pos,
+					typ:       reflect.TypeOf(child),
+					footprint: footprint,
+					regs:      childRegs,
+				})
+				stx.dirtyRegs = append(stx.dirtyRegs, childRegs...)
 			}
-		} else {
-			s.prevChildStates = append(s.prevChildStates, childState{
-				pos:       pos,
-				typ:       reflect.TypeOf(child),
-				footprint: footprint,
-				regs:      childRegs,
-			})
-			dirtyRegs = append(dirtyRegs, childRegs...)
+			stx.prevChildStatesIdx++
+		default:
+			panic("unsupported type")
 		}
-		size.X = max(size.X, childSize.X)
-		size.Y += childSize.Y
 	}
-	for _, child := range s.prevChildStates[len(s.children):] {
-		dirtyRegs = append(dirtyRegs, child.regs...)
-	}
-	clear(s.prevChildStates[len(s.children):])
-	s.prevChildStates = s.prevChildStates[:len(s.children)]
-	dirtyRegs = MergeRegions(dirtyRegs)
-	size = image.Pt(size.X+2*s.paddingX, size.Y+s.paddingY)
-	return
+	stx.size.X += 2 * st.paddingX
+	stx.size.Y += st.paddingY
+	st.outdated = false
 }
