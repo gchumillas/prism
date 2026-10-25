@@ -329,3 +329,27 @@ func TestIssue124(t *testing.T) {
 		require.ErrorIs(t, err, ErrNeedsRender)
 	})
 }
+
+// https://github.com/gchumillas/prism/issues/126
+func Test126(t *testing.T) {
+	c := NewCanvas(320, 240)
+	hs := NewHStack(c)
+
+	r := NewRectangle(c, 50, 50, color.White)
+
+	hs1 := NewHStack(c)
+	hs1.Add(r)
+	hs1.AttachTo(hs)
+
+	hs2 := NewHStack(c)
+	hs2.Add(r)
+	hs2.AttachTo(hs)
+
+	hs.Render(0, 0)
+	hs1.DetachFrom(hs)
+	regs, _ := hs.Render(0, 0)
+	// only the missing square needs to be refreshed
+	require.Equal(t, []image.Rectangle{
+		image.Rect(50, 0, 100, 50),
+	}, regs)
+}

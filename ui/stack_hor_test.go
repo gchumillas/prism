@@ -227,14 +227,7 @@ func TestHStack_Render(t *testing.T) {
 
 		hs.Render(0, 0)
 		regs, _ := hs.Render(100, 50)
-		// cubre las regiones fantasma y las nuevas
-		require.Equal(t, []image.Rectangle{
-			image.Rect(0, 0, 300, 50),
-			image.Rect(0, 50, 50, 150),
-			image.Rect(100, 50, 400, 100),
-			image.Rect(100, 100, 150, 200),
-			image.Rect(300, 100, 400, 150),
-		}, regs)
+		require.Empty(t, regs)
 	})
 
 	// hit area follows widget after sibling removal

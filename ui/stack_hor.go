@@ -21,8 +21,8 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 		if i > 0 {
 			size.X += s.gap
 		}
-		pos := image.Pt(x+size.X, y+s.paddingY)
-		childRegs, childSize := child.Render(pos.X, pos.Y)
+		pos := image.Pt(size.X, s.paddingY) // relative position
+		childRegs, childSize := child.Render(x+pos.X, y+pos.Y)
 		footprint := child.Footprint()
 		if i < len(s.prevChildStates) {
 			prev := &s.prevChildStates[i]

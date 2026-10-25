@@ -21,8 +21,8 @@ func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image
 		if i > 0 {
 			size.Y += s.gap
 		}
-		pos := image.Pt(x+s.paddingX, y+size.Y)
-		childRegs, childSize := child.Render(pos.X, pos.Y)
+		pos := image.Pt(s.paddingX, size.Y) // relative position
+		childRegs, childSize := child.Render(x+pos.X, y+pos.Y)
 		footprint := child.Footprint()
 		if i < len(s.prevChildStates) {
 			prev := &s.prevChildStates[i]
