@@ -227,7 +227,7 @@ func TestHStack_Render(t *testing.T) {
 
 		hs.Render(0, 0)
 		regs, _ := hs.Render(100, 50)
-		// cubre las regiones fantasma y las nuevas
+		// covers the ghost regions and the new ones
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 300, 50),
 			image.Rect(0, 50, 50, 150),
