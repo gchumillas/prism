@@ -25,8 +25,6 @@ func (sw *stackWrapper) Footprint() []uint64 {
 type Stack struct {
 	wrapper         *stackWrapper
 	canvas          *Canvas
-	paddingX        int
-	paddingY        int
 	gap             int
 	children        []Widget
 	prevChildStates []childState
@@ -39,9 +37,7 @@ type StackOption interface {
 	ApplyStack(*Stack)
 }
 
-func (val WithPaddingX) ApplyStack(s *Stack) { s.paddingX = int(val) }
-func (val WithPaddingY) ApplyStack(s *Stack) { s.paddingY = int(val) }
-func (val WithGap) ApplyStack(s *Stack)      { s.gap = int(val) }
+func (val WithGap) ApplyStack(s *Stack) { s.gap = int(val) }
 
 func newStack(
 	canvas *Canvas,
