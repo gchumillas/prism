@@ -12,16 +12,15 @@ func NewHStack(c *Canvas, opts ...StackOption) *Stack {
 }
 
 func horizontalFootprint(s *Stack) []uint64 {
-	return []uint64{maphash.String(seed, "horizontal"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)}
+	return []uint64{maphash.String(seed, "horizontal"), uint64(s.gap)}
 }
 
 func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	size = image.Pt(s.paddingX, 0)
 	for i, child := range s.children {
 		if i > 0 {
 			size.X += s.gap
 		}
-		pos := image.Pt(x+size.X, y+s.paddingY)
+		pos := image.Pt(x+size.X, y)
 		childRegs, childSize := child.Render(pos.X, pos.Y)
 		footprint := child.Footprint()
 		if i < len(s.prevChildStates) {
@@ -61,6 +60,5 @@ func horizontalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size ima
 	clear(s.prevChildStates[len(s.children):])
 	s.prevChildStates = s.prevChildStates[:len(s.children)]
 	dirtyRegs = MergeRegions(dirtyRegs)
-	size = image.Pt(size.X+s.paddingX, size.Y+2*s.paddingY)
 	return
 }

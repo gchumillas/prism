@@ -12,16 +12,15 @@ func NewVStack(c *Canvas, opts ...StackOption) *Stack {
 }
 
 func verticalFootprint(s *Stack) []uint64 {
-	return []uint64{maphash.String(seed, "vertical"), uint64(s.paddingX), uint64(s.paddingY), uint64(s.gap)}
+	return []uint64{maphash.String(seed, "vertical"), uint64(s.gap)}
 }
 
 func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	size = image.Pt(0, s.paddingY)
 	for i, child := range s.children {
 		if i > 0 {
 			size.Y += s.gap
 		}
-		pos := image.Pt(x+s.paddingX, y+size.Y)
+		pos := image.Pt(x, y+size.Y)
 		childRegs, childSize := child.Render(pos.X, pos.Y)
 		footprint := child.Footprint()
 		if i < len(s.prevChildStates) {
@@ -63,6 +62,5 @@ func verticalLayout(s *Stack, x, y int) (dirtyRegs []image.Rectangle, size image
 	clear(s.prevChildStates[len(s.children):])
 	s.prevChildStates = s.prevChildStates[:len(s.children)]
 	dirtyRegs = MergeRegions(dirtyRegs)
-	size = image.Pt(size.X+2*s.paddingX, size.Y+s.paddingY)
 	return
 }
