@@ -5,6 +5,7 @@ import (
 	"slices"
 )
 
+// TODO: rename MergeRegions() to CombineRegions()
 func MergeRegions(regs []image.Rectangle) []image.Rectangle {
 	type segment = [2]int
 

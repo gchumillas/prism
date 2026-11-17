@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"fmt"
 	"hash/maphash"
 	"image"
 	"image/color"
@@ -50,35 +51,6 @@ func (sq *Square) Render(x, y int) ([]image.Rectangle, image.Point) {
 	}
 
 	return []image.Rectangle{dirtyReg}, size
-}
-
-// https://github.com/gchumillas/prism/pull/77
-func TestPull77(t *testing.T) {
-	// https://github.com/gchumillas/prism/pull/77#discussion_r4302316204
-	t.Run("footprint must include direction", func(t *testing.T) {
-		c := NewCanvas(320, 240)
-		hs := NewVStack(c)
-		vs := NewHStack(c)
-		require.NotEqual(t, hs.footprint(), vs.footprint())
-	})
-}
-
-func Test1(t *testing.T) {
-	c := NewCanvas(320, 250)
-
-	hs := NewHStack(c)
-	hs1 := NewHStack(c)
-	hs1.Add(NewRectangle(c, 50, 50, color.White))
-
-	hs1.AttachTo(hs)
-	hs.Render(0, 0)
-
-	hs1.DetachFrom(hs)
-	hs.Render(0, 0)
-
-	hs1.AttachTo(hs)
-	regs, _ := hs.Render(0, 0)
-	require.NotEmpty(t, regs)
 }
 
 // https://github.com/gchumillas/prism/issues/110
@@ -211,7 +183,7 @@ func TestIssue113(t *testing.T) {
 	hs2.DetachFrom(hs1)
 	regs, _ = hs1.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
-		image.Rect(0, 0, 100, 50),
+		image.Rect(0, 0, 50, 50),
 	}, regs)
 }
 
@@ -327,5 +299,161 @@ func TestIssue124(t *testing.T) {
 		hs1.DetachFrom(hs)
 		err := hs2.AttachTo(hs)
 		require.ErrorIs(t, err, ErrNeedsRender)
+	})
+}
+
+// https://github.com/gchumillas/prism/issues/126
+func Test126(t *testing.T) {
+	t.Run("case 1", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs := NewHStack(c)
+
+		r := NewRectangle(c, 50, 50, color.White)
+
+		hs1 := NewHStack(c)
+		hs1.Add(r)
+		hs1.AttachTo(hs)
+
+		hs2 := NewHStack(c)
+		hs2.Add(r)
+		hs2.AttachTo(hs)
+
+		hs.Render(0, 0)
+		hs1.DetachFrom(hs)
+		regs, _ := hs.Render(0, 0)
+		// only the missing square needs to be refreshed
+		require.Equal(t, []image.Rectangle{
+			image.Rect(50, 0, 100, 50),
+		}, regs)
+	})
+
+	// https://github.com/gchumillas/prism/pull/127#discussion_r4372638791
+	t.Run("case 2", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		stacks := []*Stack{NewHStack(c)}
+		for _, st := range stacks {
+			r := NewRectangle(c, 50, 50, color.White)
+			st.Add(r)
+
+			regs, _ := st.Render(0, 0)
+			require.Equal(t, []image.Rectangle{
+				image.Rect(0, 0, 50, 50),
+			}, regs)
+
+			st.Remove(r)
+			regs, _ = st.Render(100, 100)
+			require.Equal(t, []image.Rectangle{
+				image.Rect(0, 0, 50, 50),
+			}, regs)
+		}
+	})
+
+	// https://github.com/gchumillas/prism/pull/127#discussion_r4372638811
+	t.Run("case 3", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		st := NewHStack(c)
+
+		st1 := NewHStack(c)
+		red := NewRectangle(c, 50, 50, color.RGBA{R: 255})
+		st1.Add(red)
+		st1.AttachTo(st)
+
+		st2 := NewHStack(c)
+		blue := NewRectangle(c, 50, 50, color.RGBA{B: 255})
+		st2.Add(blue)
+		st2.AttachTo(st)
+
+		regs, _ := st.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 50),
+		}, regs)
+
+		st1.DetachFrom(st)
+		regs, _ = st.Render(0, 0)
+		// should return the joint shadow of st1 and st2,
+		// since they contain squares of different colors
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 50),
+		}, regs)
+	})
+
+	// https://github.com/gchumillas/prism/pull/127#discussion_r4372638832
+	t.Run("case 4", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		st := NewHStack(c)
+		r := NewRectangle(c, 50, 50, color.Black)
+		st.Add(r)
+		st1 := NewHStack(c)
+		st1.Add(NewRectangle(c, 50, 50, color.White))
+		st1.AttachTo(st)
+		st.Render(0, 0)
+		r.width = 100
+		regs, _ := st.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 150, 50),
+		}, regs)
+	})
+
+	// https://github.com/gchumillas/prism/pull/129#discussion_r4579982636
+	t.Run("case 5", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs := NewHStack(c)
+		vs := NewVStack(c)
+		vs.Add(NewRectangle(c, 50, 50, color.White))
+		vs.Add(NewRectangle(c, 50, 50, color.Black))
+		_ = vs.AttachTo(hs)
+		regs, _ := hs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 50, 100),
+		}, regs)
+	})
+
+	// https://github.com/gchumillas/prism/pull/129#discussion_r4579982654
+	t.Run("case 6", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs := NewHStack(c)
+		hs1 := NewHStack(c, WithPaddingY(5))
+		hs1.Add(NewRectangle(c, 50, 50, color.Black))
+		_ = hs1.AttachTo(hs)
+		hs2 := NewHStack(c, WithPaddingY(5))
+		hs2.Add(NewRectangle(c, 50, 50, color.Black))
+		_ = hs2.AttachTo(hs)
+		_, size := hs.Render(0, 0)
+		require.Equal(t, image.Pt(100, 60), size)
+
+		vs := NewVStack(c)
+		vs1 := NewVStack(c, WithPaddingX(5))
+		vs1.Add(NewRectangle(c, 50, 50, color.Black))
+		_ = vs1.AttachTo(vs)
+		vs2 := NewVStack(c, WithPaddingX(5))
+		vs2.Add(NewRectangle(c, 50, 50, color.Black))
+		_ = vs2.AttachTo(vs)
+		_, size1 := vs.Render(0, 0)
+		fmt.Println(size1)
+		require.Equal(t, image.Pt(60, 100), size1)
+	})
+
+	// https://github.com/gchumillas/prism/pull/129#discussion_r4598996061
+	t.Run("case 7", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		hs := NewHStack(c)
+		hs1 := NewHStack(c)
+		hs1.Add(NewRectangle(c, 50, 50, color.White))
+		hs1.AttachTo(hs)
+		vs1 := NewVStack(c)
+		vs1.Add(NewRectangle(c, 50, 50, color.White))
+		vs1.AttachTo(hs)
+		_, size := hs.Render(0, 0)
+		require.Equal(t, image.Pt(100, 50), size)
+
+		vs := NewVStack(c)
+		vs2 := NewVStack(c)
+		vs2.Add(NewRectangle(c, 50, 50, color.White))
+		vs2.AttachTo(vs)
+		hs2 := NewHStack(c)
+		hs2.Add(NewRectangle(c, 50, 50, color.White))
+		hs2.AttachTo(vs)
+		_, size1 := vs.Render(0, 0)
+		require.Equal(t, image.Pt(50, 100), size1)
 	})
 }

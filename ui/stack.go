@@ -14,25 +14,28 @@ type childState struct {
 	footprint []uint64
 }
 
-type stackWrapper struct {
-	*Stack
+type stackContext struct {
+	prevChildStatesIdx int
+	prevChildStates    []childState
+	dirtyRegs          []image.Rectangle
+	size               image.Point
 }
 
-func (sw *stackWrapper) Footprint() []uint64 {
-	return sw.footprint()
+type renderer interface {
+	Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)
 }
 
 type Stack struct {
-	wrapper         *stackWrapper
+	// TODO: remove canvas (it is not used)
 	canvas          *Canvas
 	paddingX        int
 	paddingY        int
 	gap             int
-	children        []Widget
+	children        []renderer
 	prevChildStates []childState
-	stamp           func(*Stack) []uint64
-	layout          func(*Stack, int, int) ([]image.Rectangle, image.Point)
+	layout          func(*stackContext, *Stack, int, int)
 	outdated        bool
+	attached        bool
 }
 
 type StackOption interface {
@@ -45,13 +48,11 @@ func (val WithGap) ApplyStack(s *Stack)      { s.gap = int(val) }
 
 func newStack(
 	canvas *Canvas,
-	footprint func(*Stack) []uint64,
-	layout func(*Stack, int, int) ([]image.Rectangle, image.Point),
+	layout func(*stackContext, *Stack, int, int),
 	opts ...StackOption,
 ) *Stack {
 	s := &Stack{
 		canvas: canvas,
-		stamp:  footprint,
 		layout: layout,
 	}
 	for _, opt := range opts {
@@ -66,14 +67,14 @@ func (s *Stack) Add(child Widget) {
 
 func (s *Stack) Remove(child Widget) (n int) {
 	oldLen := len(s.children)
-	s.children = slices.DeleteFunc(s.children, func(c Widget) bool {
+	s.children = slices.DeleteFunc(s.children, func(c renderer) bool {
 		return c == child
 	})
 	return oldLen - len(s.children)
 }
 
 func (s *Stack) AttachTo(parent *Stack) error {
-	if s.wrapper != nil {
+	if s.attached {
 		return fmt.Errorf("stack: %w", ErrAttached)
 	}
 	if parent == s || s.hasStack(parent) {
@@ -83,34 +84,47 @@ func (s *Stack) AttachTo(parent *Stack) error {
 		return fmt.Errorf("stack: %w", ErrNeedsRender)
 	}
 	s.reset()
-	s.wrapper = &stackWrapper{Stack: s}
-	parent.Add(s.wrapper)
+	parent.children = append(parent.children, s)
+	s.attached = true
 	return nil
 }
 
 func (s *Stack) DetachFrom(parent *Stack) error {
-	if parent.Remove(s.wrapper) > 0 {
-		s.wrapper = nil
+	if i := slices.IndexFunc(parent.children, func(x renderer) bool {
+		return x == s
+	}); i > -1 {
+		parent.children = slices.Delete(parent.children, i, i+1)
+		s.attached = false
 		parent.outdated = true
 		return nil
 	}
 	return ErrNotAttached
 }
 
-func (s *Stack) footprint() []uint64 {
-	return s.stamp(s)
-}
-
 func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
-	dirtyRegs, size = s.layout(s, x, y)
-	s.outdated = false
+	stx := &stackContext{prevChildStates: s.prevChildStates}
+	s.layout(stx, s, x, y)
+
+	// discarded regions must be refreshed
+	for _, child := range stx.prevChildStates[stx.prevChildStatesIdx:] {
+		stx.dirtyRegs = append(stx.dirtyRegs, child.regs...)
+	}
+
+	// clear discarded childs
+	clear(stx.prevChildStates[stx.prevChildStatesIdx:])
+	stx.prevChildStates = stx.prevChildStates[:stx.prevChildStatesIdx]
+
+	stx.dirtyRegs = MergeRegions(stx.dirtyRegs)
+	s.prevChildStates = stx.prevChildStates
+	dirtyRegs = stx.dirtyRegs
+	size = stx.size
 	return
 }
 
 func (s *Stack) hasStack(other *Stack) bool {
 	for _, child := range s.children {
-		if v, ok := child.(*stackWrapper); ok {
-			if v.Stack == other || v.hasStack(other) {
+		if v, ok := child.(*Stack); ok {
+			if v == other || v.hasStack(other) {
 				return true
 			}
 		}
@@ -121,8 +135,8 @@ func (s *Stack) hasStack(other *Stack) bool {
 func (s *Stack) reset() {
 	s.prevChildStates = nil
 	for _, child := range s.children {
-		if wrapper, ok := child.(*stackWrapper); ok {
-			wrapper.reset()
+		if v, ok := child.(*Stack); ok {
+			v.reset()
 		}
 	}
 }

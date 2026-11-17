@@ -1,5 +1,5 @@
 {
   "go.testTimeout": "5s",
-  "go.buildTags": "mage,regression",
+  "go.buildTags": "mage,regression,issues",
   "go.testFlags": ["-benchtime=1s", "-v"]
 }
