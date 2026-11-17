@@ -40,7 +40,7 @@ func TestMergeRegions(t *testing.T) {
 		for _, test := range tests {
 			for _, m := range movements {
 				m(test)
-				output := ui.MergeRegions(test)
+				output := ui.CombineRegions(test)
 				require.ElementsMatch(t, test, output)
 			}
 		}
@@ -64,7 +64,7 @@ func TestMergeRegions(t *testing.T) {
 			for _, m := range movements {
 				m(test.input)
 				m(test.expected)
-				output := ui.MergeRegions(test.input)
+				output := ui.CombineRegions(test.input)
 				require.ElementsMatch(t, test.expected, output)
 			}
 		}
@@ -75,7 +75,7 @@ func TestMergeRegions(t *testing.T) {
 		expected := []image.Rectangle{image.Rect(-2, -2, 2, 2)}
 
 		for range 2 {
-			output := ui.MergeRegions(input)
+			output := ui.CombineRegions(input)
 			require.Equal(t, expected, output)
 			slices.Reverse(input)
 			slices.Reverse(expected)
@@ -97,7 +97,7 @@ func TestMergeRegions(t *testing.T) {
 			},
 		}
 		for _, test := range tests {
-			output := ui.MergeRegions(test.input)
+			output := ui.CombineRegions(test.input)
 			require.ElementsMatch(t, test.expected, output)
 		}
 	})
@@ -119,7 +119,7 @@ func TestMergeRegions(t *testing.T) {
 			image.Rect(3, 4, 5, 5),
 		}
 
-		output := ui.MergeRegions(input)
+		output := ui.CombineRegions(input)
 		require.ElementsMatch(t, expected, output)
 	})
 }

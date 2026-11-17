@@ -105,7 +105,7 @@ func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)
 	clear(stx.prevChildStates[stx.prevChildStatesIdx:])
 	stx.prevChildStates = stx.prevChildStates[:stx.prevChildStatesIdx]
 
-	stx.dirtyRegs = MergeRegions(stx.dirtyRegs)
+	stx.dirtyRegs = CombineRegions(stx.dirtyRegs)
 	s.prevChildStates = stx.prevChildStates
 	dirtyRegs = stx.dirtyRegs
 	size = stx.size
