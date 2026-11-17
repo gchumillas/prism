@@ -26,8 +26,6 @@ type renderer interface {
 }
 
 type Stack struct {
-	// TODO: remove canvas (it is not used)
-	canvas          *Canvas
 	paddingX        int
 	paddingY        int
 	gap             int
@@ -46,15 +44,8 @@ func (val WithPaddingX) ApplyStack(s *Stack) { s.paddingX = int(val) }
 func (val WithPaddingY) ApplyStack(s *Stack) { s.paddingY = int(val) }
 func (val WithGap) ApplyStack(s *Stack)      { s.gap = int(val) }
 
-func newStack(
-	canvas *Canvas,
-	layout func(*stackContext, *Stack, int, int),
-	opts ...StackOption,
-) *Stack {
-	s := &Stack{
-		canvas: canvas,
-		layout: layout,
-	}
+func newStack(layout func(*stackContext, *Stack, int, int), opts ...StackOption) *Stack {
+	s := &Stack{layout: layout}
 	for _, opt := range opts {
 		opt.ApplyStack(s)
 	}

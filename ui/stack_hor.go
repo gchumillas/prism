@@ -6,8 +6,8 @@ import (
 	"slices"
 )
 
-func NewHStack(c *Canvas, opts ...StackOption) *Stack {
-	return newStack(c, horizontalLayout, opts...)
+func NewHStack(opts ...StackOption) *Stack {
+	return newStack(horizontalLayout, opts...)
 }
 
 func horizontalLayout(stx *stackContext, st *Stack, x, y int) {
