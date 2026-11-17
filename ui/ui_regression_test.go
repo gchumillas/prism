@@ -61,12 +61,12 @@ func TestIssue110(t *testing.T) {
 	c := NewCanvas(320, 240)
 
 	// internal stack
-	hs1 := NewHStack(c)
+	hs1 := NewHStack()
 	r := NewRectangle(c, width, width, color.White)
 	hs1.Add(r)
 
 	// render a external stack that contains a internal stack
-	hs := NewHStack(c)
+	hs := NewHStack()
 	_ = hs1.AttachTo(hs)
 	hs.Render(x0, y0)
 
@@ -98,7 +98,7 @@ func TestIssue73(t *testing.T) {
 		c := NewCanvas(320, 240)
 		sq1 := NewSquare(c.image, 50, 10) // square with a border
 		sq2 := NewSquare(c.image, 50, 0)  // square without a border
-		hs := NewHStack(c, WithGap(50))
+		hs := NewHStack(WithGap(50))
 		hs.Add(sq1)
 		hs.Add(sq2)
 		hs.Render(10, 10)
@@ -120,7 +120,7 @@ func TestIssue73(t *testing.T) {
 
 	t.Run("prev regions are preserved", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs := NewHStack(c)
+		hs := NewHStack()
 
 		square := NewRectangle(c, 20, 20, color.White)
 		hs.Add(square)
@@ -156,8 +156,8 @@ func TestIssue73(t *testing.T) {
 // https://github.com/gchumillas/prism/issues/113
 func TestIssue113(t *testing.T) {
 	c := NewCanvas(320, 240)
-	hs1 := NewHStack(c)
-	hs2 := NewHStack(c)
+	hs1 := NewHStack()
+	hs2 := NewHStack()
 	a := NewRectangle(c, 50, 50, color.Gray{Y: 75})
 	b := NewRectangle(c, 50, 50, color.Gray{Y: 150})
 	hs2.Add(a)
@@ -191,8 +191,8 @@ func TestIssue113(t *testing.T) {
 func Test114(t *testing.T) {
 	t.Run("partially change nested stack", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs1 := NewHStack(c)
-		hs2 := NewHStack(c)
+		hs1 := NewHStack()
+		hs2 := NewHStack()
 		var recs []*Rectangle
 		for i := range uint8(3) {
 			r := NewRectangle(c, 50, 50, color.Gray{Y: 50 + 50*i})
@@ -214,14 +214,14 @@ func Test114(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/119#discussion_r4364201290
 	t.Run("replace widget with stack", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs1 := NewHStack(c)
+		hs1 := NewHStack()
 		big := NewRectangle(c, 50, 50, color.White)
 		hs1.Add(big)
 		hs1.Render(0, 0)
 
 		// replace the rectangle with a nested stack that has a smaller content
 		hs1.Remove(big)
-		hs2 := NewHStack(c)
+		hs2 := NewHStack()
 		hs2.Add(NewRectangle(c, 20, 20, color.White))
 		hs2.AttachTo(hs1)
 		regs, _ := hs1.Render(0, 0)
@@ -237,8 +237,8 @@ func Test114(t *testing.T) {
 // https://github.com/gchumillas/prism/pull/120#discussion_r4368093650
 func TestPull120(t *testing.T) {
 	c := NewCanvas(320, 240)
-	hs := NewHStack(c)
-	hs1 := NewHStack(c)
+	hs := NewHStack()
+	hs1 := NewHStack()
 	hs1.AttachTo(hs)
 
 	regs, _ := hs.Render(0, 0)
@@ -262,12 +262,12 @@ func TestPull120(t *testing.T) {
 func TestIssue124(t *testing.T) {
 	t.Run("vertical", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		vs := NewVStack(c)
+		vs := NewVStack()
 
-		vs1 := NewVStack(c)
+		vs1 := NewVStack()
 		vs1.Add(NewRectangle(c, 100, 100, color.White))
 
-		vs2 := NewVStack(c)
+		vs2 := NewVStack()
 		vs2.Add(NewRectangle(c, 20, 20, color.White))
 
 		vs1.AttachTo(vs)
@@ -282,12 +282,12 @@ func TestIssue124(t *testing.T) {
 	})
 	t.Run("horizontal", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs := NewHStack(c)
+		hs := NewHStack()
 
-		hs1 := NewHStack(c)
+		hs1 := NewHStack()
 		hs1.Add(NewRectangle(c, 100, 100, color.White))
 
-		hs2 := NewHStack(c)
+		hs2 := NewHStack()
 		hs2.Add(NewRectangle(c, 20, 20, color.White))
 
 		hs1.AttachTo(hs)
@@ -306,15 +306,15 @@ func TestIssue124(t *testing.T) {
 func Test126(t *testing.T) {
 	t.Run("case 1", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs := NewHStack(c)
+		hs := NewHStack()
 
 		r := NewRectangle(c, 50, 50, color.White)
 
-		hs1 := NewHStack(c)
+		hs1 := NewHStack()
 		hs1.Add(r)
 		hs1.AttachTo(hs)
 
-		hs2 := NewHStack(c)
+		hs2 := NewHStack()
 		hs2.Add(r)
 		hs2.AttachTo(hs)
 
@@ -330,7 +330,7 @@ func Test126(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/127#discussion_r4372638791
 	t.Run("case 2", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		stacks := []*Stack{NewHStack(c)}
+		stacks := []*Stack{NewHStack()}
 		for _, st := range stacks {
 			r := NewRectangle(c, 50, 50, color.White)
 			st.Add(r)
@@ -351,14 +351,14 @@ func Test126(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/127#discussion_r4372638811
 	t.Run("case 3", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		st := NewHStack(c)
+		st := NewHStack()
 
-		st1 := NewHStack(c)
+		st1 := NewHStack()
 		red := NewRectangle(c, 50, 50, color.RGBA{R: 255})
 		st1.Add(red)
 		st1.AttachTo(st)
 
-		st2 := NewHStack(c)
+		st2 := NewHStack()
 		blue := NewRectangle(c, 50, 50, color.RGBA{B: 255})
 		st2.Add(blue)
 		st2.AttachTo(st)
@@ -380,10 +380,10 @@ func Test126(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/127#discussion_r4372638832
 	t.Run("case 4", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		st := NewHStack(c)
+		st := NewHStack()
 		r := NewRectangle(c, 50, 50, color.Black)
 		st.Add(r)
-		st1 := NewHStack(c)
+		st1 := NewHStack()
 		st1.Add(NewRectangle(c, 50, 50, color.White))
 		st1.AttachTo(st)
 		st.Render(0, 0)
@@ -397,8 +397,8 @@ func Test126(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/129#discussion_r4579982636
 	t.Run("case 5", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs := NewHStack(c)
-		vs := NewVStack(c)
+		hs := NewHStack()
+		vs := NewVStack()
 		vs.Add(NewRectangle(c, 50, 50, color.White))
 		vs.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs.AttachTo(hs)
@@ -411,21 +411,21 @@ func Test126(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/129#discussion_r4579982654
 	t.Run("case 6", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs := NewHStack(c)
-		hs1 := NewHStack(c, WithPaddingY(5))
+		hs := NewHStack()
+		hs1 := NewHStack(WithPaddingY(5))
 		hs1.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = hs1.AttachTo(hs)
-		hs2 := NewHStack(c, WithPaddingY(5))
+		hs2 := NewHStack(WithPaddingY(5))
 		hs2.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = hs2.AttachTo(hs)
 		_, size := hs.Render(0, 0)
 		require.Equal(t, image.Pt(100, 60), size)
 
-		vs := NewVStack(c)
-		vs1 := NewVStack(c, WithPaddingX(5))
+		vs := NewVStack()
+		vs1 := NewVStack(WithPaddingX(5))
 		vs1.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs1.AttachTo(vs)
-		vs2 := NewVStack(c, WithPaddingX(5))
+		vs2 := NewVStack(WithPaddingX(5))
 		vs2.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs2.AttachTo(vs)
 		_, size1 := vs.Render(0, 0)
@@ -436,21 +436,21 @@ func Test126(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/129#discussion_r4598996061
 	t.Run("case 7", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		hs := NewHStack(c)
-		hs1 := NewHStack(c)
+		hs := NewHStack()
+		hs1 := NewHStack()
 		hs1.Add(NewRectangle(c, 50, 50, color.White))
 		hs1.AttachTo(hs)
-		vs1 := NewVStack(c)
+		vs1 := NewVStack()
 		vs1.Add(NewRectangle(c, 50, 50, color.White))
 		vs1.AttachTo(hs)
 		_, size := hs.Render(0, 0)
 		require.Equal(t, image.Pt(100, 50), size)
 
-		vs := NewVStack(c)
-		vs2 := NewVStack(c)
+		vs := NewVStack()
+		vs2 := NewVStack()
 		vs2.Add(NewRectangle(c, 50, 50, color.White))
 		vs2.AttachTo(vs)
-		hs2 := NewHStack(c)
+		hs2 := NewHStack()
 		hs2.Add(NewRectangle(c, 50, 50, color.White))
 		hs2.AttachTo(vs)
 		_, size1 := vs.Render(0, 0)

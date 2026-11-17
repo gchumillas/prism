@@ -13,8 +13,8 @@ import (
 // https://github.com/gchumillas/prism/issues/130
 func TestIssue130(t *testing.T) {
 	c := NewCanvas(320, 240)
-	hs := NewHStack(c)
-	hs1 := NewHStack(c)
+	hs := NewHStack()
+	hs1 := NewHStack()
 	r := NewRectangle(c, 50, 50, color.Black)
 	hs1.Add(r)
 	hs1.AttachTo(hs)

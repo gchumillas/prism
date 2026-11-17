@@ -37,9 +37,8 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Po
 }
 
 func TestHStack_DetachFrom(t *testing.T) {
-	env := NewEnv()
-	vs := ui.NewVStack(env.canvas)
-	hs := ui.NewHStack(env.canvas)
+	vs := ui.NewVStack()
+	hs := ui.NewHStack()
 	_ = hs.AttachTo(vs)
 	require.NoError(t, hs.DetachFrom(vs))
 	require.ErrorIs(t, hs.DetachFrom(vs), ui.ErrNotAttached)
@@ -54,7 +53,7 @@ func TestHStack_Render(t *testing.T) {
 			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.canvas, ui.WithGap(10))
+		hs := ui.NewHStack(ui.WithGap(10))
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -72,8 +71,8 @@ func TestHStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		r := NewRectangle(env.image, 50, 100, color.Gray{Y: 100})
-		hs1 := ui.NewHStack(env.canvas)
-		hs2 := ui.NewHStack(env.canvas)
+		hs1 := ui.NewHStack()
+		hs2 := ui.NewHStack()
 		_ = hs2.AttachTo(hs1)
 		hs2.Add(r)
 
@@ -91,7 +90,7 @@ func TestHStack_Render(t *testing.T) {
 			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
 		}
 
-		hs := ui.NewHStack(env.canvas)
+		hs := ui.NewHStack()
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -113,7 +112,7 @@ func TestHStack_Render(t *testing.T) {
 			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.canvas, ui.WithGap(10))
+		hs := ui.NewHStack(ui.WithGap(10))
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -132,7 +131,7 @@ func TestHStack_Render(t *testing.T) {
 			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.canvas)
+		hs := ui.NewHStack()
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -152,7 +151,7 @@ func TestHStack_Render(t *testing.T) {
 			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.canvas)
+		hs := ui.NewHStack()
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -175,7 +174,7 @@ func TestHStack_Render(t *testing.T) {
 			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.canvas)
+		hs := ui.NewHStack()
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -198,7 +197,7 @@ func TestHStack_Render(t *testing.T) {
 			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
 		}
 
-		hs := ui.NewHStack(env.canvas)
+		hs := ui.NewHStack()
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -220,7 +219,7 @@ func TestHStack_Render(t *testing.T) {
 			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(env.canvas)
+		hs := ui.NewHStack()
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -240,7 +239,7 @@ func TestHStack_Render(t *testing.T) {
 	// hit area follows widget after sibling removal
 	t.Run("remove button", func(t *testing.T) {
 		env := NewEnv()
-		hs := ui.NewHStack(env.canvas)
+		hs := ui.NewHStack()
 		btn1 := ui.NewButton(NewRectangle(env.image, 200, 100, color.Gray{Y: 100}))
 		btn2 := ui.NewButton(NewRectangle(env.image, 200, 100, color.Gray{Y: 200}))
 		_ = btn1.AttachTo(hs)

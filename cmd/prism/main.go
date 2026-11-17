@@ -20,7 +20,7 @@ type Prism struct {
 func (prism *Prism) Run() error {
 	c := ui.NewCanvasFromRGBA(prism.Canvas)
 
-	vs := ui.NewVStack(c)
+	vs := ui.NewVStack()
 	btn := app.NewLabelButton(c, "Click me!", ui.WithFontSize(prism.FontSize))
 	_ = btn.AttachTo(vs)
 	prism.Touch.AddTapHandler(btn, func() {

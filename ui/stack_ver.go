@@ -6,8 +6,8 @@ import (
 	"slices"
 )
 
-func NewVStack(c *Canvas, opts ...StackOption) *Stack {
-	return newStack(c, verticalLayout, opts...)
+func NewVStack(opts ...StackOption) *Stack {
+	return newStack(verticalLayout, opts...)
 }
 
 func verticalLayout(stx *stackContext, st *Stack, x, y int) {

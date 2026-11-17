@@ -26,7 +26,7 @@ func (cw *CustomWidget) Footprint() []uint64 {
 func TestStack_Add(t *testing.T) {
 	t.Run("custom widget", func(t *testing.T) {
 		c := NewCanvas(320, 240)
-		vs := NewVStack(c)
+		vs := NewVStack()
 		cw := NewCustomWidget(c, "custom ui")
 		vs.Add(cw)
 		require.Contains(t, vs.children, cw)
@@ -40,7 +40,7 @@ func TestVStack_Render(t *testing.T) {
 		c := NewCanvas(appWidth, appHeight)
 
 		for n := range 3 {
-			vs := NewVStack(c)
+			vs := NewVStack()
 			var shapes []*Rectangle
 			for i := range 3 {
 				shape := NewRectangle(c, 100, 50, color.Gray{Y: uint8(i)})
