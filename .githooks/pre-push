@@ -2,7 +2,7 @@
 set -e
 
 mage lint
-mage test
+mage test:regression
 mage web:build
 mage sb:build
 mage eink:build
