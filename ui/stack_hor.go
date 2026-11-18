@@ -10,24 +10,20 @@ func NewHStack(opts ...StackOption) *Stack {
 	return newStack(horizontalLayout, opts...)
 }
 
-func horizontalLayout(stx *stackContext, st *Stack, x, y int) {
-	stx.size.X += st.paddingX
+func horizontalLayout(stx *stackContext, st *Stack, x, y int) (size image.Point) {
+	size.X = st.paddingX
 	for i, child := range st.children {
 		if i > 0 {
-			stx.size.X += st.gap
+			size.X += st.gap
 		}
 		switch child := child.(type) {
 		case *Stack:
-			prevSize := stx.size
-			stx.size = image.Point{}
-			child.layout(stx, child, x+prevSize.X, y+st.paddingY)
-			stx.size.X += prevSize.X
-			stx.size.Y = max(prevSize.Y, stx.size.Y)
+			childSize := child.layout(stx, child, x+size.X, y+st.paddingY)
+			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
 		case Widget:
-			pos := image.Pt(x+stx.size.X, y+st.paddingY)
+			pos := image.Pt(x+size.X, y+st.paddingY)
 			childRegs, childSize := child.Render(pos.X, pos.Y)
-			stx.size.X += childSize.X
-			stx.size.Y = max(stx.size.Y, childSize.Y)
+			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
 			footprint := child.Footprint()
 			typ := reflect.TypeOf(child)
 			if stx.prevChildStatesIdx < len(stx.prevChildStates) {
@@ -55,7 +51,8 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) {
 			panic("unsupported type")
 		}
 	}
-	stx.size.X += st.paddingX
-	stx.size.Y += 2 * st.paddingY
+	size.X += st.paddingX
+	size.Y += 2 * st.paddingY
 	st.outdated = false
+	return
 }

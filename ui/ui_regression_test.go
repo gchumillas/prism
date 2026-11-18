@@ -303,7 +303,7 @@ func TestIssue124(t *testing.T) {
 }
 
 // https://github.com/gchumillas/prism/issues/126
-func Test126(t *testing.T) {
+func TestIssue126(t *testing.T) {
 	t.Run("case 1", func(t *testing.T) {
 		c := NewCanvas(320, 240)
 		hs := NewHStack()
@@ -456,4 +456,18 @@ func Test126(t *testing.T) {
 		_, size1 := vs.Render(0, 0)
 		require.Equal(t, image.Pt(50, 100), size1)
 	})
+}
+
+// https://github.com/gchumillas/prism/pull/132
+func TestPull132(t *testing.T) {
+	c := NewCanvas(320, 240)
+	hs := NewHStack(WithPaddingX(5))
+	hs.Add(NewRectangle(c, 50, 50, color.Black))
+	_, size := hs.Render(0, 0)
+	require.Equal(t, image.Pt(60, 50), size)
+
+	vs := NewVStack(WithPaddingY(5))
+	vs.Add(NewRectangle(c, 50, 50, color.Black))
+	_, size1 := vs.Render(0, 0)
+	require.Equal(t, image.Pt(50, 60), size1)
 }
