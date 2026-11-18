@@ -29,12 +29,13 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) {
 			stx.size.X += childSize.X
 			stx.size.Y = max(stx.size.Y, childSize.Y)
 			footprint := child.Footprint()
+			typ := reflect.TypeOf(child)
 			if stx.prevChildStatesIdx < len(stx.prevChildStates) {
 				prev := &stx.prevChildStates[stx.prevChildStatesIdx]
-				hasChanged := prev.pos != pos || prev.typ != reflect.TypeOf(child) || !slices.Equal(prev.footprint, footprint)
+				hasChanged := prev.pos != pos || prev.typ != typ || !slices.Equal(prev.footprint, footprint)
 				if hasChanged {
 					prev.pos = pos
-					prev.typ = reflect.TypeOf(child)
+					prev.typ = typ
 					prev.footprint = footprint
 					stx.dirtyRegs = append(stx.dirtyRegs, prev.regs...)
 					stx.dirtyRegs = append(stx.dirtyRegs, childRegs...)
@@ -43,7 +44,7 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) {
 			} else {
 				stx.prevChildStates = append(stx.prevChildStates, childState{
 					pos:       pos,
-					typ:       reflect.TypeOf(child),
+					typ:       typ,
 					footprint: footprint,
 					regs:      childRegs,
 				})
