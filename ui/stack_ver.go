@@ -10,7 +10,7 @@ func NewVStack(opts ...StackOption) *Stack {
 	return newStack(verticalLayout, opts...)
 }
 
-func verticalLayout(stx *stackContext, st *Stack, x, y int) (size image.Point) {
+func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	size.Y += st.paddingY
 	for i, child := range st.children {
 		if i > 0 {
@@ -18,7 +18,8 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (size image.Point) {
 		}
 		switch child := child.(type) {
 		case *Stack:
-			childSize := child.layout(stx, child, x+st.paddingX, y+size.Y)
+			childRegs, childSize := child.layout(stx, child, x+st.paddingX, y+size.Y)
+			dirtyRegs = append(dirtyRegs, childRegs...)
 			size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
 		case Widget:
 			pos := image.Pt(x+st.paddingX, y+size.Y)
@@ -33,8 +34,8 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (size image.Point) {
 					prev.pos = pos
 					prev.typ = typ
 					prev.footprint = footprint
-					stx.dirtyRegs = append(stx.dirtyRegs, prev.regs...)
-					stx.dirtyRegs = append(stx.dirtyRegs, childRegs...)
+					dirtyRegs = append(dirtyRegs, prev.regs...)
+					dirtyRegs = append(dirtyRegs, childRegs...)
 					prev.regs = childRegs
 				}
 			} else {
@@ -44,7 +45,7 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (size image.Point) {
 					footprint: footprint,
 					regs:      childRegs,
 				})
-				stx.dirtyRegs = append(stx.dirtyRegs, childRegs...)
+				dirtyRegs = append(dirtyRegs, childRegs...)
 			}
 			stx.prevChildStatesIdx++
 		default:
