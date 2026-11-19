@@ -478,3 +478,27 @@ func TestPull132(t *testing.T) {
 		require.Equal(t, image.Pt(50, 60), size1)
 	})
 }
+
+// https://github.com/gchumillas/prism/issues/130
+func TestIssue130(t *testing.T) {
+	c := NewCanvas(320, 240)
+	hs := NewHStack()
+	hs1 := NewHStack()
+	previous := NewRectangle(c, 50, 50, color.Gray{Y: 100})
+	removed := NewRectangle(c, 50, 50, color.Black)
+	hs.Add(previous)
+	hs1.Add(removed)
+	hs1.AttachTo(hs)
+	hs.Render(0, 0)
+
+	hs1.Remove(removed)
+	regs, _ := hs1.Render(50, 0)
+	require.Equal(t, []image.Rectangle{
+		image.Rect(50, 0, 100, 50),
+	}, regs)
+
+	regs, _ = hs.Render(0, 0)
+	require.Equal(t, []image.Rectangle{
+		image.Rect(50, 0, 100, 50),
+	}, regs)
+}

@@ -11,18 +11,19 @@ func NewHStack(opts ...StackOption) *Stack {
 }
 
 func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	childStatesStartIdx := stx.prevChildStatesIdx
 	size.X = st.paddingX
 	for i, child := range st.children {
 		if i > 0 {
 			size.X += st.gap
 		}
+		pos := image.Pt(x+size.X, y+st.paddingY)
 		switch child := child.(type) {
 		case *Stack:
-			childRegs, childSize := child.layout(stx, child, x+size.X, y+st.paddingY)
+			childRegs, childSize := child.layout(stx, child, pos.X, pos.Y)
 			dirtyRegs = append(dirtyRegs, childRegs...)
 			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
 		case Widget:
-			pos := image.Pt(x+size.X, y+st.paddingY)
 			childRegs, childSize := child.Render(pos.X, pos.Y)
 			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
 			footprint := child.Footprint()
@@ -54,6 +55,7 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image
 	}
 	size.X += st.paddingX
 	size.Y += 2 * st.paddingY
+	st.prevChildStates = slices.Clone(stx.prevChildStates[childStatesStartIdx:stx.prevChildStatesIdx])
 	st.outdated = false
 	return
 }

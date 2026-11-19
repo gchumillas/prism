@@ -11,18 +11,19 @@ func NewVStack(opts ...StackOption) *Stack {
 }
 
 func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	childStatesStartIdx := stx.prevChildStatesIdx
 	size.Y += st.paddingY
 	for i, child := range st.children {
 		if i > 0 {
 			size.Y += st.gap
 		}
+		pos := image.Pt(x+st.paddingX, y+size.Y)
 		switch child := child.(type) {
 		case *Stack:
-			childRegs, childSize := child.layout(stx, child, x+st.paddingX, y+size.Y)
+			childRegs, childSize := child.layout(stx, child, pos.X, pos.Y)
 			dirtyRegs = append(dirtyRegs, childRegs...)
 			size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
 		case Widget:
-			pos := image.Pt(x+st.paddingX, y+size.Y)
 			childRegs, childSize := child.Render(pos.X, pos.Y)
 			size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
 			footprint := child.Footprint()
@@ -54,6 +55,7 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 	}
 	size.X += 2 * st.paddingX
 	size.Y += st.paddingY
+	st.prevChildStates = slices.Clone(stx.prevChildStates[childStatesStartIdx:stx.prevChildStatesIdx])
 	st.outdated = false
 	return
 }
