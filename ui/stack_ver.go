@@ -11,6 +11,7 @@ func NewVStack(opts ...StackOption) *Stack {
 }
 
 func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	childStatesStartIdx := stx.prevChildStatesIdx
 	size.Y += st.paddingY
 	for i, child := range st.children {
 		if i > 0 {
@@ -54,6 +55,7 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 	}
 	size.X += 2 * st.paddingX
 	size.Y += st.paddingY
+	st.prevChildStates = slices.Clone(stx.prevChildStates[childStatesStartIdx:stx.prevChildStatesIdx])
 	st.outdated = false
 	return
 }

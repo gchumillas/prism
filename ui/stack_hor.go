@@ -11,6 +11,7 @@ func NewHStack(opts ...StackOption) *Stack {
 }
 
 func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+	childStatesStartIdx := stx.prevChildStatesIdx
 	size.X = st.paddingX
 	for i, child := range st.children {
 		if i > 0 {
@@ -54,6 +55,7 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image
 	}
 	size.X += st.paddingX
 	size.Y += 2 * st.paddingY
+	st.prevChildStates = slices.Clone(stx.prevChildStates[childStatesStartIdx:stx.prevChildStatesIdx])
 	st.outdated = false
 	return
 }
