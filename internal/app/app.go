@@ -1,12 +1,10 @@
 package app
 
-type Region struct {
-	X0, Y0, X1, Y1 int
-}
+import "image"
 
 // TODO: rename to Displayer
 type Renderer interface {
-	Refresh([]Region) error
+	Refresh([]image.Rectangle) error
 }
 
 type Tappable interface {

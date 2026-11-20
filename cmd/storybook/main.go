@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"os"
 
@@ -41,8 +42,7 @@ func (sb *Storybook) Render() {
 func (sb *Storybook) refresh() error {
 	sb.Render()
 	b := sb.canvas.Image().Bounds()
-	s := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
-	return sb.Screen.Refresh([]app.Region{s})
+	return sb.Screen.Refresh([]image.Rectangle{b})
 }
 
 func main() {

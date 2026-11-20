@@ -54,11 +54,11 @@ func (s *Screen) Canvas() *image.RGBA {
 	return s.screen.Canvas()
 }
 
-func (s *Screen) Refresh(regs []app.Region) error {
+func (s *Screen) Refresh(regs []image.Rectangle) error {
 	var rs []screen.Region
 	for _, reg := range regs {
 		rs = append(rs, screen.Region{
-			X0: int(reg.X0), Y0: int(reg.Y0), X1: int(reg.X1), Y1: int(reg.Y1),
+			X0: int(reg.Min.X), Y0: int(reg.Min.Y), X1: int(reg.Max.X), Y1: int(reg.Max.Y),
 			Waveform: screen.WaveformGC16,
 		})
 	}
