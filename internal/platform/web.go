@@ -65,12 +65,12 @@ type Screen struct {
 	RefreshCb js.Value
 }
 
-func (s *Screen) Refresh(regs []app.Region) error {
+func (s *Screen) Refresh(regs []image.Rectangle) error {
 	buf := js.Global().Get("Uint8Array").New(len(s.Canvas.Pix))
 	js.CopyBytesToJS(buf, s.Canvas.Pix)
 	for _, r := range regs {
-		x0, y0 := js.ValueOf(r.X0), js.ValueOf(r.Y0)
-		x1, y1 := js.ValueOf(r.X1), js.ValueOf(r.Y1)
+		x0, y0 := js.ValueOf(r.Min.X), js.ValueOf(r.Min.Y)
+		x1, y1 := js.ValueOf(r.Max.X), js.ValueOf(r.Max.Y)
 		s.RefreshCb.Invoke(buf, x0, y0, x1, y1)
 	}
 	return nil

@@ -30,8 +30,7 @@ func (prism *Prism) Run() error {
 
 	// refresh the screen
 	b := prism.Canvas.Bounds()
-	t := app.Region{X0: b.Min.X, Y0: b.Min.Y, X1: b.Max.X, Y1: b.Max.Y}
-	return prism.Screen.Refresh([]app.Region{t})
+	return prism.Screen.Refresh([]image.Rectangle{b})
 }
 
 func main() {
