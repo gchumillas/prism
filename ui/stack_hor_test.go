@@ -30,10 +30,14 @@ func (rec *Rectangle) Footprint() []uint64 {
 	return []uint64{uint64(rec.Width), uint64(rec.Height), uint64(r), uint64(g), uint64(b), uint64(a)}
 }
 
-func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	rec := image.Rect(x, y, x+r.Width, y+r.Height)
 	draw.Draw(r.canvas, rec, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
-	return []image.Rectangle{rec}, rec.Size()
+	return []image.Rectangle{rec}
+}
+
+func (r *Rectangle) Size() image.Point {
+	return image.Pt(r.Width, r.Height)
 }
 
 func TestHStack_DetachFrom(t *testing.T) {
@@ -58,12 +62,13 @@ func TestHStack_Render(t *testing.T) {
 			hs.Add(r)
 		}
 
-		regs, size := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 50, 150),
 			image.Rect(60, 0, 210, 50),
 			image.Rect(220, 0, 320, 100),
 		}, regs)
+		size := hs.Size()
 		require.Equal(t, image.Pt(320, 150), size)
 	})
 
@@ -76,7 +81,7 @@ func TestHStack_Render(t *testing.T) {
 		_ = hs2.AttachTo(hs1)
 		hs2.Add(r)
 
-		regs, _ := hs1.Render(0, 0)
+		regs := hs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 50, 100),
 		}, regs)
@@ -97,7 +102,7 @@ func TestHStack_Render(t *testing.T) {
 
 		hs.Render(0, 0)
 		hs.Remove(recs[0])
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 50, 100),
 		}, regs)
@@ -118,7 +123,7 @@ func TestHStack_Render(t *testing.T) {
 		}
 
 		hs.Render(0, 0)
-		regs, _ := hs.Render(0, 0) // call Render() without changes
+		regs := hs.Render(0, 0) // call Render() without changes
 		require.Empty(t, regs)
 	})
 
@@ -138,7 +143,7 @@ func TestHStack_Render(t *testing.T) {
 
 		hs.Render(0, 0)
 		recs[1].Height += 50 // changing the height does'n affect others
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(50, 0, 200, 100)}, regs)
 	})
 
@@ -158,7 +163,7 @@ func TestHStack_Render(t *testing.T) {
 
 		hs.Render(0, 0)
 		recs[1].Width -= 50 // changing the width shift the rest of the items
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(50, 0, 300, 50),
 			image.Rect(150, 50, 300, 100),
@@ -181,7 +186,7 @@ func TestHStack_Render(t *testing.T) {
 
 		hs.Render(0, 0)
 		hs.Remove(recs[0]) // deleting an item shifts the rest of the items
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 300, 50),
 			image.Rect(0, 50, 50, 150),
@@ -204,7 +209,7 @@ func TestHStack_Render(t *testing.T) {
 
 		hs.Render(0, 0)
 		hs.Remove(recs[0])
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(50, 0, 100, 100), // only the ghost region is repainted
 		}, regs)
@@ -225,7 +230,7 @@ func TestHStack_Render(t *testing.T) {
 		}
 
 		hs.Render(0, 0)
-		regs, _ := hs.Render(100, 50)
+		regs := hs.Render(100, 50)
 		// covers the ghost regions and the new ones
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 300, 50),

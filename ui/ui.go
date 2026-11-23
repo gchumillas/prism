@@ -36,7 +36,8 @@ var (
 )
 
 type Widget interface {
-	Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)
+	Render(x, y int) (dirtyRegs []image.Rectangle)
+	Size() image.Point
 	Footprint() []uint64
 }
 

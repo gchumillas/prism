@@ -7,7 +7,29 @@ import (
 )
 
 func NewHStack(opts ...StackOption) *Stack {
-	return newStack(horizontalLayout, opts...)
+	return newStack(horizontalLayout, horizontalLayoutSize, opts...)
+}
+
+func horizontalLayoutSize(st *Stack) (size image.Point) {
+	size.X = st.paddingX
+	for i, child := range st.children {
+		if i > 0 {
+			size.X += st.gap
+		}
+		switch child := child.(type) {
+		case *Stack:
+			childSize := child.layoutSize(child)
+			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
+		case Widget:
+			childSize := child.Size()
+			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
+		default:
+			panic("unsupported type")
+		}
+	}
+	size.X += st.paddingX
+	size.Y += 2 * st.paddingY
+	return
 }
 
 func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
@@ -24,7 +46,8 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image
 			dirtyRegs = append(dirtyRegs, childRegs...)
 			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
 		case Widget:
-			childRegs, childSize := child.Render(pos.X, pos.Y)
+			childRegs := child.Render(pos.X, pos.Y)
+			childSize := child.Size()
 			size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
 			footprint := child.Footprint()
 			typ := reflect.TypeOf(child)

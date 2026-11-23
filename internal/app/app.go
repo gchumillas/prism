@@ -52,7 +52,7 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 func (a *App) Refresh() error {
 	var dirtyRegs []image.Rectangle
 
-	regs, _ := a.vs.Render(50, 100)
+	regs := a.vs.Render(50, 100)
 	dirtyRegs = append(dirtyRegs, regs...)
 
 	dirtyRegs = ui.CombineRegions(dirtyRegs)

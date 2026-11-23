@@ -15,7 +15,7 @@ func TestLabelButton_Render(t *testing.T) {
 		vs := ui.NewVStack()
 		btn := app.NewLabelButton(c, "Hello, World!")
 		_ = btn.AttachTo(vs)
-		_, size := vs.Render(0, 0)
+		size := vs.Size()
 		require.Equal(t, image.Pt(257, 75), size)
 	})
 

@@ -30,7 +30,7 @@ func (ib *imageButton) Footprint() []uint64 {
 	return ib.img.Footprint()
 }
 
-func (ib *imageButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (ib *imageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	hb := image.Rectangle{Min: pos, Max: pos.Add(ib.size)}
 	lineWidth := 4
@@ -42,6 +42,10 @@ func (ib *imageButton) Render(x, y int) (dirtyRegs []image.Rectangle, size image
 	ib.canvas.Stroke()
 
 	dirtyReg := image.Rectangle{Min: hb.Min, Max: hb.Max}.Inset(-lineWidth/2 - 1)
-	dr, _ := ib.img.Render(x+imgBtnPad.X, y+imgBtnPad.Y)
-	return append(dr, dirtyReg), image.Pt(hb.Dx(), hb.Dy())
+	dr := ib.img.Render(x+imgBtnPad.X, y+imgBtnPad.Y)
+	return append(dr, dirtyReg)
+}
+
+func (ib *imageButton) Size() image.Point {
+	return ib.size
 }

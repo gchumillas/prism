@@ -48,12 +48,15 @@ func (r *Rect) Footprint() []uint64 {
 	return []uint64{uint64(r.Dx()), uint64(r.Dy()), maphash.Comparable(seed, r.color)}
 }
 
-func (r *Rect) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (r *Rect) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	size = r.Size()
-	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(size)}
+	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(r.Size())}
 	draw.Draw(r.canvas, r.Rectangle, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
-	return []image.Rectangle{r.Rectangle}, size
+	return []image.Rectangle{r.Rectangle}
+}
+
+func (r *Rect) Size() image.Point {
+	return r.Rectangle.Size()
 }
 
 type Rect1 struct {
