@@ -20,7 +20,8 @@ type stackContext struct {
 }
 
 type renderer interface {
-	Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)
+	Render(x, y int) (dirtyRegs []image.Rectangle)
+	Size() image.Point
 }
 
 type Stack struct {
@@ -30,6 +31,7 @@ type Stack struct {
 	children        []renderer
 	prevChildStates []childState
 	layout          func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point)
+	layoutSize      func(*Stack) image.Point
 	outdated        bool
 	attached        bool
 }
@@ -42,8 +44,8 @@ func (val WithPaddingX) ApplyStack(s *Stack) { s.paddingX = int(val) }
 func (val WithPaddingY) ApplyStack(s *Stack) { s.paddingY = int(val) }
 func (val WithGap) ApplyStack(s *Stack)      { s.gap = int(val) }
 
-func newStack(layout func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point), opts ...StackOption) *Stack {
-	s := &Stack{layout: layout}
+func newStack(layout func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point), layoutSize func(*Stack) image.Point, opts ...StackOption) *Stack {
+	s := &Stack{layout: layout, layoutSize: layoutSize}
 	for _, opt := range opts {
 		opt.ApplyStack(s)
 	}
@@ -90,9 +92,9 @@ func (s *Stack) DetachFrom(parent *Stack) error {
 	return ErrNotAttached
 }
 
-func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	stx := &stackContext{prevChildStates: s.prevChildStates}
-	dirtyRegs, size = s.layout(stx, s, x, y)
+	dirtyRegs, _ = s.layout(stx, s, x, y)
 
 	// discarded regions must be refreshed
 	for _, child := range stx.prevChildStates[stx.prevChildStatesIdx:] {
@@ -106,6 +108,10 @@ func (s *Stack) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point)
 	dirtyRegs = CombineRegions(dirtyRegs)
 	s.prevChildStates = stx.prevChildStates
 	return
+}
+
+func (s *Stack) Size() image.Point {
+	return s.layoutSize(s)
 }
 
 func (s *Stack) hasStack(other *Stack) bool {

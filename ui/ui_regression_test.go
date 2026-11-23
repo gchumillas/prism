@@ -34,7 +34,7 @@ func (sq *Square) Footprint() []uint64 {
 	return []uint64{h.Sum64()}
 }
 
-func (sq *Square) Render(x, y int) ([]image.Rectangle, image.Point) {
+func (sq *Square) Render(x, y int) []image.Rectangle {
 	sq.ctx.SetColor(color.White)
 	sq.ctx.SetLineWidth(float64(sq.bSize))
 	sq.ctx.DrawLine(float64(x), float64(y), float64(x+sq.width), float64(y))
@@ -44,13 +44,16 @@ func (sq *Square) Render(x, y int) ([]image.Rectangle, image.Point) {
 	sq.ctx.Stroke()
 
 	safeMargin := sq.bSize/2 + 1
-	size := image.Pt(sq.width, sq.width)
 	dirtyReg := image.Rectangle{
 		Min: image.Pt(x-safeMargin, y-safeMargin),
 		Max: image.Pt(x+sq.width+safeMargin, y+sq.width+safeMargin),
 	}
 
-	return []image.Rectangle{dirtyReg}, size
+	return []image.Rectangle{dirtyReg}
+}
+
+func (sq *Square) Size() image.Point {
+	return image.Pt(sq.width, sq.width)
 }
 
 // https://github.com/gchumillas/prism/issues/110
@@ -72,7 +75,7 @@ func TestIssue110(t *testing.T) {
 
 	// remove the internal stack, render and clear "dirty regions"
 	_ = hs1.DetachFrom(hs)
-	dirtyRegs, _ := hs.Render(x0, y0)
+	dirtyRegs := hs.Render(x0, y0)
 	for _, reg := range dirtyRegs {
 		draw.Draw(c.image, reg, image.NewUniform(color.Transparent), image.Point{}, draw.Src)
 	}
@@ -85,7 +88,7 @@ func TestIssue110(t *testing.T) {
 
 	// remove the internal stack again, repaint and clear "dirty regions"
 	hs1.DetachFrom(hs)
-	dirtyRegs, _ = hs.Render(x0, y0)
+	dirtyRegs = hs.Render(x0, y0)
 	for _, reg := range dirtyRegs {
 		draw.Draw(c.image, reg, image.NewUniform(color.Transparent), image.Point{}, draw.Src)
 	}
@@ -106,7 +109,7 @@ func TestIssue73(t *testing.T) {
 		// clear the squares and repaint
 		hs.Remove(sq1)
 		hs.Remove(sq2)
-		dirtyRegs, _ := hs.Render(10, 10)
+		dirtyRegs := hs.Render(10, 10)
 
 		// clear "dirty regions"
 		for _, reg := range dirtyRegs {
@@ -124,7 +127,7 @@ func TestIssue73(t *testing.T) {
 
 		square := NewRectangle(c, 20, 20, color.White)
 		hs.Add(square)
-		dirtyRegs, _ := hs.Render(0, 0)
+		dirtyRegs := hs.Render(0, 0)
 		// "dirtyRegs" contains the square and only it
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 20, 20),
@@ -133,7 +136,7 @@ func TestIssue73(t *testing.T) {
 		hs.Remove(square)
 		landscape := NewRectangle(c, 30, 10, color.White)
 		hs.Add(landscape)
-		dirtyRegs, _ = hs.Render(0, 0)
+		dirtyRegs = hs.Render(0, 0)
 		// "dirtyRegs" contains the square and the landscape and only them
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 30, 10),
@@ -145,7 +148,7 @@ func TestIssue73(t *testing.T) {
 		hs.Add(portrait)
 		// "dirtyRegs" contains the landscape and the portrait and only them
 		// it doesn't contain the square
-		dirtyRegs, _ = hs.Render(0, 0)
+		dirtyRegs = hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 30, 10),
 			image.Rect(0, 10, 10, 30),
@@ -166,7 +169,7 @@ func TestIssue113(t *testing.T) {
 
 	// An inner HStack contains rectangles A and B.
 	// The first render returns the regions of A and B, which are cached.
-	regs, _ := hs1.Render(0, 0)
+	regs := hs1.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
 		image.Rect(0, 0, 100, 50),
 	}, regs)
@@ -174,14 +177,14 @@ func TestIssue113(t *testing.T) {
 	// B is removed and rendered again. The inner HStack returns only B's old
 	// region, because that's the only thing that changed. Only that is cached.
 	hs2.Remove(b)
-	regs, _ = hs1.Render(0, 0)
+	regs = hs1.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
 		image.Rect(50, 0, 100, 50),
 	}, regs)
 
 	// The inner HStack is detached. prev.regs is cleared, and contains only B.
 	hs2.DetachFrom(hs1)
-	regs, _ = hs1.Render(0, 0)
+	regs = hs1.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
 		image.Rect(0, 0, 50, 50),
 	}, regs)
@@ -203,7 +206,7 @@ func TestIssue114(t *testing.T) {
 		hs1.Render(0, 0)
 
 		recs[1].height = 100
-		regs, _ := hs1.Render(0, 0)
+		regs := hs1.Render(0, 0)
 		// only recs[1] needs to be refreshed
 		// however regs is [(0,0)-(150,50) (50,50)-(100,100)]
 		require.Equal(t, []image.Rectangle{
@@ -224,7 +227,7 @@ func TestIssue114(t *testing.T) {
 		hs2 := NewHStack()
 		hs2.Add(NewRectangle(c, 20, 20, color.White))
 		hs2.AttachTo(hs1)
-		regs, _ := hs1.Render(0, 0)
+		regs := hs1.Render(0, 0)
 
 		// the old 50x50 region must be refreshed, otherwise stale pixels remain
 		for _, reg := range regs {
@@ -241,18 +244,18 @@ func TestPull120(t *testing.T) {
 	hs1 := NewHStack()
 	hs1.AttachTo(hs)
 
-	regs, _ := hs.Render(0, 0)
+	regs := hs.Render(0, 0)
 	require.Empty(t, regs)
 
 	r := NewRectangle(c, 50, 50, color.White)
 	hs1.Add(r)
-	regs, _ = hs.Render(0, 0)
+	regs = hs.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
 		image.Rect(0, 0, 50, 50),
 	}, regs)
 
 	hs1.DetachFrom(hs)
-	regs, _ = hs.Render(0, 0)
+	regs = hs.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
 		image.Rect(0, 0, 50, 50),
 	}, regs)
@@ -271,7 +274,7 @@ func TestIssue124(t *testing.T) {
 		vs2.Add(NewRectangle(c, 20, 20, color.White))
 
 		vs1.AttachTo(vs)
-		regs, _ := vs.Render(0, 0)
+		regs := vs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 100, 100),
 		}, regs)
@@ -291,7 +294,7 @@ func TestIssue124(t *testing.T) {
 		hs2.Add(NewRectangle(c, 20, 20, color.White))
 
 		hs1.AttachTo(hs)
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 100, 100),
 		}, regs)
@@ -320,7 +323,7 @@ func TestIssue126(t *testing.T) {
 
 		hs.Render(0, 0)
 		hs1.DetachFrom(hs)
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		// only the missing square needs to be refreshed
 		require.Equal(t, []image.Rectangle{
 			image.Rect(50, 0, 100, 50),
@@ -335,13 +338,13 @@ func TestIssue126(t *testing.T) {
 			r := NewRectangle(c, 50, 50, color.White)
 			st.Add(r)
 
-			regs, _ := st.Render(0, 0)
+			regs := st.Render(0, 0)
 			require.Equal(t, []image.Rectangle{
 				image.Rect(0, 0, 50, 50),
 			}, regs)
 
 			st.Remove(r)
-			regs, _ = st.Render(100, 100)
+			regs = st.Render(100, 100)
 			require.Equal(t, []image.Rectangle{
 				image.Rect(0, 0, 50, 50),
 			}, regs)
@@ -363,13 +366,13 @@ func TestIssue126(t *testing.T) {
 		st2.Add(blue)
 		st2.AttachTo(st)
 
-		regs, _ := st.Render(0, 0)
+		regs := st.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 100, 50),
 		}, regs)
 
 		st1.DetachFrom(st)
-		regs, _ = st.Render(0, 0)
+		regs = st.Render(0, 0)
 		// should return the joint shadow of st1 and st2,
 		// since they contain squares of different colors
 		require.Equal(t, []image.Rectangle{
@@ -388,7 +391,7 @@ func TestIssue126(t *testing.T) {
 		st1.AttachTo(st)
 		st.Render(0, 0)
 		r.width = 100
-		regs, _ := st.Render(0, 0)
+		regs := st.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 150, 50),
 		}, regs)
@@ -402,7 +405,7 @@ func TestIssue126(t *testing.T) {
 		vs.Add(NewRectangle(c, 50, 50, color.White))
 		vs.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs.AttachTo(hs)
-		regs, _ := hs.Render(0, 0)
+		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(0, 0, 50, 100),
 		}, regs)
@@ -418,7 +421,7 @@ func TestIssue126(t *testing.T) {
 		hs2 := NewHStack(WithPaddingY(5))
 		hs2.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = hs2.AttachTo(hs)
-		_, size := hs.Render(0, 0)
+		size := hs.Size()
 		require.Equal(t, image.Pt(100, 60), size)
 
 		vs := NewVStack()
@@ -428,7 +431,7 @@ func TestIssue126(t *testing.T) {
 		vs2 := NewVStack(WithPaddingX(5))
 		vs2.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs2.AttachTo(vs)
-		_, size1 := vs.Render(0, 0)
+		size1 := vs.Size()
 		fmt.Println(size1)
 		require.Equal(t, image.Pt(60, 100), size1)
 	})
@@ -443,7 +446,7 @@ func TestIssue126(t *testing.T) {
 		vs1 := NewVStack()
 		vs1.Add(NewRectangle(c, 50, 50, color.White))
 		vs1.AttachTo(hs)
-		_, size := hs.Render(0, 0)
+		size := hs.Size()
 		require.Equal(t, image.Pt(100, 50), size)
 
 		vs := NewVStack()
@@ -453,7 +456,7 @@ func TestIssue126(t *testing.T) {
 		hs2 := NewHStack()
 		hs2.Add(NewRectangle(c, 50, 50, color.White))
 		hs2.AttachTo(vs)
-		_, size1 := vs.Render(0, 0)
+		size1 := vs.Size()
 		require.Equal(t, image.Pt(50, 100), size1)
 	})
 }
@@ -465,7 +468,7 @@ func TestPull132(t *testing.T) {
 		c := NewCanvas(320, 240)
 		hs := NewHStack(WithPaddingX(5))
 		hs.Add(NewRectangle(c, 50, 50, color.Black))
-		_, size := hs.Render(0, 0)
+		size := hs.Size()
 		require.Equal(t, image.Pt(60, 50), size)
 	})
 
@@ -474,7 +477,7 @@ func TestPull132(t *testing.T) {
 		c := NewCanvas(320, 240)
 		vs := NewVStack(WithPaddingY(5))
 		vs.Add(NewRectangle(c, 50, 50, color.Black))
-		_, size1 := vs.Render(0, 0)
+		size1 := vs.Size()
 		require.Equal(t, image.Pt(50, 60), size1)
 	})
 }
@@ -492,12 +495,12 @@ func TestIssue130(t *testing.T) {
 	hs.Render(0, 0)
 
 	hs1.Remove(removed)
-	regs, _ := hs1.Render(50, 0)
+	regs := hs1.Render(50, 0)
 	require.Equal(t, []image.Rectangle{
 		image.Rect(50, 0, 100, 50),
 	}, regs)
 
-	regs, _ = hs.Render(0, 0)
+	regs = hs.Render(0, 0)
 	require.Equal(t, []image.Rectangle{
 		image.Rect(50, 0, 100, 50),
 	}, regs)

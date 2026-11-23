@@ -73,14 +73,11 @@ func (l *Label) Footprint() []uint64 {
 	return []uint64{math.Float64bits(l.fontSize), uint64(c), maphash.String(seed, l.text)}
 }
 
-func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	l.canvas.SetFontFace(l.face)
 	l.canvas.SetColor(l.color)
 	l.canvas.DrawString(l.text, float64(pos.X), float64(pos.Y+l.ascent))
 
-	bounds, _ := font.BoundString(l.face, l.text)
-	size = image.Pt(bounds.Max.X.Ceil(), l.descent+l.ascent)
-
-	return []image.Rectangle{{Min: pos, Max: pos.Add(size)}}, size
+	return []image.Rectangle{{Min: pos, Max: pos.Add(l.Size())}}
 }

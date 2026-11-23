@@ -56,7 +56,7 @@ func (t *Text) Footprint() []uint64 {
 	return []uint64{math.Float64bits(t.fontSize), uint64(c), uint64(t.width), maphash.String(seed, t.text)}
 }
 
-func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
 		Size:    t.fontSize,
@@ -83,7 +83,23 @@ func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) 
 	return []image.Rectangle{{
 		Min: pos,
 		Max: pos.Add(image.Pt(t.width, lineh*len(lines))),
-	}}, image.Pt(t.width, lineh*len(lines))
+	}}
+}
+
+func (t *Text) Size() image.Point {
+	face, err := opentype.NewFace(uiFont, &opentype.FaceOptions{
+		Size:    t.fontSize,
+		DPI:     defaultDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	m := face.Metrics()
+	lineh := m.Height.Ceil()
+	lines := splitIntoLines(face, t.text, t.width)
+	return image.Pt(t.width, lineh*len(lines))
 }
 
 func splitIntoLines(f font.Face, text string, width int) (lines []string) {

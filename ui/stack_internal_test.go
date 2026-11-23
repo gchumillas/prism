@@ -15,8 +15,12 @@ func NewCustomWidget(c *Canvas, text string) *CustomWidget {
 	return &CustomWidget{Label: NewLabel(c, text)}
 }
 
-func (cw *CustomWidget) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (cw *CustomWidget) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	return cw.Label.Render(x, y)
+}
+
+func (cw *CustomWidget) Size() image.Point {
+	return cw.Label.Size()
 }
 
 func (cw *CustomWidget) Footprint() []uint64 {

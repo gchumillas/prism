@@ -2,6 +2,7 @@ package app
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/gchumillas/prism/ui"
 )
@@ -23,7 +24,7 @@ type TapDispatcher interface {
 type App struct {
 	Touch    TapDispatcher
 	Screen   Renderer
-	Canvas   *image.RGBA
+	Canvas   *ui.Canvas
 	FontSize float64
 
 	vs *ui.Stack
@@ -34,7 +35,7 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 	a := &App{
 		Touch:    trackpad,
 		Screen:   screen,
-		Canvas:   canvas,
+		Canvas:   c,
 		FontSize: fontSize,
 	}
 
@@ -50,9 +51,13 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 }
 
 func (a *App) Refresh() error {
-	var dirtyRegs []image.Rectangle
+	// clear the canvas
+	b := a.Canvas.Image().Bounds()
+	bg := ui.NewRectangle(a.Canvas, b.Dx(), b.Dy(), color.White)
+	bg.Render(0, 0)
 
-	regs, _ := a.vs.Render(50, 100)
+	var dirtyRegs []image.Rectangle
+	regs := a.vs.Render(50, 100)
 	dirtyRegs = append(dirtyRegs, regs...)
 
 	dirtyRegs = ui.CombineRegions(dirtyRegs)

@@ -34,11 +34,11 @@ func (i *Image) Footprint() []uint64 {
 	return []uint64{i.id}
 }
 
-func (i *Image) Render(x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
+func (i *Image) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	i.canvas.DrawImage(i.img, pos.X, pos.Y)
 	b := i.img.Bounds()
-	size = image.Pt(b.Dx(), b.Dy())
+	size := image.Pt(b.Dx(), b.Dy())
 	// TODO: add safe margin (affect others)
-	return []image.Rectangle{{Min: pos, Max: pos.Add(size)}}, size
+	return []image.Rectangle{{Min: pos, Max: pos.Add(size)}}
 }

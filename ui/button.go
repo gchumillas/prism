@@ -9,11 +9,15 @@ type buttonWrapper struct {
 	*Button
 }
 
-func (cb *buttonWrapper) Render(x, y int) ([]image.Rectangle, image.Point) {
-	dirtyRegs, size := cb.widget.Render(x, y)
+func (cb *buttonWrapper) Render(x, y int) []image.Rectangle {
+	dirtyRegs := cb.widget.Render(x, y)
 	pos := image.Pt(x, y)
-	cb.bounds = image.Rectangle{Min: pos, Max: pos.Add(size)}
-	return dirtyRegs, size
+	cb.bounds = image.Rectangle{Min: pos, Max: pos.Add(cb.Size())}
+	return dirtyRegs
+}
+
+func (cb *buttonWrapper) Size() image.Point {
+	return cb.widget.Size()
 }
 
 func (cb *buttonWrapper) Footprint() []uint64 {

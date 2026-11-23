@@ -14,7 +14,7 @@ func TestRectangle_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
 		r := ui.NewRectangle(env.canvas, 100, 50, color.White)
-		_, size := r.Render(0, 0)
+		size := r.Size()
 		require.Equal(t, image.Pt(100, 50), size)
 	})
 }

@@ -20,7 +20,7 @@ func TestLoadImageButton(t *testing.T) {
 		btn, err := app.LoadImageButton(c, bytes.NewReader(dat))
 		require.NoError(t, err)
 		_ = btn.AttachTo(vs)
-		_, size := vs.Render(0, 0)
+		size := vs.Size()
 		require.Equal(t, image.Pt(34, 34), size)
 	})
 

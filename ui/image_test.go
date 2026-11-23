@@ -17,7 +17,7 @@ func TestImage_Render(t *testing.T) {
 		require.NoError(t, err)
 		img, err := ui.LoadImage(env.canvas, bytes.NewReader(icon))
 		require.NoError(t, err)
-		_, size := img.Render(0, 0)
+		size := img.Size()
 		require.Equal(t, image.Pt(24, 24), size)
 	})
 }
