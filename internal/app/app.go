@@ -28,6 +28,7 @@ type App struct {
 	FontSize float64
 
 	vs *ui.Stack
+	ad *AlertDialog
 }
 
 func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSize float64) *App {
@@ -43,7 +44,9 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 	btn := NewLabelButton(c, "Click me!", ui.WithFontSize(a.FontSize))
 	_ = btn.AttachTo(a.vs)
 
+	a.ad = a.NewAlertDialog("Hi there!")
 	a.Touch.AddTapHandler(btn, func() {
+		a.ad.Open()
 		_ = a.Refresh()
 	})
 
@@ -58,6 +61,9 @@ func (a *App) Refresh() error {
 
 	var dirtyRegs []image.Rectangle
 	regs := a.vs.Render(50, 100)
+	dirtyRegs = append(dirtyRegs, regs...)
+
+	regs = a.ad.Render()
 	dirtyRegs = append(dirtyRegs, regs...)
 
 	dirtyRegs = ui.CombineRegions(dirtyRegs)
