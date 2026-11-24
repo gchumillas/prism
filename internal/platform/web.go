@@ -89,9 +89,11 @@ type TouchDispatcher struct {
 }
 
 func (t *TouchDispatcher) Tap(x, y int) {
-	for _, h := range t.handlers {
+	for i := len(t.handlers) - 1; i >= 0; i-- {
+		h := &t.handlers[i]
 		if h.btn.Contains(x, y) {
 			h.action()
+			break
 		}
 	}
 }
