@@ -11,14 +11,14 @@ import (
 
 var imgBtnPad = image.Pt(5, 5)
 
-type imageButton struct {
+type ImageButton struct {
 	canvas *gg.Context
 	img    *ui.Image
 	size   image.Point
 }
 
 func LoadImageButton(c *ui.Canvas, r io.Reader) (_ *ui.Button, err error) {
-	ib := &imageButton{canvas: gg.NewContextForRGBA(c.Image())}
+	ib := &ImageButton{canvas: gg.NewContextForRGBA(c.Image())}
 	if ib.img, err = ui.LoadImage(c, r); err != nil {
 		return
 	}
@@ -26,11 +26,11 @@ func LoadImageButton(c *ui.Canvas, r io.Reader) (_ *ui.Button, err error) {
 	return ui.NewButton(ib), nil
 }
 
-func (ib *imageButton) Footprint() []uint64 {
+func (ib *ImageButton) Footprint() []uint64 {
 	return ib.img.Footprint()
 }
 
-func (ib *imageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	hb := image.Rectangle{Min: pos, Max: pos.Add(ib.size)}
 	lineWidth := 4
@@ -46,6 +46,6 @@ func (ib *imageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	return append(dr, dirtyReg)
 }
 
-func (ib *imageButton) Size() image.Point {
+func (ib *ImageButton) Size() image.Point {
 	return ib.size
 }

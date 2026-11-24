@@ -10,24 +10,24 @@ import (
 
 var labelBtnPad = image.Point{38, 19}
 
-type labelButton struct {
+type LabelButton struct {
 	canvas *gg.Context
 	label  *ui.Label
 	size   image.Point
 }
 
 func NewLabelButton(c *ui.Canvas, text string, opts ...ui.LabelOption) *ui.Button {
-	lb := &labelButton{canvas: gg.NewContextForRGBA(c.Image())}
+	lb := &LabelButton{canvas: gg.NewContextForRGBA(c.Image())}
 	lb.label = ui.NewLabel(c, text, opts...)
 	lb.size = lb.label.Size().Add(labelBtnPad.Mul(2))
 	return ui.NewButton(lb)
 }
 
-func (lb *labelButton) Footprint() []uint64 {
+func (lb *LabelButton) Footprint() []uint64 {
 	return lb.label.Footprint()
 }
 
-func (lb *labelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	hb := image.Rectangle{Min: pos, Max: pos.Add(lb.size)}
 	lineWidth := 4
@@ -43,6 +43,6 @@ func (lb *labelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	return append(dr, dirtyReg)
 }
 
-func (lb *labelButton) Size() image.Point {
+func (lb *LabelButton) Size() image.Point {
 	return lb.size
 }

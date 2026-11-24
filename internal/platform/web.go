@@ -106,6 +106,7 @@ func (t *TouchDispatcher) AddTapHandler(btn app.Tappable, action func()) int {
 	return t.count
 }
 
+// TODO: RemoveTapHandler should return an error if the identifier was not found (affects others)
 func (t *TouchDispatcher) RemoveTapHandler(id int) {
 	for i, h := range t.handlers {
 		if h.id == id {
