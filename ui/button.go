@@ -30,12 +30,12 @@ type Button struct {
 	bounds  image.Rectangle
 }
 
-func (b *Button) Contains(x, y int) bool {
-	return image.Pt(x, y).In(b.bounds)
-}
-
 func NewButton(w Widget) *Button {
 	return &Button{widget: w}
+}
+
+func (b *Button) Contains(x, y int) bool {
+	return image.Pt(x, y).In(b.bounds)
 }
 
 func (b *Button) AttachTo(parent *Stack) error {
