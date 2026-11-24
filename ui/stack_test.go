@@ -53,3 +53,25 @@ func TestVStack_Remove(t *testing.T) {
 		require.Equal(t, vs.Remove(r), 2)
 	})
 }
+
+func TestStack_Clear(t *testing.T) {
+	env := NewEnv()
+	s := ui.NewHStack()
+
+	btn := ui.NewButton(ui.NewRectangle(env.canvas, 50, 50, color.Black))
+	_ = btn.AttachTo(s)
+
+	s1 := ui.NewVStack()
+	_ = s1.AttachTo(s)
+
+	r := ui.NewRectangle(env.canvas, 50, 50, color.Black)
+	s.Add(r)
+
+	s.Clear()
+	require.ErrorIs(t, btn.DetachFrom(s), ui.ErrNotAttached)
+	require.ErrorIs(t, s1.DetachFrom(s), ui.ErrNotAttached)
+	newParent := ui.NewHStack()
+	require.NoError(t, btn.AttachTo(newParent))
+	require.NoError(t, s1.AttachTo(newParent))
+	require.Zero(t, s.Remove(r))
+}

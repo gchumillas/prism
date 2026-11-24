@@ -114,6 +114,18 @@ func (s *Stack) Size() image.Point {
 	return s.layoutSize(s)
 }
 
+func (s *Stack) Clear() {
+	for _, child := range slices.Clone(s.children) {
+		if v, ok := child.(interface{ DetachFrom(*Stack) error }); ok {
+			if err := v.DetachFrom(s); err != nil {
+				panic(err)
+			}
+		}
+	}
+	clear(s.children)
+	s.children = s.children[:0]
+}
+
 func (s *Stack) hasStack(other *Stack) bool {
 	for _, child := range s.children {
 		if v, ok := child.(*Stack); ok {
