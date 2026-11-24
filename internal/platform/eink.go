@@ -116,9 +116,11 @@ func (td *TouchDispatcher) Listen() {
 		curPoint = ts.Points[0]
 		if curPoint.ID < 0 && prevPoint.ID > 0 {
 			handlers := slices.Clone(td.handlers)
-			for _, handler := range handlers {
+			for i := len(handlers) - 1; i >= 0; i-- {
+				handler := &handlers[i]
 				if handler.btn.Contains(int(prevPoint.X), int(screen.Height-prevPoint.Y)) {
 					handler.action()
+					break
 				}
 			}
 		}
