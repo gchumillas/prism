@@ -17,16 +17,27 @@ type AlertDialog struct {
 	closeBtn *ui.Button
 	bgRec    *ui.Rectangle
 	closeId  int
+
+	backdrop    *ui.Stack
+	backdropBtn *ui.Button
+	backdropId  int
 }
 
 func (a *App) NewAlertDialog(text string) *AlertDialog {
 	ad := &AlertDialog{app: a, text: text}
 	ad.vs = ui.NewVStack()
 	ad.bg = ui.NewVStack()
+	ad.backdrop = ui.NewVStack()
 	return ad
 }
 
 func (ad *AlertDialog) Open() {
+	// build backdrop
+	b := ad.app.Canvas.Image().Bounds()
+	ad.backdropBtn = ui.NewButton(ui.NewRectangle(ad.app.Canvas, b.Dx(), b.Dy(), color.Transparent))
+	ad.backdropId = ad.app.Touch.AddTapHandler(ad.backdropBtn, func() {})
+	_ = ad.backdropBtn.AttachTo(ad.backdrop)
+
 	// build interface
 	ad.msg = ui.NewText(ad.app.Canvas, ad.text, 600)
 	ad.vs.Add(ad.msg)
@@ -44,6 +55,10 @@ func (ad *AlertDialog) Open() {
 }
 
 func (ad *AlertDialog) Close() {
+	// clear backdrop
+	_ = ad.backdropBtn.DetachFrom(ad.backdrop)
+	ad.app.Touch.RemoveTapHandler(ad.backdropId)
+
 	// clear background
 	ad.bg.Remove(ad.bgRec)
 
@@ -55,6 +70,9 @@ func (ad *AlertDialog) Close() {
 
 func (ad *AlertDialog) Render() []image.Rectangle {
 	var dirtyRegs []image.Rectangle
+
+	// render backdrop
+	ad.backdrop.Render(0, 0)
 
 	// render background
 	regs := ad.bg.Render(500, 500)
