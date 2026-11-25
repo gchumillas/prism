@@ -32,16 +32,23 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 			size.Y += st.gap
 		}
 		pos := image.Pt(x+st.paddingX, y+size.Y)
-		switch child := child.(type) {
-		case *Stack:
-			childRegs, childSize := child.layout(stx, child, pos.X, pos.Y)
+		if v, ok := child.(*Stack); ok {
+			childRegs, childSize := v.layout(stx, v, pos.X, pos.Y)
 			dirtyRegs = append(dirtyRegs, childRegs...)
 			size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
-		case Widget:
+		} else {
 			childRegs := child.Render(pos.X, pos.Y)
 			childSize := child.Size()
 			size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
-			footprint := child.Footprint()
+			var footprint []uint64
+			switch v := child.(type) {
+			case *Button:
+				footprint = v.widget.Footprint()
+			case Widget:
+				footprint = v.Footprint()
+			default:
+				panic("unsupported type")
+			}
 			typ := reflect.TypeOf(child)
 			if stx.prevChildStatesIdx < len(stx.prevChildStates) {
 				prev := &stx.prevChildStates[stx.prevChildStatesIdx]
@@ -64,8 +71,6 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 				dirtyRegs = append(dirtyRegs, childRegs...)
 			}
 			stx.prevChildStatesIdx++
-		default:
-			panic("unsupported type")
 		}
 	}
 	size.X += 2 * st.paddingX
