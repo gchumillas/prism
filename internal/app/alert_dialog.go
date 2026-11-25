@@ -2,81 +2,43 @@ package app
 
 import (
 	"image"
-	"image/color"
 
 	"github.com/gchumillas/prism/ui"
 )
 
-type AlertDialog struct {
-	app  *App
-	text string
-
-	content  *ui.Stack
-	closeBtn *ui.Button
-	closeId  int
-
-	panel *ui.Stack
-
-	backdrop    *ui.Stack
-	backdropBtn *ui.Button
-	backdropId  int
+type alertDialogContent struct {
+	app     *App
+	modal   *Modal
+	text    string
+	content *ui.Stack
+	closeId int
 }
 
-func (a *App) NewAlertDialog(text string) *AlertDialog {
-	ad := &AlertDialog{app: a, text: text}
-	ad.content = ui.NewVStack()
-	ad.panel = ui.NewVStack()
-	ad.backdrop = ui.NewVStack()
-	return ad
-}
-
-func (ad *AlertDialog) Open() {
-	// build backdrop
-	b := ad.app.Canvas.Image().Bounds()
-	ad.backdropBtn = ui.NewButton(ui.NewRectangle(ad.app.Canvas, b.Dx(), b.Dy(), color.Transparent))
-	ad.backdropId = ad.app.Touch.AddTapHandler(ad.backdropBtn, func() {})
-	_ = ad.backdropBtn.AttachTo(ad.backdrop)
-
-	// build content
-	ad.content.Add(ui.NewText(ad.app.Canvas, ad.text, 600))
-	ad.closeBtn = NewLabelButton(ad.app.Canvas, "Close")
-	ad.closeId = ad.app.Touch.AddTapHandler(ad.closeBtn, func() {
-		ad.Close()
-		_ = ad.app.Refresh()
+func (adc *alertDialogContent) Mount() {
+	adc.content.Add(ui.NewText(adc.app.Canvas, adc.text, 600))
+	btn := NewLabelButton(adc.app.Canvas, "Close")
+	adc.closeId = adc.app.Touch.AddTapHandler(btn, func() {
+		adc.modal.Close()
+		_ = adc.app.Refresh()
 	})
-	_ = ad.closeBtn.AttachTo(ad.content)
-
-	// build panel
-	size := ad.content.Size()
-	ad.panel.Add(ui.NewRectangle(ad.app.Canvas, size.X, size.Y, color.Gray{Y: 200}))
+	_ = btn.AttachTo(adc.content)
 }
 
-func (ad *AlertDialog) Close() {
-	// clear backdrop
-	ad.backdrop.Clear()
-	ad.app.Touch.RemoveTapHandler(ad.backdropId)
-
-	// clear panel
-	ad.panel.Clear()
-
-	// clear content
-	ad.content.Clear()
-	ad.app.Touch.RemoveTapHandler(ad.closeId)
+func (adc *alertDialogContent) Unmount() {
+	adc.content.Clear()
+	adc.app.Touch.RemoveTapHandler(adc.closeId)
 }
 
-func (ad *AlertDialog) Render() []image.Rectangle {
-	var dirtyRegs []image.Rectangle
+func (adc *alertDialogContent) Render(x, y int) []image.Rectangle {
+	return adc.content.Render(x, y)
+}
 
-	// render backdrop
-	ad.backdrop.Render(0, 0)
+func (adc *alertDialogContent) Size() image.Point {
+	return adc.content.Size()
+}
 
-	// render background
-	regs := ad.panel.Render(500, 500)
-	dirtyRegs = append(dirtyRegs, regs...)
-
-	// render content
-	regs = ad.content.Render(500, 500)
-	dirtyRegs = append(dirtyRegs, regs...)
-
-	return ui.CombineRegions(dirtyRegs)
+func (a *App) NewAlertDialog(text string) *Modal {
+	ad := &alertDialogContent{app: a, text: text, content: ui.NewVStack()}
+	ad.modal = a.NewModal(ad)
+	return ad.modal
 }

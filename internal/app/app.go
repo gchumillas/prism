@@ -28,7 +28,7 @@ type App struct {
 	FontSize float64
 
 	vs *ui.Stack
-	ad *AlertDialog
+	ad *Modal
 }
 
 func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSize float64) *App {
