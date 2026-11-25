@@ -68,9 +68,15 @@ type Screen struct {
 func (s *Screen) Refresh(regs []image.Rectangle) error {
 	buf := js.Global().Get("Uint8Array").New(len(s.Canvas.Pix))
 	js.CopyBytesToJS(buf, s.Canvas.Pix)
+	size := s.Canvas.Bounds().Size()
 	for _, r := range regs {
-		x0, y0 := js.ValueOf(r.Min.X), js.ValueOf(r.Min.Y)
-		x1, y1 := js.ValueOf(r.Max.X), js.ValueOf(r.Max.Y)
+		minX, minY := max(0, r.Min.X), max(0, r.Min.Y)
+		maxX, maxY := min(size.X, r.Max.X), min(size.Y, r.Max.Y)
+		if minX >= maxX || minY >= maxY {
+			continue
+		}
+		x0, y0 := js.ValueOf(minX), js.ValueOf(minY)
+		x1, y1 := js.ValueOf(maxX), js.ValueOf(maxY)
 		s.RefreshCb.Invoke(buf, x0, y0, x1, y1)
 	}
 	return nil
