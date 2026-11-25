@@ -303,6 +303,24 @@ func TestIssue124(t *testing.T) {
 		err := hs2.AttachTo(hs)
 		require.ErrorIs(t, err, ErrNeedsRender)
 	})
+	t.Run("detached button", func(t *testing.T) {
+		c := NewCanvas(320, 240)
+		vs := NewVStack()
+
+		btn := NewButton(NewRectangle(c, 100, 100, color.White))
+		vs2 := NewVStack()
+		vs2.Add(NewRectangle(c, 20, 20, color.White))
+
+		btn.AttachTo(vs)
+		regs := vs.Render(0, 0)
+		require.Equal(t, []image.Rectangle{
+			image.Rect(0, 0, 100, 100),
+		}, regs)
+
+		btn.DetachFrom(vs)
+		err := vs2.AttachTo(vs)
+		require.ErrorIs(t, err, ErrNeedsRender)
+	})
 }
 
 // https://github.com/gchumillas/prism/issues/126

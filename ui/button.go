@@ -35,6 +35,7 @@ func (b *Button) DetachFrom(parent *Stack) error {
 	}); i > -1 {
 		parent.children = slices.Delete(parent.children, i, i+1)
 		b.attached = false
+		parent.outdated = true
 		return nil
 	}
 	return ErrNotAttached
