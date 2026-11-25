@@ -30,7 +30,7 @@ func (b *Button) AttachTo(parent *Stack) error {
 }
 
 func (b *Button) DetachFrom(parent *Stack) error {
-	if i := slices.IndexFunc(parent.children, func(x drawable) bool {
+	if i := slices.IndexFunc(parent.children, func(x Drawable) bool {
 		return x == b
 	}); i > -1 {
 		parent.children = slices.Delete(parent.children, i, i+1)
