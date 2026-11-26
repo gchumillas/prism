@@ -35,6 +35,8 @@ func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	lb.canvas.DrawRectangle(
 		float64(hb.Min.X), float64(hb.Min.Y),
 		float64(hb.Dx()), float64(hb.Dy()))
+	lb.canvas.SetColor(color.White)
+	lb.canvas.FillPreserve()
 	lb.canvas.SetColor(color.Black)
 	lb.canvas.Stroke()
 
