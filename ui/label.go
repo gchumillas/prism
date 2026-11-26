@@ -6,13 +6,13 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/fogleman/gg"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/math/fixed"
 )
 
 type Label struct {
-	canvas   *gg.Context
+	canvas   *image.RGBA
 	text     string
 	fontSize float64
 	color    color.NRGBA
@@ -35,9 +35,9 @@ func (val WithColor) ApplyLabel(l *Label) {
 	l.color.B = uint8(v)
 }
 
-func NewLabel(c *Canvas, text string, opts ...LabelOption) *Label {
+func NewLabel(canvas *image.RGBA, text string, opts ...LabelOption) *Label {
 	l := &Label{
-		canvas:   c.context,
+		canvas:   canvas,
 		fontSize: defaultFontSize,
 		color:    defaultColor,
 		text:     text,
@@ -75,9 +75,8 @@ func (l *Label) Footprint() []uint64 {
 
 func (l *Label) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	l.canvas.SetFontFace(l.face)
-	l.canvas.SetColor(l.color)
-	l.canvas.DrawString(l.text, float64(pos.X), float64(pos.Y+l.ascent))
+	d := &font.Drawer{Dst: l.canvas, Src: image.NewUniform(l.color), Face: l.face, Dot: fixed.P(pos.X, pos.Y+l.ascent)}
+	d.DrawString(l.text)
 
 	return []image.Rectangle{{Min: pos, Max: pos.Add(l.Size())}}
 }

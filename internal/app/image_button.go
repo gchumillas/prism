@@ -17,8 +17,8 @@ type ImageButton struct {
 	size   image.Point
 }
 
-func LoadImageButton(c *ui.Canvas, r io.Reader) (_ *ui.Button, err error) {
-	ib := &ImageButton{canvas: gg.NewContextForRGBA(c.Image())}
+func LoadImageButton(c *image.RGBA, r io.Reader) (_ *ui.Button, err error) {
+	ib := &ImageButton{canvas: gg.NewContextForRGBA(c)}
 	if ib.img, err = ui.LoadImage(c, r); err != nil {
 		return
 	}

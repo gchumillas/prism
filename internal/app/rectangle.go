@@ -5,7 +5,6 @@ import (
 	"image/color"
 
 	"github.com/fogleman/gg"
-	"github.com/gchumillas/prism/ui"
 )
 
 type Rectangle struct {
@@ -15,9 +14,9 @@ type Rectangle struct {
 	canvas *gg.Context
 }
 
-func NewRectangle(c *ui.Canvas, width, height int, fillColor color.Color) *Rectangle {
+func NewRectangle(c *image.RGBA, width, height int, fillColor color.Color) *Rectangle {
 	s := &Rectangle{
-		canvas:    gg.NewContextForRGBA(c.Image()),
+		canvas:    gg.NewContextForRGBA(c),
 		width:     width,
 		height:    height,
 		fillColor: fillColor,

@@ -24,7 +24,7 @@ type TapDispatcher interface {
 type App struct {
 	Touch    TapDispatcher
 	Screen   Renderer
-	Canvas   *ui.Canvas
+	Canvas   *image.RGBA
 	FontSize float64
 
 	vs *ui.Stack
@@ -32,16 +32,15 @@ type App struct {
 }
 
 func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSize float64) *App {
-	c := ui.NewCanvasFromRGBA(canvas)
 	a := &App{
 		Touch:    trackpad,
 		Screen:   screen,
-		Canvas:   c,
+		Canvas:   canvas,
 		FontSize: fontSize,
 	}
 
 	a.vs = ui.NewVStack(ui.WithPaddingX(100), ui.WithPaddingY(50))
-	btn := NewLabelButton(c, "Click me!", ui.WithFontSize(a.FontSize))
+	btn := NewLabelButton(canvas, "Click me!", ui.WithFontSize(a.FontSize))
 	_ = btn.AttachTo(a.vs)
 
 	a.ad = a.NewAlertDialog("Hi there!")
@@ -55,7 +54,7 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 
 func (a *App) Refresh() error {
 	// clear the canvas
-	b := a.Canvas.Image().Bounds()
+	b := a.Canvas.Bounds()
 	bg := NewRectangle(a.Canvas, b.Dx(), b.Dy(), color.White)
 	bg.Render(0, 0)
 

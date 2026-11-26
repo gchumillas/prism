@@ -12,7 +12,7 @@ import (
 )
 
 type Storybook struct {
-	canvas *ui.Canvas
+	canvas *image.RGBA
 	vs     *ui.Stack
 	// physical devices
 	Touch    app.TapDispatcher
@@ -34,14 +34,14 @@ func (sb *Storybook) Run() error {
 }
 
 func (sb *Storybook) Render() {
-	r := sb.canvas.Image().Bounds()
+	r := sb.canvas.Bounds()
 	app.NewRectangle(sb.canvas, r.Dx(), r.Dy(), color.White)
 	sb.vs.Render(100, 200)
 }
 
 func (sb *Storybook) refresh() error {
 	sb.Render()
-	b := sb.canvas.Image().Bounds()
+	b := sb.canvas.Bounds()
 	return sb.Screen.Refresh([]image.Rectangle{b})
 }
 
@@ -52,9 +52,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	c := ui.NewCanvasFromRGBA(env.Canvas)
 	sb := &Storybook{
-		canvas:   c,
+		canvas:   env.Canvas,
 		Touch:    env.Touch,
 		Screen:   env.Screen,
 		FontSize: env.FontSize,

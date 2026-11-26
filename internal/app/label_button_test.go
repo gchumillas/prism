@@ -11,7 +11,7 @@ import (
 
 func TestLabelButton_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
-		c := ui.NewCanvas(320, 240)
+		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		vs := ui.NewVStack()
 		btn := app.NewLabelButton(c, "Hello, World!")
 		_ = btn.AttachTo(vs)
@@ -20,7 +20,7 @@ func TestLabelButton_Render(t *testing.T) {
 	})
 
 	t.Run("Contains", func(t *testing.T) {
-		c := ui.NewCanvas(320, 240)
+		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		vs := ui.NewVStack()
 		btn := app.NewLabelButton(c, "Click me!")
 		_ = btn.AttachTo(vs)

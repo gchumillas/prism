@@ -16,8 +16,8 @@ type LabelButton struct {
 	size   image.Point
 }
 
-func NewLabelButton(c *ui.Canvas, text string, opts ...ui.LabelOption) *ui.Button {
-	lb := &LabelButton{canvas: gg.NewContextForRGBA(c.Image())}
+func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *ui.Button {
+	lb := &LabelButton{canvas: gg.NewContextForRGBA(c)}
 	lb.label = ui.NewLabel(c, text, opts...)
 	lb.size = lb.label.Size().Add(labelBtnPad.Mul(2))
 	return ui.NewButton(lb)
