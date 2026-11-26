@@ -2,23 +2,26 @@ package ui
 
 import (
 	"image"
+	"image/draw"
 	"io"
 	"sync/atomic"
 
-	"github.com/fogleman/gg"
+	_ "image/jpeg"
+	_ "image/png"
 )
 
 var imgCounter atomic.Uint64
 
 type Image struct {
-	canvas *gg.Context
+	canvas *image.RGBA
 	img    image.Image
 	id     uint64
 }
 
-func LoadImage(c *Canvas, r io.Reader) (*Image, error) {
+// TODO: split LoadImage into LoadPNGImage and LoadJPEGImage
+func LoadImage(canvas *image.RGBA, r io.Reader) (*Image, error) {
 	var err error
-	img := &Image{canvas: c.context, id: imgCounter.Add(1)}
+	img := &Image{canvas: canvas, id: imgCounter.Add(1)}
 	if img.img, _, err = image.Decode(r); err != nil {
 		return nil, err
 	}
@@ -36,9 +39,8 @@ func (i *Image) Footprint() []uint64 {
 
 func (i *Image) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	i.canvas.DrawImage(i.img, pos.X, pos.Y)
-	b := i.img.Bounds()
-	size := image.Pt(b.Dx(), b.Dy())
+	size := i.Size()
+	draw.Draw(i.canvas, image.Rectangle{Min: pos, Max: pos.Add(size)}, i.img, i.img.Bounds().Min, draw.Over)
 	// TODO: add safe margin (affect others)
 	return []image.Rectangle{{Min: pos, Max: pos.Add(size)}}
 }

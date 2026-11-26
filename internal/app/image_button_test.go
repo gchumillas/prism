@@ -13,7 +13,7 @@ import (
 
 func TestLoadImageButton(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
-		c := ui.NewCanvas(320, 230)
+		c := image.NewRGBA(image.Rect(0, 0, 320, 230))
 		vs := ui.NewVStack()
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)
@@ -25,7 +25,7 @@ func TestLoadImageButton(t *testing.T) {
 	})
 
 	t.Run("Contains", func(t *testing.T) {
-		c := ui.NewCanvas(320, 230)
+		c := image.NewRGBA(image.Rect(0, 0, 320, 230))
 		vs := ui.NewVStack()
 		dat, err := os.ReadFile("testdata/icon1.png")
 		require.NoError(t, err)

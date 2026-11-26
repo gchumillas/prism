@@ -6,7 +6,6 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/fogleman/gg"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/opentype"
 )
@@ -43,27 +42,4 @@ type Drawable interface {
 type Widget interface {
 	Drawable
 	Footprint() []uint64
-}
-
-type Canvas struct {
-	context *gg.Context
-	image   *image.RGBA
-}
-
-func NewCanvas(width, height int) *Canvas {
-	c := &Canvas{}
-	c.image = image.NewRGBA(image.Rect(0, 0, width, height))
-	c.context = gg.NewContextForRGBA(c.image)
-	return c
-}
-
-func NewCanvasFromRGBA(img *image.RGBA) *Canvas {
-	c := &Canvas{}
-	c.image = img
-	c.context = gg.NewContextForRGBA(img)
-	return c
-}
-
-func (c *Canvas) Image() *image.RGBA {
-	return c.image
 }

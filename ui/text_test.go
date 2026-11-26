@@ -1,6 +1,7 @@
 package ui_test
 
 import (
+	"image"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
@@ -8,7 +9,7 @@ import (
 )
 
 func TestText_Footprint(t *testing.T) {
-	c := ui.NewCanvas(320, 240)
+	c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 	tests := []struct {
 		lb1, lb2 *ui.Text
 	}{

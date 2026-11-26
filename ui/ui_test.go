@@ -6,7 +6,6 @@ import (
 	"image/color"
 
 	"github.com/fogleman/gg"
-	"github.com/gchumillas/prism/ui"
 
 	_ "image/png"
 )
@@ -18,14 +17,12 @@ var seed = maphash.MakeSeed()
 // ---- Env ----
 
 type Env struct {
-	image  *image.RGBA
-	canvas *ui.Canvas
+	canvas *image.RGBA
 }
 
 func NewEnv() *Env {
-	img := image.NewRGBA(image.Rect(0, 0, 640, 480))
-	c := ui.NewCanvasFromRGBA(img)
-	return &Env{image: img, canvas: c}
+	c := image.NewRGBA(image.Rect(0, 0, 640, 480))
+	return &Env{canvas: c}
 }
 
 // ---- Rectangle ----
@@ -37,9 +34,9 @@ type Rectangle struct {
 	canvas *gg.Context
 }
 
-func NewRectangle(c *ui.Canvas, width, height int, fillColor color.Color) *Rectangle {
+func NewRectangle(c *image.RGBA, width, height int, fillColor color.Color) *Rectangle {
 	s := &Rectangle{
-		canvas:    gg.NewContextForRGBA(c.Image()),
+		canvas:    gg.NewContextForRGBA(c),
 		width:     width,
 		height:    height,
 		fillColor: fillColor,

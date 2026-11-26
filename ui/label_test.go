@@ -18,7 +18,7 @@ func TestLabel_Render(t *testing.T) {
 }
 
 func TestLabel_Footprint(t *testing.T) {
-	c := ui.NewCanvas(320, 240)
+	c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 	tests := []struct {
 		lb1, lb2 *ui.Label
 	}{

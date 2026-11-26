@@ -9,14 +9,13 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/fogleman/gg"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
 )
 
 type Text struct {
-	canvas   *gg.Context
+	canvas   *image.RGBA
 	text     string
 	width    int
 	fontSize float64
@@ -36,9 +35,9 @@ func (val WithColor) ApplyText(l *Text) {
 	l.color.B = uint8(v)
 }
 
-func NewText(c *Canvas, text string, width int, opts ...TextOption) *Text {
+func NewText(canvas *image.RGBA, text string, width int, opts ...TextOption) *Text {
 	t := &Text{
-		canvas:   c.context,
+		canvas:   canvas,
 		text:     text,
 		width:    width,
 		fontSize: defaultFontSize,
@@ -71,12 +70,12 @@ func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	ascent := m.Ascent.Ceil()
 	lineh := m.Height.Ceil()
 
+	d := &font.Drawer{Dst: t.canvas, Src: image.NewUniform(t.color), Face: face}
 	h := ascent
 	lines := splitIntoLines(face, t.text, t.width)
 	for _, line := range lines {
-		t.canvas.SetFontFace(face)
-		t.canvas.SetColor(t.color)
-		t.canvas.DrawString(line, float64(pos.X), float64(pos.Y+h))
+		d.Dot = fixed.P(pos.X, pos.Y+h)
+		d.DrawString(line)
 		h += lineh
 	}
 

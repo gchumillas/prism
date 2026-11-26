@@ -7,13 +7,12 @@ import (
 	"testing"
 
 	"github.com/gchumillas/prism/internal/app"
-	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRectangle_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
-		c := ui.NewCanvas(320, 240)
+		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		r := app.NewRectangle(c, 100, 50, color.White)
 		size := r.Size()
 		require.Equal(t, image.Pt(100, 50), size)
@@ -35,7 +34,7 @@ func TestRectangle_Footprint(t *testing.T) {
 		{"change all", [2]shape{{100, 50, color.White}, {100, 50, color.Black}}},
 	}
 
-	c := ui.NewCanvas(320, 240)
+	c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			s0, s1 := test.shapes[0], test.shapes[1]
