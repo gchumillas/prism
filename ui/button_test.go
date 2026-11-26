@@ -11,7 +11,7 @@ import (
 func TestButton_AttachTo(t *testing.T) {
 	env := NewEnv()
 	hs := ui.NewHStack()
-	btn := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
+	btn := ui.NewButton(NewRectangle(env.canvas, 100, 50, color.White))
 	require.NoError(t, btn.AttachTo(hs))
 	require.ErrorIs(t, btn.AttachTo(hs), ui.ErrAttached)
 }
@@ -21,7 +21,7 @@ func TestButton_DetachFrom(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
 		hs := ui.NewHStack()
-		btn := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
+		btn := ui.NewButton(NewRectangle(env.canvas, 100, 50, color.White))
 		_ = btn.AttachTo(vs)
 		require.ErrorIs(t, ui.ErrNotAttached, btn.DetachFrom(hs))
 	})
@@ -29,7 +29,7 @@ func TestButton_DetachFrom(t *testing.T) {
 	t.Run("one button", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		btn := ui.NewButton(NewRect(env.image, 0, 0, 100, 50, color.White))
+		btn := ui.NewButton(NewRectangle(env.canvas, 100, 50, color.White))
 		_ = btn.AttachTo(vs)
 		require.NoError(t, btn.DetachFrom(vs))
 		require.ErrorIs(t, ui.ErrNotAttached, btn.DetachFrom(vs))

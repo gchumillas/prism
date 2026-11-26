@@ -35,7 +35,7 @@ func (sb *Storybook) Run() error {
 
 func (sb *Storybook) Render() {
 	r := sb.canvas.Image().Bounds()
-	ui.NewRectangle(sb.canvas, r.Dx(), r.Dy(), color.White)
+	app.NewRectangle(sb.canvas, r.Dx(), r.Dy(), color.White)
 	sb.vs.Render(100, 200)
 }
 

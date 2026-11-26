@@ -4,8 +4,8 @@ import (
 	"hash/maphash"
 	"image"
 	"image/color"
-	"image/draw"
 
+	"github.com/fogleman/gg"
 	"github.com/gchumillas/prism/ui"
 
 	_ "image/png"
@@ -28,41 +28,42 @@ func NewEnv() *Env {
 	return &Env{image: img, canvas: c}
 }
 
-// ---- Rect ----
+// ---- Rectangle ----
 
-type Rect struct {
-	canvas draw.Image
-	image.Rectangle
-	color color.Color
+type Rectangle struct {
+	width, height int
+	fillColor     color.Color
+
+	canvas *gg.Context
 }
 
-func NewRect(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect {
-	return &Rect{
-		canvas:    canvas,
-		Rectangle: image.Rect(x0, y0, x1, y1),
-		color:     c,
+func NewRectangle(c *ui.Canvas, width, height int, fillColor color.Color) *Rectangle {
+	s := &Rectangle{
+		canvas:    gg.NewContextForRGBA(c.Image()),
+		width:     width,
+		height:    height,
+		fillColor: fillColor,
 	}
+	return s
 }
 
-func (r *Rect) Footprint() []uint64 {
-	return []uint64{uint64(r.Dx()), uint64(r.Dy()), maphash.Comparable(seed, r.color)}
+func (r *Rectangle) Footprint() []uint64 {
+	red, green, blue, alpha := r.fillColor.RGBA()
+	return []uint64{uint64(r.width), uint64(r.height), uint64(red), uint64(green), uint64(blue), uint64(alpha)}
 }
 
-func (r *Rect) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(r.Size())}
-	draw.Draw(r.canvas, r.Rectangle, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
-	return []image.Rectangle{r.Rectangle}
+	rec := image.Rectangle{Min: pos, Max: pos.Add(r.Size())}
+	r.canvas.DrawRectangle(
+		float64(rec.Min.X), float64(rec.Min.Y),
+		float64(rec.Dx()), float64(rec.Dy()),
+	)
+	r.canvas.SetColor(r.fillColor)
+	r.canvas.Fill()
+	return []image.Rectangle{rec}
 }
 
-func (r *Rect) Size() image.Point {
-	return r.Rectangle.Size()
-}
-
-type Rect1 struct {
-	*Rect
-}
-
-func NewRect1(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Rect1 {
-	return &Rect1{Rect: NewRect(canvas, x0, y0, x1, y1, c)}
+func (r *Rectangle) Size() image.Point {
+	return image.Pt(r.width, r.height)
 }

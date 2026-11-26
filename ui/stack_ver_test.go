@@ -1,8 +1,10 @@
 package ui_test
 
 import (
+	"hash/maphash"
 	"image"
 	"image/color"
+	"image/draw"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
@@ -11,6 +13,43 @@ import (
 	_ "embed"
 	_ "image/png"
 )
+
+type Box struct {
+	canvas draw.Image
+	image.Rectangle
+	color color.Color
+}
+
+func NewBox(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *Box {
+	return &Box{
+		canvas:    canvas,
+		Rectangle: image.Rect(x0, y0, x1, y1),
+		color:     c,
+	}
+}
+
+func (r *Box) Footprint() []uint64 {
+	return []uint64{uint64(r.Dx()), uint64(r.Dy()), maphash.Comparable(seed, r.color)}
+}
+
+func (r *Box) Render(x, y int) (dirtyRegs []image.Rectangle) {
+	pos := image.Pt(x, y)
+	r.Rectangle = image.Rectangle{Min: pos, Max: pos.Add(r.Size())}
+	draw.Draw(r.canvas, r.Rectangle, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
+	return []image.Rectangle{r.Rectangle}
+}
+
+func (r *Box) Size() image.Point {
+	return r.Rectangle.Size()
+}
+
+type SuperBox struct {
+	*Box
+}
+
+func NewSuperBox(canvas draw.Image, x0, y0, x1, y1 int, c color.Color) *SuperBox {
+	return &SuperBox{Box: NewBox(canvas, x0, y0, x1, y1, c)}
+}
 
 func TestVStack_DetachFrom(t *testing.T) {
 	hs := ui.NewHStack()
@@ -24,7 +63,7 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("add button", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		btn := ui.NewButton(NewRect(env.image, 0, 0, 100, 50, color.White))
+		btn := ui.NewButton(NewBox(env.image, 0, 0, 100, 50, color.White))
 		_ = btn.AttachTo(vs)
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 25))
@@ -33,7 +72,7 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("repaint stacker in a different position", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		btn := ui.NewButton(NewRect(env.image, 0, 0, 100, 50, color.White))
+		btn := ui.NewButton(NewBox(env.image, 0, 0, 100, 50, color.White))
 		_ = btn.AttachTo(vs)
 		vs.Render(0, 0)
 		vs.Render(100, 50)
@@ -43,9 +82,9 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("remove item", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		r := NewRect(env.image, 0, 0, 100, 50, color.Black)
+		r := NewBox(env.image, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := ui.NewButton(NewRect(env.image, 0, 0, 100, 50, color.White))
+		btn := ui.NewButton(NewBox(env.image, 0, 0, 100, 50, color.White))
 		_ = btn.AttachTo(vs)
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
@@ -61,9 +100,9 @@ func TestVStack_AddButton(t *testing.T) {
 	t.Run("change item height", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		r := NewRect(env.image, 0, 0, 100, 50, color.Black)
+		r := NewBox(env.image, 0, 0, 100, 50, color.Black)
 		vs.Add(r)
-		btn := ui.NewButton(NewRect(env.image, 0, 0, 100, 50, color.White))
+		btn := ui.NewButton(NewBox(env.image, 0, 0, 100, 50, color.White))
 		_ = btn.AttachTo(vs)
 		vs.Render(0, 0)
 		require.True(t, btn.Contains(50, 75))
@@ -81,8 +120,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack(ui.WithGap(10))
-		vs.Add(NewRect(env.image, 0, 0, 100, 50, color.Black))
-		vs.Add(NewRect(env.image, 0, 0, 50, 50, color.White))
+		vs.Add(NewBox(env.image, 0, 0, 100, 50, color.Black))
+		vs.Add(NewBox(env.image, 0, 0, 50, 50, color.White))
 		size := vs.Size()
 		require.Equal(t, image.Pt(100, 110), size)
 	})
@@ -92,7 +131,7 @@ func TestVStack_Render(t *testing.T) {
 
 		vs := ui.NewVStack()
 		for i := range 3 {
-			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewBox(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			vs.Add(shape)
 		}
 
@@ -109,9 +148,9 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack()
-		var shapes []*Rect
+		var shapes []*Box
 		for i := range 3 {
-			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewBox(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -126,9 +165,9 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack()
-		var shapes []*Rect
+		var shapes []*Box
 		for i := range 3 {
-			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewBox(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -143,9 +182,9 @@ func TestVStack_Render(t *testing.T) {
 		env := NewEnv()
 
 		vs := ui.NewVStack()
-		var shapes []*Rect
+		var shapes []*Box
 		for i := range 3 {
-			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewBox(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			shapes = append(shapes, shape)
 			vs.Add(shape)
 		}
@@ -161,7 +200,7 @@ func TestVStack_Render(t *testing.T) {
 
 		vs := ui.NewVStack()
 		for i := range 3 {
-			shape := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
+			shape := NewBox(env.image, 0, 0, 100, 50, color.Gray{Y: uint8(i)})
 			vs.Add(shape)
 		}
 
@@ -177,7 +216,7 @@ func TestVStack_Render(t *testing.T) {
 		vs2 := ui.NewVStack()
 		_ = vs2.AttachTo(vs1)
 
-		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
+		sh := NewBox(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
 		regs := vs1.Render(0, 0)
@@ -195,7 +234,7 @@ func TestVStack_Render(t *testing.T) {
 		vs2 := ui.NewVStack()
 		_ = vs2.AttachTo(vs1)
 
-		sh := NewRect(env.image, 0, 0, 100, 50, color.White)
+		sh := NewBox(env.image, 0, 0, 100, 50, color.White)
 		vs2.Add(sh)
 
 		regs := vs1.Render(0, 0)
@@ -214,8 +253,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("hit area follows widget after sibling removal", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		btn1 := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
-		btn2 := ui.NewButton(ui.NewRectangle(env.canvas, 100, 50, color.White))
+		btn1 := ui.NewButton(NewRectangle(env.canvas, 100, 50, color.White))
+		btn2 := ui.NewButton(NewRectangle(env.canvas, 100, 50, color.White))
 		_ = btn1.AttachTo(vs)
 		_ = btn2.AttachTo(vs)
 		vs.Render(0, 0)
@@ -235,9 +274,9 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("remove from list of different widgets", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		var shapes []*Rect
+		var shapes []*Box
 		for i := range uint8(2) {
-			r := NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: i})
+			r := NewBox(env.image, 0, 0, 100, 50, color.Gray{Y: i})
 			shapes = append(shapes, r)
 			vs.Add(r)
 		}
@@ -252,9 +291,9 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("remove from list of identical widgets", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		var shapes []*Rect
+		var shapes []*Box
 		for range uint8(3) {
-			r := NewRect(env.image, 0, 0, 100, 50, color.White)
+			r := NewBox(env.image, 0, 0, 100, 50, color.White)
 			shapes = append(shapes, r)
 			vs.Add(r)
 		}
@@ -271,9 +310,9 @@ func TestVStack_Render(t *testing.T) {
 
 	t.Run("render different widget sizes", func(t *testing.T) {
 		env := NewEnv()
-		recs := []*Rect{
-			NewRect(env.image, 0, 0, 100, 50, color.Gray{Y: 25}),  // landscape
-			NewRect(env.image, 0, 50, 50, 100, color.Gray{Y: 50}), // square
+		recs := []*Box{
+			NewBox(env.image, 0, 0, 100, 50, color.Gray{Y: 25}),  // landscape
+			NewBox(env.image, 0, 50, 50, 100, color.Gray{Y: 50}), // square
 		}
 		vs := ui.NewVStack()
 		for _, rec := range recs {
@@ -291,8 +330,8 @@ func TestVStack_Render(t *testing.T) {
 	t.Run("different widget with the same footprint", func(t *testing.T) {
 		env := NewEnv()
 		recs := []ui.Widget{
-			NewRect(env.image, 0, 0, 100, 50, color.White),
-			NewRect1(env.image, 0, 50, 100, 100, color.White),
+			NewBox(env.image, 0, 0, 100, 50, color.White),
+			NewSuperBox(env.image, 0, 50, 100, 100, color.White),
 		}
 		vs := ui.NewVStack(ui.WithGap(10))
 		for _, rec := range recs {
@@ -319,14 +358,14 @@ func TestVStack_Render(t *testing.T) {
 		vs2 := ui.NewVStack()
 		_ = vs2.AttachTo(vs1)
 
-		sh := NewRect(env.image, 0, 0, 100, 50, color.Black)
+		sh := NewBox(env.image, 0, 0, 100, 50, color.Black)
 		vs2.Add(sh)
 		regs := vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 
 		// replace child with another one with identical footprint and different type
 		vs2.Remove(sh)
-		vs2.Add(NewRect1(env.image, 0, 0, 100, 50, color.Black))
+		vs2.Add(NewSuperBox(env.image, 0, 0, 100, 50, color.Black))
 		regs = vs1.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(0, 0, 100, 50)}, regs)
 	})

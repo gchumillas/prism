@@ -56,7 +56,7 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 func (a *App) Refresh() error {
 	// clear the canvas
 	b := a.Canvas.Image().Bounds()
-	bg := ui.NewRectangle(a.Canvas, b.Dx(), b.Dy(), color.White)
+	bg := NewRectangle(a.Canvas, b.Dx(), b.Dy(), color.White)
 	bg.Render(0, 0)
 
 	var dirtyRegs []image.Rectangle
