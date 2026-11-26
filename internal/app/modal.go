@@ -44,7 +44,7 @@ func (m *Modal) Open() {
 
 func (m *Modal) Close() {
 	m.backdrop.Clear()
-	m.app.Touch.RemoveTapHandler(m.backdropId)
+	_ = m.app.Touch.RemoveTapHandler(m.backdropId)
 	m.panel.Clear()
 	m.content.Unmount()
 }

@@ -3,6 +3,7 @@
 package platform
 
 import (
+	"errors"
 	"image"
 	"slices"
 
@@ -96,13 +97,14 @@ func (td *TouchDispatcher) AddTapHandler(btn app.Tappable, action func()) (id in
 	return td.count
 }
 
-func (td *TouchDispatcher) RemoveTapHandler(id int) {
+func (td *TouchDispatcher) RemoveTapHandler(id int) error {
 	for i, h := range td.handlers {
 		if h.id == id {
 			td.handlers = slices.Delete(td.handlers, i, i+1)
-			break
+			return nil
 		}
 	}
+	return errors.New("handler ID not found")
 }
 
 func (td *TouchDispatcher) Listen() {
