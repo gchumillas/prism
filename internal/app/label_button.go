@@ -10,41 +10,48 @@ import (
 
 var labelBtnPad = image.Point{38, 19}
 
-type LabelButton struct {
+type labelButtonWidget struct {
 	canvas *gg.Context
 	label  *ui.Label
 	size   image.Point
 }
 
-func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *ui.Button {
-	lb := &LabelButton{canvas: gg.NewContextForRGBA(c)}
-	lb.label = ui.NewLabel(c, text, opts...)
-	lb.size = lb.label.Size().Add(labelBtnPad.Mul(2))
-	return ui.NewButton(lb)
+type LabelButton struct {
+	*ui.Button
+	widget *labelButtonWidget
 }
 
-func (lb *LabelButton) Footprint() []uint64 {
-	return lb.label.Footprint()
+func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *LabelButton {
+	lb := &LabelButton{}
+	lb.widget = &labelButtonWidget{canvas: gg.NewContextForRGBA(c)}
+	lb.widget.label = ui.NewLabel(c, text, opts...)
+	lb.widget.size = lb.widget.label.Size().Add(labelBtnPad.Mul(2))
+	lb.Button = ui.NewButton(lb.widget)
+	return lb
 }
 
-func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
+func (lbw *labelButtonWidget) Footprint() []uint64 {
+	return lbw.label.Footprint()
+}
+
+func (lbw *labelButtonWidget) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	hb := image.Rectangle{Min: pos, Max: pos.Add(lb.size)}
+	hb := image.Rectangle{Min: pos, Max: pos.Add(lbw.size)}
 	lineWidth := 3
-	lb.canvas.SetLineWidth(float64(lineWidth))
-	lb.canvas.DrawRectangle(
+	lbw.canvas.SetLineWidth(float64(lineWidth))
+	lbw.canvas.DrawRectangle(
 		float64(hb.Min.X), float64(hb.Min.Y),
 		float64(hb.Dx()), float64(hb.Dy()))
-	lb.canvas.SetColor(color.White)
-	lb.canvas.FillPreserve()
-	lb.canvas.SetColor(color.Black)
-	lb.canvas.Stroke()
+	lbw.canvas.SetColor(color.White)
+	lbw.canvas.FillPreserve()
+	lbw.canvas.SetColor(color.Black)
+	lbw.canvas.Stroke()
 
 	dirtyReg := image.Rectangle{Min: hb.Min, Max: hb.Max}.Inset(-lineWidth/2 - 1)
-	dr := lb.label.Render(x+labelBtnPad.X, y+labelBtnPad.Y)
+	dr := lbw.label.Render(x+labelBtnPad.X, y+labelBtnPad.Y)
 	return append(dr, dirtyReg)
 }
 
-func (lb *LabelButton) Size() image.Point {
-	return lb.size
+func (lbw *labelButtonWidget) Size() image.Point {
+	return lbw.size
 }
