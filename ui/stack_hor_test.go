@@ -3,42 +3,11 @@ package ui_test
 import (
 	"image"
 	"image/color"
-	"image/draw"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
 	"github.com/stretchr/testify/require"
 )
-
-type Rectangle struct {
-	canvas        draw.Image
-	Width, Height int
-	color         color.Color
-}
-
-func NewRectangle(canvas draw.Image, width, height int, c color.Color) *Rectangle {
-	return &Rectangle{
-		canvas: canvas,
-		Width:  width,
-		Height: height,
-		color:  c,
-	}
-}
-
-func (rec *Rectangle) Footprint() []uint64 {
-	r, g, b, a := rec.color.RGBA()
-	return []uint64{uint64(rec.Width), uint64(rec.Height), uint64(r), uint64(g), uint64(b), uint64(a)}
-}
-
-func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
-	rec := image.Rect(x, y, x+r.Width, y+r.Height)
-	draw.Draw(r.canvas, rec, image.NewUniform(r.color), image.Pt(0, 0), draw.Src)
-	return []image.Rectangle{rec}
-}
-
-func (r *Rectangle) Size() image.Point {
-	return image.Pt(r.Width, r.Height)
-}
 
 func TestHStack_DetachFrom(t *testing.T) {
 	vs := ui.NewVStack()
@@ -51,10 +20,10 @@ func TestHStack_DetachFrom(t *testing.T) {
 func TestHStack_Render(t *testing.T) {
 	t.Run("full paint", func(t *testing.T) {
 		env := NewEnv()
-		recs := []*ui.Rectangle{
-			ui.NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
-			ui.NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
-			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
+		recs := []*Rectangle{
+			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
 		hs := ui.NewHStack(ui.WithGap(10))
@@ -75,7 +44,7 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("nested items", func(t *testing.T) {
 		env := NewEnv()
 
-		r := NewRectangle(env.image, 50, 100, color.Gray{Y: 100})
+		r := NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100})
 		hs1 := ui.NewHStack()
 		hs2 := ui.NewHStack()
 		_ = hs2.AttachTo(hs1)
@@ -92,7 +61,7 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/remove item", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100}),
 		}
 
 		hs := ui.NewHStack()
@@ -111,10 +80,10 @@ func TestHStack_Render(t *testing.T) {
 	// calling Render() twice returns an empty slice
 	t.Run("diff/call twice", func(t *testing.T) {
 		env := NewEnv()
-		recs := []*ui.Rectangle{
-			ui.NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
-			ui.NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
-			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
+		recs := []*Rectangle{
+			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
 		hs := ui.NewHStack(ui.WithGap(10))
@@ -131,9 +100,9 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/change item height", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.image, 50, 150, color.Gray{Y: 100}),
-			NewRectangle(env.image, 150, 50, color.Gray{Y: 150}),
-			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
+			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
 		hs := ui.NewHStack()
@@ -142,7 +111,7 @@ func TestHStack_Render(t *testing.T) {
 		}
 
 		hs.Render(0, 0)
-		recs[1].Height += 50 // changing the height does'n affect others
+		recs[1].height += 50 // changing the height does'n affect others
 		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{image.Rect(50, 0, 200, 100)}, regs)
 	})
@@ -151,9 +120,9 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/change item width", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.image, 50, 150, color.Gray{Y: 100}),
-			NewRectangle(env.image, 150, 50, color.Gray{Y: 150}),
-			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
+			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
 		hs := ui.NewHStack()
@@ -162,7 +131,7 @@ func TestHStack_Render(t *testing.T) {
 		}
 
 		hs.Render(0, 0)
-		recs[1].Width -= 50 // changing the width shift the rest of the items
+		recs[1].width -= 50 // changing the width shift the rest of the items
 		regs := hs.Render(0, 0)
 		require.Equal(t, []image.Rectangle{
 			image.Rect(50, 0, 300, 50),
@@ -174,9 +143,9 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/delete item", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.image, 50, 150, color.Gray{Y: 100}),
-			NewRectangle(env.image, 150, 50, color.Gray{Y: 150}),
-			NewRectangle(env.image, 100, 100, color.Gray{Y: 200}),
+			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
 		hs := ui.NewHStack()
@@ -198,8 +167,8 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("diff/same footprint", func(t *testing.T) {
 		env := NewEnv()
 		recs := []*Rectangle{
-			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
-			NewRectangle(env.image, 50, 100, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 50, 100, color.Gray{Y: 100}),
 		}
 
 		hs := ui.NewHStack()
@@ -218,10 +187,10 @@ func TestHStack_Render(t *testing.T) {
 	// changing the stack position repaint all items
 	t.Run("diff/change position", func(t *testing.T) {
 		env := NewEnv()
-		recs := []*ui.Rectangle{
-			ui.NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
-			ui.NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
-			ui.NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
+		recs := []*Rectangle{
+			NewRectangle(env.canvas, 50, 150, color.Gray{Y: 100}),
+			NewRectangle(env.canvas, 150, 50, color.Gray{Y: 150}),
+			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
 		hs := ui.NewHStack()
@@ -245,8 +214,8 @@ func TestHStack_Render(t *testing.T) {
 	t.Run("remove button", func(t *testing.T) {
 		env := NewEnv()
 		hs := ui.NewHStack()
-		btn1 := ui.NewButton(NewRectangle(env.image, 200, 100, color.Gray{Y: 100}))
-		btn2 := ui.NewButton(NewRectangle(env.image, 200, 100, color.Gray{Y: 200}))
+		btn1 := ui.NewButton(NewRectangle(env.canvas, 200, 100, color.Gray{Y: 100}))
+		btn2 := ui.NewButton(NewRectangle(env.canvas, 200, 100, color.Gray{Y: 200}))
 		_ = btn1.AttachTo(hs)
 		_ = btn2.AttachTo(hs)
 

@@ -32,7 +32,7 @@ func (a *App) NewModal(content ModalContent) *Modal {
 
 func (m *Modal) Open() {
 	b := m.app.Canvas.Image().Bounds()
-	backdropBtn := ui.NewButton(ui.NewRectangle(m.app.Canvas, b.Dx(), b.Dy(), color.Transparent))
+	backdropBtn := ui.NewButton(NewRectangle(m.app.Canvas, b.Dx(), b.Dy(), color.Transparent))
 	m.backdropId = m.app.Touch.AddTapHandler(backdropBtn, func() {})
 	_ = backdropBtn.AttachTo(m.backdrop)
 

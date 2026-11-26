@@ -39,7 +39,7 @@ func TestVStack_Remove(t *testing.T) {
 	t.Run("one item", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		r := NewRect(env.image, 0, 0, 100, 50, color.White)
+		r := NewRectangle(env.canvas, 100, 50, color.White)
 		vs.Add(r)
 		require.Equal(t, vs.Remove(r), 1)
 	})
@@ -47,7 +47,7 @@ func TestVStack_Remove(t *testing.T) {
 	t.Run("two items", func(t *testing.T) {
 		env := NewEnv()
 		vs := ui.NewVStack()
-		r := NewRect(env.image, 0, 0, 100, 50, color.White)
+		r := NewRectangle(env.canvas, 100, 50, color.White)
 		vs.Add(r)
 		vs.Add(r)
 		require.Equal(t, vs.Remove(r), 2)
@@ -58,13 +58,13 @@ func TestStack_Clear(t *testing.T) {
 	env := NewEnv()
 	s := ui.NewHStack()
 
-	btn := ui.NewButton(ui.NewRectangle(env.canvas, 50, 50, color.Black))
+	btn := ui.NewButton(NewRectangle(env.canvas, 50, 50, color.Black))
 	_ = btn.AttachTo(s)
 
 	s1 := ui.NewVStack()
 	_ = s1.AttachTo(s)
 
-	r := ui.NewRectangle(env.canvas, 50, 50, color.Black)
+	r := NewRectangle(env.canvas, 50, 50, color.Black)
 	s.Add(r)
 
 	s.Clear()
