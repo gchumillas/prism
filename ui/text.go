@@ -4,6 +4,7 @@ import (
 	"hash/maphash"
 	"image"
 	"image/color"
+	"image/draw"
 	"math"
 	"strings"
 	"unicode"
@@ -15,7 +16,7 @@ import (
 )
 
 type Text struct {
-	canvas   *image.RGBA
+	canvas   draw.Image
 	text     string
 	width    int
 	fontSize float64
@@ -35,7 +36,7 @@ func (val WithColor) ApplyText(l *Text) {
 	l.color.B = uint8(v)
 }
 
-func NewText(canvas *image.RGBA, text string, width int, opts ...TextOption) *Text {
+func NewText(canvas draw.Image, text string, width int, opts ...TextOption) *Text {
 	t := &Text{
 		canvas:   canvas,
 		text:     text,

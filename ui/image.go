@@ -13,13 +13,13 @@ import (
 var imgCounter atomic.Uint64
 
 type Image struct {
-	canvas *image.RGBA
+	canvas draw.Image
 	img    image.Image
 	id     uint64
 }
 
 // TODO: split LoadImage into LoadPNGImage and LoadJPEGImage
-func LoadImage(canvas *image.RGBA, r io.Reader) (*Image, error) {
+func LoadImage(canvas draw.Image, r io.Reader) (*Image, error) {
 	var err error
 	img := &Image{canvas: canvas, id: imgCounter.Add(1)}
 	if img.img, _, err = image.Decode(r); err != nil {

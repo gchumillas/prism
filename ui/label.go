@@ -4,6 +4,7 @@ import (
 	"hash/maphash"
 	"image"
 	"image/color"
+	"image/draw"
 	"math"
 
 	"golang.org/x/image/font"
@@ -12,7 +13,7 @@ import (
 )
 
 type Label struct {
-	canvas   *image.RGBA
+	canvas   draw.Image
 	text     string
 	fontSize float64
 	color    color.NRGBA
@@ -35,7 +36,7 @@ func (val WithColor) ApplyLabel(l *Label) {
 	l.color.B = uint8(v)
 }
 
-func NewLabel(canvas *image.RGBA, text string, opts ...LabelOption) *Label {
+func NewLabel(canvas draw.Image, text string, opts ...LabelOption) *Label {
 	l := &Label{
 		canvas:   canvas,
 		fontSize: defaultFontSize,
