@@ -17,9 +17,18 @@ type ImageButton struct {
 	size   image.Point
 }
 
-func LoadImageButton(c *image.RGBA, r io.Reader) (_ *ui.Button, err error) {
+func LoadImageButtonFromPNG(c *image.RGBA, r io.Reader) (_ *ui.Button, err error) {
 	ib := &ImageButton{canvas: gg.NewContextForRGBA(c)}
-	if ib.img, err = ui.LoadImage(c, r); err != nil {
+	if ib.img, err = ui.LoadImageFromPNG(c, r); err != nil {
+		return
+	}
+	ib.size = ib.img.Size().Add(imgBtnPad.Mul(2))
+	return ui.NewButton(ib), nil
+}
+
+func LoadImageButtonFromJPEG(c *image.RGBA, r io.Reader) (_ *ui.Button, err error) {
+	ib := &ImageButton{canvas: gg.NewContextForRGBA(c)}
+	if ib.img, err = ui.LoadImageFromJPEG(c, r); err != nil {
 		return
 	}
 	ib.size = ib.img.Size().Add(imgBtnPad.Mul(2))

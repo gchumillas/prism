@@ -20,6 +20,7 @@ type Env struct {
 	canvas *image.RGBA
 }
 
+// TODO: remove this
 func NewEnv() *Env {
 	c := image.NewRGBA(image.Rect(0, 0, 640, 480))
 	return &Env{canvas: c}
