@@ -39,7 +39,7 @@ func (m *Modal) Open() {
 	m.content.Mount()
 
 	size := m.content.Size()
-	m.panel.Add(ui.NewRectangle(m.app.Canvas, size.X, size.Y, color.Gray{Y: 200}))
+	m.panel.Add(NewRectangle(m.app.Canvas, size.X, size.Y, color.Gray{Y: 200}))
 }
 
 func (m *Modal) Close() {
