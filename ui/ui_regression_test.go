@@ -3,7 +3,6 @@
 package ui_test
 
 import (
-	"fmt"
 	"hash/maphash"
 	"image"
 	"image/color"
@@ -451,7 +450,6 @@ func TestIssue126(t *testing.T) {
 		vs2.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs2.AttachTo(vs)
 		size1 := vs.Size()
-		fmt.Println(size1)
 		require.Equal(t, image.Pt(60, 100), size1)
 	})
 

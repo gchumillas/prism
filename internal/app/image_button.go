@@ -42,7 +42,7 @@ func (ib *ImageButton) Footprint() []uint64 {
 func (ib *ImageButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	hb := image.Rectangle{Min: pos, Max: pos.Add(ib.size)}
-	lineWidth := 4
+	lineWidth := 3
 	ib.canvas.SetLineWidth(float64(lineWidth))
 	ib.canvas.SetColor(color.Black)
 	ib.canvas.DrawRectangle(

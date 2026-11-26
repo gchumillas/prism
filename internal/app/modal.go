@@ -2,7 +2,6 @@ package app
 
 import (
 	"image"
-	"image/color"
 
 	"github.com/gchumillas/prism/ui"
 )
@@ -32,14 +31,14 @@ func (a *App) NewModal(content ModalContent) *Modal {
 
 func (m *Modal) Open() {
 	b := m.app.Canvas.Bounds()
-	backdropBtn := ui.NewButton(NewRectangle(m.app.Canvas, b.Dx(), b.Dy(), color.Transparent))
+	backdropBtn := ui.NewButton(NewRectangle(m.app.Canvas, b.Dx(), b.Dy(), WithFillColor(Transparent)))
 	m.backdropId = m.app.Touch.AddTapHandler(backdropBtn, func() {})
 	_ = backdropBtn.AttachTo(m.backdrop)
 
 	m.content.Mount()
 
 	size := m.content.Size()
-	m.panel.Add(NewRectangle(m.app.Canvas, size.X, size.Y, color.Gray{Y: 200}))
+	m.panel.Add(NewRectangle(m.app.Canvas, size.X, size.Y, WithFillColor(White), WithStrokeColor(Black)))
 }
 
 func (m *Modal) Close() {
