@@ -3,11 +3,10 @@ package ui
 import (
 	"image"
 	"image/draw"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"sync/atomic"
-
-	_ "image/jpeg"
-	_ "image/png"
 )
 
 var imgCounter atomic.Uint64
@@ -18,11 +17,19 @@ type Image struct {
 	id     uint64
 }
 
-// TODO: split LoadImage into LoadPNGImage and LoadJPEGImage
-func LoadImage(canvas draw.Image, r io.Reader) (*Image, error) {
+func LoadImageFromPNG(canvas draw.Image, r io.Reader) (*Image, error) {
 	var err error
 	img := &Image{canvas: canvas, id: imgCounter.Add(1)}
-	if img.img, _, err = image.Decode(r); err != nil {
+	if img.img, err = png.Decode(r); err != nil {
+		return nil, err
+	}
+	return img, err
+}
+
+func LoadImageFromJPEG(canvas draw.Image, r io.Reader) (*Image, error) {
+	var err error
+	img := &Image{canvas: canvas, id: imgCounter.Add(1)}
+	if img.img, err = jpeg.Decode(r); err != nil {
 		return nil, err
 	}
 	return img, err
