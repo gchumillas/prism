@@ -3,7 +3,9 @@
 package platform
 
 import (
+	"errors"
 	"image"
+	"slices"
 	"syscall/js"
 
 	"github.com/gchumillas/prism/internal/app"
@@ -114,14 +116,14 @@ func (t *TouchDispatcher) AddTapHandler(btn app.Tappable, action func()) int {
 	return t.count
 }
 
-// TODO: RemoveTapHandler should return an error if the identifier was not found (affects others)
-func (t *TouchDispatcher) RemoveTapHandler(id int) {
+func (t *TouchDispatcher) RemoveTapHandler(id int) error {
 	for i, h := range t.handlers {
 		if h.id == id {
-			t.handlers = append(t.handlers[:i], t.handlers[i+1:]...)
-			break
+			t.handlers = slices.Delete(t.handlers, i, i+1)
+			return nil
 		}
 	}
+	return errors.New("handler ID not found")
 }
 
 func (td *TouchDispatcher) Listen() {

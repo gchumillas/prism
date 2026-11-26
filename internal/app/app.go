@@ -17,7 +17,7 @@ type Tappable interface {
 
 type TapDispatcher interface {
 	AddTapHandler(btn Tappable, action func()) (id int)
-	RemoveTapHandler(id int)
+	RemoveTapHandler(id int) error
 	Listen()
 }
 

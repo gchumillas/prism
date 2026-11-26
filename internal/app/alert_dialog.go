@@ -26,7 +26,7 @@ func (adc *alertDialogContent) Mount() {
 
 func (adc *alertDialogContent) Unmount() {
 	adc.content.Clear()
-	adc.app.Touch.RemoveTapHandler(adc.closeId)
+	_ = adc.app.Touch.RemoveTapHandler(adc.closeId)
 }
 
 func (adc *alertDialogContent) Render(x, y int) []image.Rectangle {
