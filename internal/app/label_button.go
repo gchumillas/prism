@@ -30,7 +30,7 @@ func (lb *LabelButton) Footprint() []uint64 {
 func (lb *LabelButton) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
 	hb := image.Rectangle{Min: pos, Max: pos.Add(lb.size)}
-	lineWidth := 4
+	lineWidth := 3
 	lb.canvas.SetLineWidth(float64(lineWidth))
 	lb.canvas.DrawRectangle(
 		float64(hb.Min.X), float64(hb.Min.Y),

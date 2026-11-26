@@ -116,7 +116,15 @@ func (s *Screen) RefreshRegions(regions []Region) error {
 		return nil
 	}
 
+	size := s.canvas.Bounds().Size()
+	clipped := make([]Region, 0, len(regions))
 	for _, r := range regions {
+		r.X0, r.Y0 = max(0, r.X0), max(0, r.Y0)
+		r.X1, r.Y1 = min(size.X, r.X1), min(size.Y, r.Y1)
+		if r.X0 >= r.X1 || r.Y0 >= r.Y1 {
+			continue
+		}
+		clipped = append(clipped, r)
 		for y := r.Y0; y < r.Y1; y++ {
 			for x := r.X0; x < r.X1; x++ {
 				c := s.canvas.RGBAAt(x, y)
@@ -125,11 +133,14 @@ func (s *Screen) RefreshRegions(regions []Region) error {
 			}
 		}
 	}
+	if len(clipped) == 0 {
+		return nil
+	}
 
-	msg := make([]byte, 4+4+32*len(regions))
+	msg := make([]byte, 4+4+32*len(clipped))
 	le.PutUint32(msg[0:], uint32(msgUpdateBatch))
-	le.PutUint32(msg[4:], uint32(len(regions)))
-	for i, r := range regions {
+	le.PutUint32(msg[4:], uint32(len(clipped)))
+	for i, r := range clipped {
 		putUpdateParams(msg[8+32*i:], r)
 	}
 	if _, err := s.conn.Write(msg); err != nil {

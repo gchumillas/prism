@@ -3,30 +3,51 @@ package app
 import (
 	"image"
 	"image/color"
+	"math"
 
 	"github.com/fogleman/gg"
 )
 
 type Rectangle struct {
-	width, height int
-	fillColor     color.Color
-
-	canvas *gg.Context
+	canvas      *gg.Context
+	width       int
+	height      int
+	lineWidth   float64
+	fillColor   color.Color
+	strokeColor color.Color
 }
 
-func NewRectangle(c *image.RGBA, width, height int, fillColor color.Color) *Rectangle {
+type RectangleOption interface {
+	ApplyRectangle(*Rectangle)
+}
+
+func (val WithFillColor) ApplyRectangle(r *Rectangle)   { r.fillColor = uint32ToColor(uint32(val)) }
+func (val WithStrokeColor) ApplyRectangle(r *Rectangle) { r.strokeColor = uint32ToColor(uint32(val)) }
+func (val WithLineWidth) ApplyRectangle(r *Rectangle)   { r.lineWidth = float64(val) }
+
+func NewRectangle(c *image.RGBA, width, height int, opts ...RectangleOption) *Rectangle {
 	s := &Rectangle{
-		canvas:    gg.NewContextForRGBA(c),
-		width:     width,
-		height:    height,
-		fillColor: fillColor,
+		canvas:      gg.NewContextForRGBA(c),
+		width:       width,
+		height:      height,
+		lineWidth:   3,
+		fillColor:   color.Transparent,
+		strokeColor: color.Transparent,
+	}
+	for _, opt := range opts {
+		opt.ApplyRectangle(s)
 	}
 	return s
 }
 
 func (r *Rectangle) Footprint() []uint64 {
-	red, green, blue, alpha := r.fillColor.RGBA()
-	return []uint64{uint64(r.width), uint64(r.height), uint64(red), uint64(green), uint64(blue), uint64(alpha)}
+	r1, g1, b1, a1 := r.fillColor.RGBA()
+	r2, g2, b2, a2 := r.strokeColor.RGBA()
+	return []uint64{
+		uint64(r.width), uint64(r.height), math.Float64bits(r.lineWidth),
+		uint64(r1), uint64(g1), uint64(b1), uint64(a1),
+		uint64(r2), uint64(g2), uint64(b2), uint64(a2),
+	}
 }
 
 func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
@@ -37,8 +58,12 @@ func (r *Rectangle) Render(x, y int) (dirtyRegs []image.Rectangle) {
 		float64(rec.Dx()), float64(rec.Dy()),
 	)
 	r.canvas.SetColor(r.fillColor)
-	r.canvas.Fill()
-	return []image.Rectangle{rec}
+	r.canvas.FillPreserve()
+	r.canvas.SetLineWidth(r.lineWidth)
+	r.canvas.SetColor(r.strokeColor)
+	r.canvas.Stroke()
+	pad := int(math.Ceil(r.lineWidth/2 + 1))
+	return []image.Rectangle{rec.Inset(-pad)}
 }
 
 func (r *Rectangle) Size() image.Point {

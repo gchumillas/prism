@@ -2,9 +2,20 @@ package app
 
 import (
 	"image"
-	"image/color"
 
 	"github.com/gchumillas/prism/ui"
+)
+
+type (
+	WithFillColor   uint32
+	WithStrokeColor uint32
+	WithLineWidth   float64
+)
+
+const (
+	Black       = uint32(0x000000_ff)
+	White       = uint32(0xffffff_ff)
+	Transparent = uint32(0x000000_00)
 )
 
 type Renderer interface {
@@ -55,7 +66,7 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 func (a *App) Refresh() error {
 	// clear the canvas
 	b := a.Canvas.Bounds()
-	bg := NewRectangle(a.Canvas, b.Dx(), b.Dy(), color.White)
+	bg := NewRectangle(a.Canvas, b.Dx(), b.Dy(), WithFillColor(White))
 	bg.Render(0, 0)
 
 	var dirtyRegs []image.Rectangle

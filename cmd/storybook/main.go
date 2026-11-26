@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"os"
 
 	"github.com/gchumillas/prism/internal/app"
@@ -35,7 +34,7 @@ func (sb *Storybook) Run() error {
 
 func (sb *Storybook) Render() {
 	r := sb.canvas.Bounds()
-	app.NewRectangle(sb.canvas, r.Dx(), r.Dy(), color.White)
+	app.NewRectangle(sb.canvas, r.Dx(), r.Dy(), app.WithFillColor(app.White))
 	sb.vs.Render(100, 200)
 }
 
