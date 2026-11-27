@@ -2,6 +2,7 @@ package ui_test
 
 import (
 	"image"
+	"image/color"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
@@ -19,18 +20,24 @@ func TestLabel_Render(t *testing.T) {
 
 func TestLabel_Footprint(t *testing.T) {
 	c := image.NewRGBA(image.Rect(0, 0, 320, 240))
-	tests := []struct {
-		lb1, lb2 *ui.Label
-	}{
-		// different colors
-		{ui.NewLabel(c, "label", ui.WithColor(0x110011)), ui.NewLabel(c, "label", ui.WithColor(0x001100))},
-		{ui.NewLabel(c, "label", ui.WithAlpha(0x01)), ui.NewLabel(c, "label", ui.WithAlpha(0x02))},
-		// different font sizes
-		{ui.NewLabel(c, "label", ui.WithFontSize(12)), ui.NewLabel(c, "label", ui.WithFontSize(12.5))},
-		// different texts
-		{ui.NewLabel(c, "label 1"), ui.NewLabel(c, "label 2")},
-	}
-	for _, test := range tests {
-		require.NotEqual(t, test.lb1.Footprint(), test.lb2.Footprint())
-	}
+
+	t.Run("color", func(t *testing.T) {
+		l1 := ui.NewLabel(c, "label")
+		l2 := ui.NewLabel(c, "label")
+		l1.Color = color.Black
+		l2.Color = color.Transparent
+		require.NotEqual(t, l1.Footprint(), l2.Footprint())
+	})
+
+	t.Run("font size", func(t *testing.T) {
+		l1 := ui.NewLabel(c, "label", ui.WithFontSize(12))
+		l2 := ui.NewLabel(c, "label", ui.WithFontSize(12.5))
+		require.NotEqual(t, l1.Footprint(), l2.Footprint())
+	})
+
+	t.Run("texts", func(t *testing.T) {
+		l1 := ui.NewLabel(c, "label 1")
+		l2 := ui.NewLabel(c, "label 2")
+		require.NotEqual(t, l1.Footprint(), l2.Footprint())
+	})
 }
