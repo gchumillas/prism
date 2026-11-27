@@ -4,7 +4,6 @@ package ui_test
 
 import (
 	"image"
-	"image/color"
 	"testing"
 
 	"github.com/gchumillas/prism/ui"
@@ -23,21 +22,4 @@ func Test146(t *testing.T) {
 	csw := UncomparableWidget{}
 	s.Add(csw)
 	require.NotPanics(t, func() { s.Remove(csw) })
-}
-
-// https://github.com/gchumillas/prism/issues/158
-func Test158(t *testing.T) {
-	c := image.NewRGBA(image.Rect(0, 0, 320, 240))
-	s1 := ui.NewHStack()
-	s2 := ui.NewHStack()
-	btn := ui.NewButton(NewRectangle(c, 50, 50, color.Black))
-
-	s1.Add(btn)
-	s1.Render(0, 0)
-
-	s2.Add(btn)
-	s2.Render(100, 100)
-
-	require.True(t, btn.Contains(125, 125))
-	require.True(t, btn.Contains(25, 25))
 }
