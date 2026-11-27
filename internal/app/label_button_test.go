@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLabelButton_Render(t *testing.T) {
+func TestLabelButton(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		vs := ui.NewVStack()

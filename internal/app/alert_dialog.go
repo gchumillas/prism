@@ -21,6 +21,7 @@ func (adc *alertDialogContent) Mount() {
 		adc.modal.Close()
 		_ = adc.app.Refresh()
 	})
+	btn.Widget().Width = adc.content.Size().X - 2*adc.content.PaddingX
 	_ = btn.AttachTo(adc.content)
 }
 
@@ -38,10 +39,13 @@ func (adc *alertDialogContent) Size() image.Point {
 }
 
 func (a *App) NewAlertDialog(text string) *Modal {
+	content := ui.NewVStack(ui.WithGap(25))
+	content.PaddingX = 25
+	content.PaddingY = 25
 	ad := &alertDialogContent{
 		app:     a,
 		text:    text,
-		content: ui.NewVStack(ui.WithPaddingX(25), ui.WithPaddingY(25), ui.WithGap(25)),
+		content: content,
 	}
 	ad.modal = a.NewModal(ad)
 	return ad.modal

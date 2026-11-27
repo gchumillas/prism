@@ -11,27 +11,27 @@ func NewHStack(opts ...StackOption) *Stack {
 }
 
 func horizontalLayoutSize(st *Stack) (size image.Point) {
-	size.X = st.paddingX
+	size.X = st.PaddingX
 	for i, child := range st.children {
 		if i > 0 {
-			size.X += st.gap
+			size.X += st.Gap
 		}
 		childSize := child.Size()
 		size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
 	}
-	size.X += st.paddingX
-	size.Y += 2 * st.paddingY
+	size.X += st.PaddingX
+	size.Y += 2 * st.PaddingY
 	return
 }
 
 func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	childStatesStartIdx := stx.prevChildStatesIdx
-	size.X = st.paddingX
+	size.X = st.PaddingX
 	for i, child := range st.children {
 		if i > 0 {
-			size.X += st.gap
+			size.X += st.Gap
 		}
-		pos := image.Pt(x+size.X, y+st.paddingY)
+		pos := image.Pt(x+size.X, y+st.PaddingY)
 		switch v := child.(type) {
 		case *Stack:
 			childRegs, childSize := v.layout(stx, v, pos.X, pos.Y)
@@ -68,8 +68,8 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image
 			panic("unsupported type")
 		}
 	}
-	size.X += st.paddingX
-	size.Y += 2 * st.paddingY
+	size.X += st.PaddingX
+	size.Y += 2 * st.PaddingY
 	st.prevChildStates = slices.Clone(stx.prevChildStates[childStatesStartIdx:stx.prevChildStatesIdx])
 	st.outdated = false
 	return

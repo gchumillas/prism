@@ -11,27 +11,27 @@ func NewVStack(opts ...StackOption) *Stack {
 }
 
 func verticalLayoutSize(st *Stack) (size image.Point) {
-	size.Y += st.paddingY
+	size.Y += st.PaddingY
 	for i, child := range st.children {
 		if i > 0 {
-			size.Y += st.gap
+			size.Y += st.Gap
 		}
 		childSize := child.Size()
 		size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
 	}
-	size.X += 2 * st.paddingX
-	size.Y += st.paddingY
+	size.X += 2 * st.PaddingX
+	size.Y += st.PaddingY
 	return
 }
 
 func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.Rectangle, size image.Point) {
 	childStatesStartIdx := stx.prevChildStatesIdx
-	size.Y += st.paddingY
+	size.Y += st.PaddingY
 	for i, child := range st.children {
 		if i > 0 {
-			size.Y += st.gap
+			size.Y += st.Gap
 		}
-		pos := image.Pt(x+st.paddingX, y+size.Y)
+		pos := image.Pt(x+st.PaddingX, y+size.Y)
 		switch v := child.(type) {
 		case *Stack:
 			childRegs, childSize := v.layout(stx, v, pos.X, pos.Y)
@@ -68,8 +68,8 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 			panic("unsupported type")
 		}
 	}
-	size.X += 2 * st.paddingX
-	size.Y += st.paddingY
+	size.X += 2 * st.PaddingX
+	size.Y += st.PaddingY
 	st.prevChildStates = slices.Clone(stx.prevChildStates[childStatesStartIdx:stx.prevChildStatesIdx])
 	st.outdated = false
 	return
