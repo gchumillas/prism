@@ -14,7 +14,7 @@ func verticalLayoutSize(st *Stack) (size image.Point) {
 	size.Y += st.PaddingY
 	for i, child := range st.children {
 		if i > 0 {
-			size.Y += st.gap
+			size.Y += st.Gap
 		}
 		childSize := child.Size()
 		size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
@@ -29,7 +29,7 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 	size.Y += st.PaddingY
 	for i, child := range st.children {
 		if i > 0 {
-			size.Y += st.gap
+			size.Y += st.Gap
 		}
 		pos := image.Pt(x+st.PaddingX, y+size.Y)
 		switch v := child.(type) {

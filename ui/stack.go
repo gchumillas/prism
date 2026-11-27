@@ -22,7 +22,7 @@ type stackContext struct {
 type Stack struct {
 	PaddingX        int
 	PaddingY        int
-	gap             int
+	Gap             int
 	children        []Drawable
 	prevChildStates []childState
 	layout          func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point)
@@ -35,7 +35,7 @@ type StackOption interface {
 	ApplyStack(*Stack)
 }
 
-func (val WithGap) ApplyStack(s *Stack) { s.gap = int(val) }
+func (val WithGap) ApplyStack(s *Stack) { s.Gap = int(val) }
 
 func newStack(layout func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point), layoutSize func(*Stack) image.Point, opts ...StackOption) *Stack {
 	s := &Stack{layout: layout, layoutSize: layoutSize}

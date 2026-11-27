@@ -14,7 +14,7 @@ func horizontalLayoutSize(st *Stack) (size image.Point) {
 	size.X = st.PaddingX
 	for i, child := range st.children {
 		if i > 0 {
-			size.X += st.gap
+			size.X += st.Gap
 		}
 		childSize := child.Size()
 		size.X, size.Y = size.X+childSize.X, max(size.Y, childSize.Y)
@@ -29,7 +29,7 @@ func horizontalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image
 	size.X = st.PaddingX
 	for i, child := range st.children {
 		if i > 0 {
-			size.X += st.gap
+			size.X += st.Gap
 		}
 		pos := image.Pt(x+size.X, y+st.PaddingY)
 		switch v := child.(type) {
