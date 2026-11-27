@@ -119,7 +119,8 @@ func TestVStack_AddButton(t *testing.T) {
 func TestVStack_Render(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		env := NewEnv()
-		vs := ui.NewVStack(ui.WithGap(10))
+		vs := ui.NewVStack()
+		vs.Gap = 10
 		vs.Add(NewBox(env.canvas, 0, 0, 100, 50, color.Black))
 		vs.Add(NewBox(env.canvas, 0, 0, 50, 50, color.White))
 		size := vs.Size()
@@ -333,7 +334,8 @@ func TestVStack_Render(t *testing.T) {
 			NewBox(env.canvas, 0, 0, 100, 50, color.White),
 			NewSuperBox(env.canvas, 0, 50, 100, 100, color.White),
 		}
-		vs := ui.NewVStack(ui.WithGap(10))
+		vs := ui.NewVStack()
+		vs.Gap = 10
 		for _, rec := range recs {
 			vs.Add(rec)
 		}

@@ -101,7 +101,8 @@ func TestIssue73(t *testing.T) {
 		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		sq1 := NewSquare(c, 50, 10) // square with a border
 		sq2 := NewSquare(c, 50, 0)  // square without a border
-		hs := ui.NewHStack(ui.WithGap(50))
+		hs := ui.NewHStack()
+		hs.Gap = 50
 		hs.Add(sq1)
 		hs.Add(sq2)
 		hs.Render(10, 10)
