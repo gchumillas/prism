@@ -433,20 +433,24 @@ func TestIssue126(t *testing.T) {
 	t.Run("case 6", func(t *testing.T) {
 		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		hs := ui.NewHStack()
-		hs1 := ui.NewHStack(ui.WithPaddingY(5))
+		hs1 := ui.NewHStack()
+		hs1.PaddingY = 5
 		hs1.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = hs1.AttachTo(hs)
-		hs2 := ui.NewHStack(ui.WithPaddingY(5))
+		hs2 := ui.NewHStack()
+		hs2.PaddingY = 5
 		hs2.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = hs2.AttachTo(hs)
 		size := hs.Size()
 		require.Equal(t, image.Pt(100, 60), size)
 
 		vs := ui.NewVStack()
-		vs1 := ui.NewVStack(ui.WithPaddingX(5))
+		vs1 := ui.NewVStack()
+		vs1.PaddingX = 5
 		vs1.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs1.AttachTo(vs)
-		vs2 := ui.NewVStack(ui.WithPaddingX(5))
+		vs2 := ui.NewVStack()
+		vs2.PaddingX = 5
 		vs2.Add(NewRectangle(c, 50, 50, color.Black))
 		_ = vs2.AttachTo(vs)
 		size1 := vs.Size()
@@ -483,7 +487,8 @@ func TestPull132(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/132#discussion_r4621777577
 	t.Run("case 1", func(t *testing.T) {
 		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
-		hs := ui.NewHStack(ui.WithPaddingX(5))
+		hs := ui.NewHStack()
+		hs.PaddingX = 5
 		hs.Add(NewRectangle(c, 50, 50, color.Black))
 		size := hs.Size()
 		require.Equal(t, image.Pt(60, 50), size)
@@ -492,7 +497,8 @@ func TestPull132(t *testing.T) {
 	// https://github.com/gchumillas/prism/pull/132#discussion_r4621777666
 	t.Run("case 2", func(t *testing.T) {
 		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
-		vs := ui.NewVStack(ui.WithPaddingY(5))
+		vs := ui.NewVStack()
+		vs.PaddingY = 5
 		vs.Add(NewRectangle(c, 50, 50, color.Black))
 		size1 := vs.Size()
 		require.Equal(t, image.Pt(50, 60), size1)

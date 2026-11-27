@@ -14,6 +14,7 @@ type labelButtonWidget struct {
 	canvas *gg.Context
 	label  *ui.Label
 	size   image.Point
+	Width  int
 }
 
 func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *ui.Button[*labelButtonWidget] {
@@ -24,12 +25,12 @@ func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *ui.Butt
 }
 
 func (lbw *labelButtonWidget) Footprint() []uint64 {
-	return lbw.label.Footprint()
+	return append([]uint64{uint64(lbw.Width)}, lbw.label.Footprint()...)
 }
 
 func (lbw *labelButtonWidget) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	pos := image.Pt(x, y)
-	hb := image.Rectangle{Min: pos, Max: pos.Add(lbw.size)}
+	hb := image.Rectangle{Min: pos, Max: pos.Add(lbw.Size())}
 	lineWidth := 3
 	lbw.canvas.SetLineWidth(float64(lineWidth))
 	lbw.canvas.DrawRectangle(
@@ -46,5 +47,7 @@ func (lbw *labelButtonWidget) Render(x, y int) (dirtyRegs []image.Rectangle) {
 }
 
 func (lbw *labelButtonWidget) Size() image.Point {
-	return lbw.size
+	size := lbw.size
+	size.X = max(lbw.Width, lbw.size.X)
+	return size
 }
