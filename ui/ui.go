@@ -34,12 +34,8 @@ var (
 	ErrNeedsRender = errors.New("call Render() first")
 )
 
-type Drawable interface {
+type Widget interface {
 	Render(x, y int) (dirtyRegs []image.Rectangle)
 	Size() image.Point
-}
-
-type Widget interface {
-	Drawable
 	Footprint() []uint64
 }

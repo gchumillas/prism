@@ -7,6 +7,11 @@ import (
 	"slices"
 )
 
+type drawable interface {
+	Render(x, y int) (dirtyRegs []image.Rectangle)
+	Size() image.Point
+}
+
 type childState struct {
 	pos       image.Point
 	regs      []image.Rectangle
@@ -23,7 +28,7 @@ type Stack struct {
 	PaddingX        int
 	PaddingY        int
 	Gap             int
-	children        []Drawable
+	children        []drawable
 	prevChildStates []childState
 	layout          func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point)
 	layoutSize      func(*Stack) image.Point
@@ -41,7 +46,7 @@ func (s *Stack) Add(child Widget) {
 
 func (s *Stack) Remove(child Widget) (n int) {
 	oldLen := len(s.children)
-	s.children = slices.DeleteFunc(s.children, func(c Drawable) bool {
+	s.children = slices.DeleteFunc(s.children, func(c drawable) bool {
 		return c == child
 	})
 	return oldLen - len(s.children)
@@ -64,7 +69,7 @@ func (s *Stack) AttachTo(parent *Stack) error {
 }
 
 func (s *Stack) DetachFrom(parent *Stack) error {
-	if i := slices.IndexFunc(parent.children, func(x Drawable) bool {
+	if i := slices.IndexFunc(parent.children, func(x drawable) bool {
 		return x == s
 	}); i > -1 {
 		parent.children = slices.Delete(parent.children, i, i+1)

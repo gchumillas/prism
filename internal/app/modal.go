@@ -7,9 +7,10 @@ import (
 )
 
 type ModalContent interface {
-	ui.Drawable
 	Mount()
 	Unmount()
+	Render(x, y int) (dirtyRegs []image.Rectangle)
+	Size() image.Point
 }
 
 type Modal struct {
