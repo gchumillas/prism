@@ -17,9 +17,9 @@ type labelButtonWidget struct {
 	Width  int
 }
 
-func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *ui.Button[*labelButtonWidget] {
+func NewLabelButton(c *image.RGBA, text string, fontSize float64) *ui.Button[*labelButtonWidget] {
 	lbw := &labelButtonWidget{canvas: gg.NewContextForRGBA(c)}
-	lbw.label = ui.NewLabel(c, text, opts...)
+	lbw.label = ui.NewLabel(c, text, fontSize)
 	lbw.size = lbw.label.Size().Add(labelBtnPad.Mul(2))
 	return ui.NewButton(lbw)
 }

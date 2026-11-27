@@ -53,7 +53,7 @@ func NewApp(trackpad TapDispatcher, screen Renderer, canvas *image.RGBA, fontSiz
 	a.vs = ui.NewVStack()
 	a.vs.PaddingX = 100
 	a.vs.PaddingY = 50
-	btn := NewLabelButton(canvas, "Click me!", ui.WithFontSize(a.FontSize))
+	btn := NewLabelButton(canvas, "Click me!", a.FontSize)
 	_ = btn.AttachTo(a.vs)
 
 	a.ad = a.NewAlertDialog("Hi there!")

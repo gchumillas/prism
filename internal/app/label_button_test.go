@@ -13,7 +13,7 @@ func TestLabelButton(t *testing.T) {
 	t.Run("size", func(t *testing.T) {
 		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		vs := ui.NewVStack()
-		btn := app.NewLabelButton(c, "Hello, World!")
+		btn := app.NewLabelButton(c, "Hello, World!", 10)
 		_ = btn.AttachTo(vs)
 		size := vs.Size()
 		require.Equal(t, image.Pt(257, 75), size)
@@ -22,7 +22,7 @@ func TestLabelButton(t *testing.T) {
 	t.Run("Contains", func(t *testing.T) {
 		c := image.NewRGBA(image.Rect(0, 0, 320, 240))
 		vs := ui.NewVStack()
-		btn := app.NewLabelButton(c, "Click me!")
+		btn := app.NewLabelButton(c, "Click me!", 10)
 		_ = btn.AttachTo(vs)
 		vs.Render(100, 50)
 
