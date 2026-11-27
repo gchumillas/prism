@@ -16,18 +16,11 @@ type labelButtonWidget struct {
 	size   image.Point
 }
 
-type LabelButton struct {
-	*ui.Button
-	widget *labelButtonWidget
-}
-
-func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *LabelButton {
-	lb := &LabelButton{}
-	lb.widget = &labelButtonWidget{canvas: gg.NewContextForRGBA(c)}
-	lb.widget.label = ui.NewLabel(c, text, opts...)
-	lb.widget.size = lb.widget.label.Size().Add(labelBtnPad.Mul(2))
-	lb.Button = ui.NewButton(lb.widget)
-	return lb
+func NewLabelButton(c *image.RGBA, text string, opts ...ui.LabelOption) *ui.Button[*labelButtonWidget] {
+	lbw := &labelButtonWidget{canvas: gg.NewContextForRGBA(c)}
+	lbw.label = ui.NewLabel(c, text, opts...)
+	lbw.size = lbw.label.Size().Add(labelBtnPad.Mul(2))
+	return ui.NewButton(lbw)
 }
 
 func (lbw *labelButtonWidget) Footprint() []uint64 {
