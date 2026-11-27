@@ -15,8 +15,8 @@ type alertDialogContent struct {
 }
 
 func (adc *alertDialogContent) Mount() {
-	adc.content.Add(ui.NewText(adc.app.Canvas, adc.text, 600))
-	btn := NewLabelButton(adc.app.Canvas, "Close")
+	adc.content.Add(ui.NewText(adc.app.Canvas, adc.text, adc.app.FontSize, 600))
+	btn := NewLabelButton(adc.app.Canvas, "Close", adc.app.FontSize)
 	adc.closeId = adc.app.Touch.AddTapHandler(btn, func() {
 		adc.modal.Close()
 		_ = adc.app.Refresh()

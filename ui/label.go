@@ -23,23 +23,12 @@ type Label struct {
 	ascent  int
 }
 
-type LabelOption interface {
-	ApplyLabel(*Label)
-}
-
-func (val WithFontSize) ApplyLabel(l *Label) { l.fontSize = float64(val) }
-
-// l := NewLabel(...)
-// l.Color = color.Black
-func NewLabel(canvas draw.Image, text string, opts ...LabelOption) *Label {
+func NewLabel(canvas draw.Image, text string, fontSize float64) *Label {
 	l := &Label{
 		canvas:   canvas,
-		fontSize: defaultFontSize,
+		fontSize: fontSize,
 		Color:    defaultColor,
 		text:     text,
-	}
-	for _, opt := range opts {
-		opt.ApplyLabel(l)
 	}
 
 	var err error

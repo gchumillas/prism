@@ -11,9 +11,8 @@ import (
 )
 
 var (
-	defaultFontSize = 10.
-	defaultColor    = color.NRGBA{A: 0xff}
-	defaultDPI      = 226.
+	defaultColor = color.NRGBA{A: 0xff}
+	defaultDPI   = 226.
 )
 
 // add ui.Font() option

@@ -23,22 +23,13 @@ type Text struct {
 	Color    color.Color
 }
 
-type TextOption interface {
-	ApplyText(*Text)
-}
-
-func (val WithFontSize) ApplyText(l *Text) { l.fontSize = float64(val) }
-
-func NewText(canvas draw.Image, text string, width int, opts ...TextOption) *Text {
+func NewText(canvas draw.Image, text string, fontSize float64, width int) *Text {
 	t := &Text{
 		canvas:   canvas,
 		text:     text,
 		width:    width,
-		fontSize: defaultFontSize,
+		fontSize: fontSize,
 		Color:    defaultColor,
-	}
-	for _, opt := range opts {
-		opt.ApplyText(t)
 	}
 	return t
 }
