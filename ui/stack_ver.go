@@ -32,25 +32,18 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 			size.Y += st.gap
 		}
 		pos := image.Pt(x+st.paddingX, y+size.Y)
-		if v, ok := child.(*Stack); ok {
+		switch v := child.(type) {
+		case *Stack:
 			childRegs, childSize := v.layout(stx, v, pos.X, pos.Y)
 			dirtyRegs = append(dirtyRegs, childRegs...)
 			size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
-		} else {
-			childRegs := child.Render(pos.X, pos.Y)
-			childSize := child.Size()
+		case Widget:
+			childRegs := v.Render(pos.X, pos.Y)
+			childSize := v.Size()
 			size.X, size.Y = max(size.X, childSize.X), size.Y+childSize.Y
-			var footprint []uint64
-			switch v := child.(type) {
-			case *Button:
-				footprint = v.widget.Footprint()
-			case Widget:
-				footprint = v.Footprint()
-			default:
-				panic("unsupported type")
-			}
-			typ := reflect.TypeOf(child)
+			typ := reflect.TypeOf(v)
 			if stx.prevChildStatesIdx < len(stx.prevChildStates) {
+				footprint := v.Footprint()
 				prev := &stx.prevChildStates[stx.prevChildStatesIdx]
 				hasChanged := prev.pos != pos || prev.typ != typ || !slices.Equal(prev.footprint, footprint)
 				if hasChanged {
@@ -65,12 +58,14 @@ func verticalLayout(stx *stackContext, st *Stack, x, y int) (dirtyRegs []image.R
 				stx.prevChildStates = append(stx.prevChildStates, childState{
 					pos:       pos,
 					typ:       typ,
-					footprint: footprint,
+					footprint: v.Footprint(),
 					regs:      childRegs,
 				})
 				dirtyRegs = append(dirtyRegs, childRegs...)
 			}
 			stx.prevChildStatesIdx++
+		default:
+			panic("unsupported type")
 		}
 	}
 	size.X += 2 * st.paddingX
