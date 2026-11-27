@@ -20,7 +20,7 @@ type Text struct {
 	text     string
 	width    int
 	fontSize float64
-	color    color.NRGBA
+	Color    color.Color
 }
 
 type TextOption interface {
@@ -28,13 +28,6 @@ type TextOption interface {
 }
 
 func (val WithFontSize) ApplyText(l *Text) { l.fontSize = float64(val) }
-func (val WithAlpha) ApplyText(l *Text)    { l.color.A = uint8(val) }
-func (val WithColor) ApplyText(l *Text) {
-	v := uint32(val)
-	l.color.R = uint8(v >> 16)
-	l.color.G = uint8(v >> 8)
-	l.color.B = uint8(v)
-}
 
 func NewText(canvas draw.Image, text string, width int, opts ...TextOption) *Text {
 	t := &Text{
@@ -42,7 +35,7 @@ func NewText(canvas draw.Image, text string, width int, opts ...TextOption) *Tex
 		text:     text,
 		width:    width,
 		fontSize: defaultFontSize,
-		color:    defaultColor,
+		Color:    defaultColor,
 	}
 	for _, opt := range opts {
 		opt.ApplyText(t)
@@ -51,8 +44,8 @@ func NewText(canvas draw.Image, text string, width int, opts ...TextOption) *Tex
 }
 
 func (t *Text) Footprint() []uint64 {
-	r, g, b, a := t.color.R, t.color.G, t.color.B, t.color.A
-	c := uint32(r)<<24 | uint32(g)<<16 | uint32(b)<<8 | uint32(a)
+	r, g, b, a := t.Color.RGBA()
+	c := uint64(r)<<48 | uint64(g)<<32 | uint64(b)<<16 | uint64(a)
 	return []uint64{math.Float64bits(t.fontSize), uint64(c), uint64(t.width), maphash.String(seed, t.text)}
 }
 
@@ -71,7 +64,7 @@ func (t *Text) Render(x, y int) (dirtyRegs []image.Rectangle) {
 	ascent := m.Ascent.Ceil()
 	lineh := m.Height.Ceil()
 
-	d := &font.Drawer{Dst: t.canvas, Src: image.NewUniform(t.color), Face: face}
+	d := &font.Drawer{Dst: t.canvas, Src: image.NewUniform(t.Color), Face: face}
 	h := ascent
 	lines := splitIntoLines(face, t.text, t.width)
 	for _, line := range lines {
