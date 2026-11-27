@@ -6,8 +6,8 @@ import (
 	"slices"
 )
 
-func NewHStack(opts ...StackOption) *Stack {
-	return newStack(horizontalLayout, horizontalLayoutSize, opts...)
+func NewHStack() *Stack {
+	return newStack(horizontalLayout, horizontalLayoutSize)
 }
 
 func horizontalLayoutSize(st *Stack) (size image.Point) {

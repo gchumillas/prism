@@ -31,18 +31,8 @@ type Stack struct {
 	attached        bool
 }
 
-type StackOption interface {
-	ApplyStack(*Stack)
-}
-
-func (val WithGap) ApplyStack(s *Stack) { s.Gap = int(val) }
-
-func newStack(layout func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point), layoutSize func(*Stack) image.Point, opts ...StackOption) *Stack {
-	s := &Stack{layout: layout, layoutSize: layoutSize}
-	for _, opt := range opts {
-		opt.ApplyStack(s)
-	}
-	return s
+func newStack(layout func(*stackContext, *Stack, int, int) ([]image.Rectangle, image.Point), layoutSize func(*Stack) image.Point) *Stack {
+	return &Stack{layout: layout, layoutSize: layoutSize}
 }
 
 func (s *Stack) Add(child Widget) {

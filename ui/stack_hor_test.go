@@ -26,7 +26,8 @@ func TestHStack_Render(t *testing.T) {
 			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(ui.WithGap(10))
+		hs := ui.NewHStack()
+		hs.Gap = 10
 		for _, r := range recs {
 			hs.Add(r)
 		}
@@ -86,7 +87,8 @@ func TestHStack_Render(t *testing.T) {
 			NewRectangle(env.canvas, 100, 100, color.Gray{Y: 200}),
 		}
 
-		hs := ui.NewHStack(ui.WithGap(10))
+		hs := ui.NewHStack()
+		hs.Gap = 10
 		for _, r := range recs {
 			hs.Add(r)
 		}

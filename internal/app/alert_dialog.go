@@ -39,9 +39,10 @@ func (adc *alertDialogContent) Size() image.Point {
 }
 
 func (a *App) NewAlertDialog(text string) *Modal {
-	content := ui.NewVStack(ui.WithGap(25))
+	content := ui.NewVStack()
 	content.PaddingX = 25
 	content.PaddingY = 25
+	content.Gap = 25
 	ad := &alertDialogContent{
 		app:     a,
 		text:    text,

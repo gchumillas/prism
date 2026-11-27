@@ -6,8 +6,8 @@ import (
 	"slices"
 )
 
-func NewVStack(opts ...StackOption) *Stack {
-	return newStack(verticalLayout, verticalLayoutSize, opts...)
+func NewVStack() *Stack {
+	return newStack(verticalLayout, verticalLayoutSize)
 }
 
 func verticalLayoutSize(st *Stack) (size image.Point) {
