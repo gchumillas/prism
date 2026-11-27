@@ -3,13 +3,31 @@ package ui
 import (
 	"fmt"
 	"image"
-	"slices"
 )
 
+type buttonWrapper[T Widget] struct {
+	*Button[T]
+}
+
+func (cb *buttonWrapper[T]) Render(x, y int) []image.Rectangle {
+	dirtyRegs := cb.widget.Render(x, y)
+	pos := image.Pt(x, y)
+	cb.bounds = image.Rectangle{Min: pos, Max: pos.Add(cb.Size())}
+	return dirtyRegs
+}
+
+func (cb *buttonWrapper[T]) Size() image.Point {
+	return cb.widget.Size()
+}
+
+func (cb *buttonWrapper[T]) Footprint() []uint64 {
+	return cb.widget.Footprint()
+}
+
 type Button[T Widget] struct {
-	widget   T
-	bounds   image.Rectangle
-	attached bool
+	wrapper Widget
+	widget  T
+	bounds  image.Rectangle
 }
 
 func NewButton[T Widget](w T) *Button[T] {
@@ -25,21 +43,18 @@ func (b *Button[T]) Widget() T {
 }
 
 func (b *Button[T]) AttachTo(parent *Stack) error {
-	if b.attached {
+	if b.wrapper != nil {
 		return fmt.Errorf("button: %w", ErrAttached)
 	}
-	parent.children = append(parent.children, b)
-	b.attached = true
+	b.wrapper = &buttonWrapper[T]{Button: b}
+	parent.Add(b.wrapper)
 	return nil
 }
 
 func (b *Button[T]) DetachFrom(parent *Stack) error {
-	if i := slices.IndexFunc(parent.children, func(x Drawable) bool {
-		return x == b
-	}); i > -1 {
-		parent.children = slices.Delete(parent.children, i, i+1)
-		b.attached = false
+	if parent.Remove(b.wrapper) > 0 {
 		parent.outdated = true
+		b.wrapper = nil
 		return nil
 	}
 	return ErrNotAttached
@@ -50,10 +65,6 @@ func (b *Button[T]) Render(x, y int) []image.Rectangle {
 	pos := image.Pt(x, y)
 	b.bounds = image.Rectangle{Min: pos, Max: pos.Add(b.widget.Size())}
 	return dirtyRegs
-}
-
-func (b *Button[T]) Footprint() []uint64 {
-	return b.widget.Footprint()
 }
 
 func (b *Button[T]) Size() image.Point {
