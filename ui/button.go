@@ -59,14 +59,3 @@ func (b *Button[T]) DetachFrom(parent *Stack) error {
 	}
 	return ErrNotAttached
 }
-
-func (b *Button[T]) Render(x, y int) []image.Rectangle {
-	dirtyRegs := b.widget.Render(x, y)
-	pos := image.Pt(x, y)
-	b.bounds = image.Rectangle{Min: pos, Max: pos.Add(b.widget.Size())}
-	return dirtyRegs
-}
-
-func (b *Button[T]) Size() image.Point {
-	return b.widget.Size()
-}
